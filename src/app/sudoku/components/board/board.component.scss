@@ -46,10 +46,66 @@
 
   &.non-editable {
     cursor: not-allowed;
-    opacity: 0.8;
-    
+
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: $lightest;
+    }
+  }
+
+  &.number-highlighted {
+    color: $primary;
+    background-color: $lightest;
+    //background-color: rgba(255, 168, 0, 0.2); // Warning color with transparency
+    //border: 2px solid $warning;
+
+    .main-number {
+      //color: $warning;
+      //font-weight: bold;
+    }
+
+    .note {
+      color: $warning;
+      font-weight: bold;
+    }
+  }
+
+  &.current-number-highlighted {
+    background-color: rgba(37, 190, 118, 0.3); // Success color with transparency
+    border: 2px solid $success;
+
+    .main-number {
+      color: $success;
+      font-weight: bold;
+    }
+
+    .note {
+      color: $success;
+      font-weight: bold;
+    }
+  }
+
+  &.related-highlighted {
+    background-color: rgba(54, 153, 255, 0.1); // Info color with transparency
+    border: 1px solid rgba(54, 153, 255, 0.3);
+  }
+
+  // Override related highlighting for selected cell
+  &.selected.related-highlighted {
+    background-color: $primary;
+    border: 2px solid $primary;
+  }
+
+  // Override number highlighting for selected cell
+  &.selected.number-highlighted {
+    background-color: $primary;
+    border: 2px solid $primary;
+
+    .main-number {
+      color: $lightest;
+    }
+
+    .note {
+      color: $lightest;
     }
   }
 

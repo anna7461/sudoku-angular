@@ -4,6 +4,7 @@ import {Cell} from './models/cell.model';
 import {BoardComponent} from './components/board/board.component';
 import {HostListener} from '@angular/core';
 import {NumberPadComponent} from './components/number-pad/number-pad.component';
+import {ControlsComponent} from './components/controls/controls.component';
 import { isValidMove, isBoardValid, isCellPlacementValid } from '../sudoku/components/utils/validation';
 
 @Component({
@@ -12,7 +13,8 @@ import { isValidMove, isBoardValid, isCellPlacementValid } from '../sudoku/compo
   templateUrl: './sudoku.component.html',
   imports: [
     BoardComponent,
-    NumberPadComponent
+    NumberPadComponent,
+    ControlsComponent
   ],
   styleUrls: ['./sudoku.component.scss']
 })
@@ -27,6 +29,7 @@ export class SudokuComponent implements OnInit {
 
   selectedBoxIndex: number | null = null;
   selectedCellIndex: number | null = null;
+  currentNumber: number | null = null; // Track current number being entered
 
   ngOnInit() {
     // Use setTimeout to prevent immediate state changes that cause blinking
@@ -41,8 +44,19 @@ export class SudokuComponent implements OnInit {
         boxes: this.boxes,
         timestamp: Date.now()
       };
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(gameState));
-      console.log('Game state saved to localStorage');
+      console.log('Saving game state:', gameState);
+      console.log('Boxes to save:', this.boxes);
+      console.log('Boxes length:', this.boxes.length);
+      
+      const jsonString = JSON.stringify(gameState);
+      console.log('JSON string to save:', jsonString);
+      
+      localStorage.setItem(this.STORAGE_KEY, jsonString);
+      console.log('Game state saved to localStorage successfully');
+      
+      // Verify it was saved
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      console.log('Verification - retrieved from localStorage:', saved);
     } catch (error) {
       console.error('Failed to save game state:', error);
     }
@@ -54,14 +68,18 @@ export class SudokuComponent implements OnInit {
     
     try {
       const savedState = localStorage.getItem(this.STORAGE_KEY);
+      console.log('Raw saved state from localStorage:', savedState);
+      
       if (savedState) {
         const gameState = JSON.parse(savedState);
-        // Check if saved state is recent (within last 24 hours)
-        const isRecent = (Date.now() - gameState.timestamp) < 24 * 60 * 60 * 1000;
+        console.log('Parsed game state:', gameState);
+        console.log('Boxes in saved state:', gameState.boxes);
+        console.log('Boxes length:', gameState.boxes?.length);
         
-        if (isRecent && gameState.boxes && gameState.boxes.length > 0) {
+        if (gameState.boxes && gameState.boxes.length > 0) {
           this.boxes = gameState.boxes;
-          console.log('Game state loaded from localStorage');
+          console.log('Game state loaded from localStorage successfully');
+          console.log('Loaded boxes:', this.boxes);
           
           // Ensure minimum loading time
           const elapsed = Date.now() - startTime;
@@ -71,14 +89,18 @@ export class SudokuComponent implements OnInit {
             this.isLoading = false;
           }, remaining);
           return;
+        } else {
+          console.log('Saved state exists but boxes are invalid or empty');
         }
+      } else {
+        console.log('No saved state found in localStorage');
       }
     } catch (error) {
       console.error('Failed to load game state:', error);
     }
     
     // If no valid saved state, initialize with default puzzle
-    console.log('Initializing new game');
+    console.log('Initializing new game - no valid saved state found');
     this.initializeBoard();
     
     // Ensure minimum loading time
@@ -106,6 +128,7 @@ export class SudokuComponent implements OnInit {
     this.clearGameState();
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
+    this.currentNumber = null;
     
     // Small delay to prevent blinking
     setTimeout(() => {
@@ -127,6 +150,10 @@ export class SudokuComponent implements OnInit {
     console.log('Cell selected:', event);
     this.selectedBoxIndex = event.boxIndex;
     this.selectedCellIndex = event.cellIndex;
+    
+    // Clear current number when selecting a new cell
+    this.currentNumber = null;
+    
     console.log('Selection updated:', { boxIndex: this.selectedBoxIndex, cellIndex: this.selectedCellIndex });
   }
 
@@ -336,36 +363,30 @@ export class SudokuComponent implements OnInit {
     
     console.log(`Filling cell with ${num}, previous state: ${cell.state}`);
     
-    // Place the number first
+    // Check if this move is valid BEFORE placing the number
+    const moveIsValid = isValidMove(this.boxes, this.selectedBoxIndex!, this.selectedCellIndex!, num);
+    console.log(`Move validation result: ${moveIsValid}`);
+    
+    // Set current number for highlighting
+    this.currentNumber = num;
+    
+    // Place the number
     cell.value = num;
     cell.notes = [];
     
-    // Immediately remove error state when typing new number
-    cell.state = 'normal';
-    console.log(`Cell state set to normal immediately`);
+    // Set the state based on validation result
+    cell.state = moveIsValid ? 'correct' : 'error';
+    console.log(`Cell state set to: ${cell.state}`);
     
-    // Force change detection to show the normal state
+    // Clear current number after placing
+    this.currentNumber = null;
+    
+    // Force change detection to show the final state
     if (this.boardComponent) {
       this.boardComponent.detectChanges();
     }
     
-    // Use setTimeout to delay validation so user sees the normal state briefly
-    setTimeout(() => {
-      // Check if this specific cell placement is valid
-      const cellValid = isCellPlacementValid(this.boxes, this.selectedBoxIndex!, this.selectedCellIndex!);
-      console.log(`Validation result: ${cellValid}, setting state to: ${cellValid ? 'correct' : 'error'}`);
-      cell.state = cellValid ? 'correct' : 'error';
-      
-      // Force change detection again to show the final state
-      if (this.boardComponent) {
-        this.boardComponent.detectChanges();
-      }
-      
-      // Save game state after validation
-      this.saveGameState();
-    }, 100); // 100ms delay to show normal state
-    
-    // Save game state immediately after placing the number
+    // Save game state
     this.saveGameState();
   }
 
@@ -375,6 +396,9 @@ export class SudokuComponent implements OnInit {
     
     // Cannot clear fixed cells or cells that are already correct
     if (cell.isFixed || cell.state === 'correct') return;
+
+    // Clear current number
+    this.currentNumber = null;
 
     cell.value = null;
     cell.notes = [];
@@ -392,18 +416,27 @@ export class SudokuComponent implements OnInit {
   resetGame() {
     console.log('Resetting game...');
     this.isLoading = true;
-    this.clearGameState();
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
+    this.currentNumber = null;
+    
+    // Reset all non-fixed cells to their initial state
+    this.boxes.forEach(box => {
+      box.cells.forEach(cell => {
+        if (!cell.isFixed) {
+          cell.value = null;
+          cell.notes = [];
+          cell.state = 'normal';
+        }
+      });
+    });
+    
+    // Save the reset game state instead of clearing it
+    this.saveGameState();
     
     // Small delay to prevent blinking
     setTimeout(() => {
-      this.initializeBoard();
-      
-      // Ensure minimum loading time
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 200);
+      this.isLoading = false;
     }, 150);
   }
 

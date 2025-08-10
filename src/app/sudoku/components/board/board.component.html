@@ -7,6 +7,9 @@
          [class.correct]="cell.state === 'correct'"
          [class.error]="cell.state === 'error'"
          [class.non-editable]="cell.isFixed || cell.state === 'correct'"
+         [class.number-highlighted]="isNumberHighlighted(boxIndex, cellIndex)"
+         [class.current-number-highlighted]="isCurrentNumberHighlighted(boxIndex, cellIndex)"
+         [class.related-highlighted]="isRelatedHighlighted(boxIndex, cellIndex)"
          (click)="onCellClick(boxIndex, cellIndex)">
       @if (cell.value) {
         <div class="main-number">{{ cell.value }}</div>

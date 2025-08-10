@@ -5,11 +5,14 @@
       <p>Loading Sudoku...</p>
     </div>
   } @else {
+    <app-controls (resetGame)="resetGame()"></app-controls>
+    
     <div class="game-content">
       <app-board
         [boxes]="boxes"
         [selectedBoxIndex]="selectedBoxIndex"
         [selectedCellIndex]="selectedCellIndex"
+        [currentNumber]="currentNumber"
         (cellSelected)="onCellSelected($event)">
       </app-board>
 

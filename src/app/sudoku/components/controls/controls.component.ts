@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
   standalone: true,
@@ -8,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrl: './controls.component.scss'
 })
 export class ControlsComponent {
+  @Output() resetGame = new EventEmitter<void>();
 
+  onResetClick() {
+    this.resetGame.emit();
+  }
 }

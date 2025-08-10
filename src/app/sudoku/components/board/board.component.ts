@@ -13,6 +13,7 @@ export class BoardComponent {
   @Input() boxes: Box[] = [];
   @Input() selectedBoxIndex: number | null = null;
   @Input() selectedCellIndex: number | null = null;
+  @Input() currentNumber: number | null = null;
   @Output() cellSelected = new EventEmitter<{ boxIndex: number, cellIndex: number }>();
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -28,6 +29,57 @@ export class BoardComponent {
 
   isCellSelected(boxIndex: number, cellIndex: number): boolean {
     return this.selectedBoxIndex === boxIndex && this.selectedCellIndex === cellIndex;
+  }
+
+  // Check if cell should be highlighted because it contains the selected number
+  isNumberHighlighted(boxIndex: number, cellIndex: number): boolean {
+    if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return false;
+    
+    const selectedCell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
+    if (!selectedCell.value) return false;
+    
+    const currentCell = this.boxes[boxIndex].cells[cellIndex];
+    
+    // Highlight if the cell contains the same number (either as main value or in notes)
+    return (currentCell.value === selectedCell.value) || 
+           (currentCell.notes && currentCell.notes.includes(selectedCell.value));
+  }
+
+  // Check if cell should be highlighted because it contains the current number being entered
+  isCurrentNumberHighlighted(boxIndex: number, cellIndex: number): boolean {
+    if (this.currentNumber === null) return false;
+    
+    const currentCell = this.boxes[boxIndex].cells[cellIndex];
+    
+    // Highlight if the cell contains the current number being entered
+    return (currentCell.value === this.currentNumber) || 
+           (currentCell.notes && currentCell.notes.includes(this.currentNumber));
+  }
+
+  // Check if cell should be highlighted because it's in the same row, column, or box as selected cell
+  isRelatedHighlighted(boxIndex: number, cellIndex: number): boolean {
+    if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return false;
+    
+    const selectedBoxRow = Math.floor(this.selectedBoxIndex / 3);
+    const selectedBoxCol = this.selectedBoxIndex % 3;
+    const selectedCellRow = Math.floor(this.selectedCellIndex / 3);
+    const selectedCellCol = Math.floor(this.selectedCellIndex % 3);
+    
+    const currentBoxRow = Math.floor(boxIndex / 3);
+    const currentBoxCol = boxIndex % 3;
+    const currentCellRow = Math.floor(cellIndex / 3);
+    const currentCellCol = Math.floor(cellIndex % 3);
+    
+    // Calculate global row and column positions
+    const selectedGlobalRow = selectedBoxRow * 3 + selectedCellRow;
+    const selectedGlobalCol = selectedBoxCol * 3 + selectedCellCol;
+    const currentGlobalRow = currentBoxRow * 3 + currentCellRow;
+    const currentGlobalCol = currentBoxCol * 3 + currentCellCol;
+    
+    // Highlight if in same row, column, or box
+    return (currentGlobalRow === selectedGlobalRow) || 
+           (currentGlobalCol === selectedGlobalCol) || 
+           (boxIndex === this.selectedBoxIndex);
   }
 
   // Method to force change detection
