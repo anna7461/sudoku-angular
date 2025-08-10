@@ -1,0 +1,19 @@
+<div class="board">
+  <div class="box" *ngFor="let box of boxes; let boxIndex = index">
+    <div class="cell"
+         *ngFor="let cell of box.cells; let cellIndex = index"
+         [class.fixed]="cell.isFixed"
+         [class.selected]="isCellSelected(boxIndex, cellIndex)"
+         [class.correct]="cell.state === 'correct'"
+         [class.error]="cell.state === 'error'"
+         [class.non-editable]="cell.isFixed || cell.state === 'correct'"
+         (click)="onCellClick(boxIndex, cellIndex)">
+      @if (cell.value) {
+        <div class="main-number">{{ cell.value }}</div>
+      }
+      @if (cell.notes.length > 0) {
+        <span *ngFor="let note of cell.notes" class="note">{{ note }}</span>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+<div class="number-pad">
+  <button *ngFor="let num of numbers"
+          (click)="onNumberClick(num)">
+    {{ num }}
+  </button>
+</div>

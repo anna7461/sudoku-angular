@@ -1,0 +1,21 @@
+<div class="sudoku-container">
+  @if (isLoading) {
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading Sudoku...</p>
+    </div>
+  } @else {
+    <div class="game-content">
+      <app-board
+        [boxes]="boxes"
+        [selectedBoxIndex]="selectedBoxIndex"
+        [selectedCellIndex]="selectedCellIndex"
+        (cellSelected)="onCellSelected($event)">
+      </app-board>
+
+      <app-number-pad
+        (numberClick)="onNumberPadClick($event)">
+      </app-number-pad>
+    </div>
+  }
+</div>

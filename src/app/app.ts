@@ -1,9 +1,9 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {SudokuComponent} from './sudoku/sudoku.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [SudokuComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

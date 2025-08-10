@@ -1,0 +1,12 @@
+.number-pad {
+  display: flex;
+  margin: 10px auto;
+  gap: 8px;
+
+  button {
+    flex: 1 1 30px;
+    height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+}
