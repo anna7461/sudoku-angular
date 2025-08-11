@@ -1,17 +1,19 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {Box} from './models/box.model';
 import {Cell} from './models/cell.model';
 import {BoardComponent} from './components/board/board.component';
 import {HostListener} from '@angular/core';
 import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
-import { isValidMove, isBoardValid, isCellPlacementValid } from '../sudoku/components/utils/validation';
+import { isValidMove, isBoardValid, isCellPlacementValid } from './components/utils/validation';
 
 @Component({
   standalone: true,
   selector: 'app-sudoku',
   templateUrl: './sudoku.component.html',
   imports: [
+    CommonModule,
     BoardComponent,
     NumberPadComponent,
     ControlsComponent
@@ -24,7 +26,7 @@ export class SudokuComponent implements OnInit {
   
   boxes: Box[] = [];
   private readonly STORAGE_KEY = 'sudoku-game-state';
-  private currentDifficulty: string = 'random';
+  currentDifficulty: string = '';
   isLoading: boolean = true;
 
   selectedBoxIndex: number | null = null;
@@ -42,11 +44,13 @@ export class SudokuComponent implements OnInit {
     try {
       const gameState = {
         boxes: this.boxes,
+        difficulty: this.currentDifficulty,
         timestamp: Date.now()
       };
       console.log('Saving game state:', gameState);
       console.log('Boxes to save:', this.boxes);
       console.log('Boxes length:', this.boxes.length);
+      console.log('Difficulty to save:', this.currentDifficulty);
       
       const jsonString = JSON.stringify(gameState);
       console.log('JSON string to save:', jsonString);
@@ -78,8 +82,16 @@ export class SudokuComponent implements OnInit {
         
         if (gameState.boxes && gameState.boxes.length > 0) {
           this.boxes = gameState.boxes;
+          
+          // Restore difficulty if it exists in saved state
+          if (gameState.difficulty) {
+            this.currentDifficulty = gameState.difficulty;
+            console.log('Difficulty restored from localStorage:', this.currentDifficulty);
+          }
+          
           console.log('Game state loaded from localStorage successfully');
           console.log('Loaded boxes:', this.boxes);
+          console.log('Current difficulty:', this.currentDifficulty);
           
           // Ensure minimum loading time
           const elapsed = Date.now() - startTime;
@@ -101,7 +113,7 @@ export class SudokuComponent implements OnInit {
     
     // If no valid saved state, initialize with default puzzle
     console.log('Initializing new game - no valid saved state found');
-    this.initializeBoard();
+    this.initializeBoard(); // Don't set default difficulty
     
     // Ensure minimum loading time
     const elapsed = Date.now() - startTime;
@@ -121,9 +133,15 @@ export class SudokuComponent implements OnInit {
     }
   }
 
+  // Method to handle new game event from controls component
+  onNewGame(difficulty: string) {
+    const validDifficulty = difficulty as 'easy' | 'medium' | 'hard' | 'expert';
+    this.startNewGame(validDifficulty);
+  }
+
   // Method to start a new game with specific difficulty
   startNewGame(difficulty?: 'easy' | 'medium' | 'hard' | 'expert') {
-    console.log(`Starting new game with difficulty: ${difficulty || 'random'}`);
+    console.log(`Starting new game with difficulty: ${difficulty || ''}`);
     this.isLoading = true;
     this.clearGameState();
     this.selectedBoxIndex = null;
@@ -134,6 +152,9 @@ export class SudokuComponent implements OnInit {
     setTimeout(() => {
       this.initializeBoard(difficulty);
       
+      // Save the new game state immediately after initialization
+      this.saveGameState();
+      
       // Ensure minimum loading time
       setTimeout(() => {
         this.isLoading = false;
@@ -143,6 +164,9 @@ export class SudokuComponent implements OnInit {
 
   // Method to get current puzzle difficulty
   getCurrentDifficulty(): string {
+    if (!this.currentDifficulty || this.currentDifficulty === '') {
+      return '';
+    }
     return this.currentDifficulty.charAt(0).toUpperCase() + this.currentDifficulty.slice(1);
   }
 
@@ -209,8 +233,12 @@ export class SudokuComponent implements OnInit {
   initializeBoard(difficulty?: 'easy' | 'medium' | 'hard' | 'expert') {
     // Generate a new Sudoku puzzle dynamically
     const puzzle = this.generateSudokuPuzzle(difficulty);
-    this.currentDifficulty = difficulty || 'random';
-    console.log(`Generated ${this.currentDifficulty} difficulty puzzle`);
+    this.currentDifficulty = difficulty || '';
+    if (difficulty) {
+      console.log(`Generated ${this.currentDifficulty} difficulty puzzle`);
+    } else {
+      console.log('Generated puzzle without difficulty level');
+    }
     
     const fixedCells: boolean[][] = puzzle.map(row => row.map(num => num !== 0));
 

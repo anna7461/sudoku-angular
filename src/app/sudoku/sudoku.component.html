@@ -1,24 +1,27 @@
-<div class="sudoku-container">
-  @if (isLoading) {
-    <div class="loading">
-      <div class="loading-spinner"></div>
-      <p>Loading Sudoku...</p>
-    </div>
-  } @else {
-    <app-controls (resetGame)="resetGame()"></app-controls>
-    
-    <div class="game-content">
-      <app-board
-        [boxes]="boxes"
-        [selectedBoxIndex]="selectedBoxIndex"
-        [selectedCellIndex]="selectedCellIndex"
-        [currentNumber]="currentNumber"
-        (cellSelected)="onCellSelected($event)">
-      </app-board>
+  <div class="sudoku-container">
+  
+              <app-controls 
+            (resetGame)="resetGame()"
+            (newGame)="onNewGame($event)">
+          </app-controls>
+   
+      <div class="game-content">
+        <div class="difficulty-display" >
+          <span class="difficulty-label">Difficulty:</span>
+          <span *ngIf="currentDifficulty && currentDifficulty !== ''" class="difficulty-value" >{{ getCurrentDifficulty() }}</span>
+        </div>
+        
+        
+        <app-board
+          [boxes]="boxes"
+          [selectedBoxIndex]="selectedBoxIndex"
+          [selectedCellIndex]="selectedCellIndex"
+          [currentNumber]="currentNumber"
+          (cellSelected)="onCellSelected($event)">
+        </app-board>
 
-      <app-number-pad
-        (numberClick)="onNumberPadClick($event)">
-      </app-number-pad>
-    </div>
-  }
-</div>
+        <app-number-pad
+          (numberClick)="onNumberPadClick($event)">
+        </app-number-pad>
+      </div>
+  </div>

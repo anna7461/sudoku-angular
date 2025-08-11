@@ -1,6 +1,22 @@
 <div class="controls-container">
-  <button class="reset-btn" (click)="onResetClick()">
-    <span class="reset-icon">🔄</span>
-    Reset Game
-  </button>
+  <div class="difficulty-selector">
+    <label for="difficulty">Difficulty:</label>
+    <select id="difficulty" [value]="selectedDifficulty" (change)="onDifficultyChange($event)">
+      <option *ngFor="let diff of difficulties" [value]="diff.value">
+        {{ diff.label }}
+      </option>
+    </select>
+  </div>
+  
+  <div class="game-buttons">
+    <button class="new-game-btn" (click)="onNewGameClick()">
+      <span class="new-game-icon">🆕</span>
+      New Game
+    </button>
+    
+    <button class="reset-btn" (click)="onResetClick()">
+      <span class="reset-icon">🔄</span>
+      Reset Game
+    </button>
+  </div>
 </div>
