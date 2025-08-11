@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,8 +9,11 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./controls.component.scss']
 })
 export class ControlsComponent {
+  @Input() notesMode: boolean = false;
   @Output() resetGame = new EventEmitter<void>();
   @Output() newGame = new EventEmitter<string>();
+  @Output() toggleNotesMode = new EventEmitter<void>();
+  @Output() resetNotes = new EventEmitter<void>();
 
   difficulties = [
     { value: 'easy', label: 'Easy' },
@@ -32,5 +35,13 @@ export class ControlsComponent {
   onDifficultyChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     this.selectedDifficulty = target.value as 'easy' | 'medium' | 'hard' | 'expert';
+  }
+
+  onToggleNotesClick() {
+    this.toggleNotesMode.emit();
+  }
+
+  onResetNotesClick() {
+    this.resetNotes.emit();
   }
 }

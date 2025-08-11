@@ -15,7 +15,15 @@
         <div class="main-number">{{ cell.value }}</div>
       }
       @if (cell.notes.length > 0) {
-        <span *ngFor="let note of cell.notes" class="note">{{ note }}</span>
+        <div class="notes-grid">
+                          @for (num of [1,2,3,4,5,6,7,8,9]; track num) {
+                  <span class="note" 
+                        [class.has-note]="cell.notes.includes(num)"
+                        [class.note-error]="cell.notes.includes(num) && isNoteError(boxIndex, cellIndex, num)">
+                    {{ cell.notes.includes(num) ? num : '' }}
+                  </span>
+                }
+        </div>
       }
     </div>
   </div>

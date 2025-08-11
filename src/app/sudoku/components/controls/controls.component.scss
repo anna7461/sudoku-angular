@@ -65,7 +65,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .new-game-icon, .reset-icon {
+  i {
     font-size: 16px;
   }
 }
@@ -85,5 +85,52 @@
 
   &:hover {
     background-color: #c0392b;
+  }
+}
+
+.notes-controls {
+  display: flex;
+  gap: 15px;
+}
+
+.notes-toggle-btn, .reset-notes-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+  color: #333;
+
+  &:hover {
+    border-color: #3498db;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  i {
+    font-size: 14px;
+  }
+}
+
+.notes-toggle-btn {
+  &.active {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+  }
+}
+
+.reset-notes-btn {
+  &:hover {
+    border-color: #e74c3c;
   }
 }

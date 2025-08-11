@@ -86,4 +86,46 @@ export class BoardComponent {
   detectChanges() {
     this.cdr.detectChanges();
   }
+
+  // Method to check if a note violates Sudoku rules
+  isNoteError(boxIndex: number, cellIndex: number, num: number): boolean {
+    // Only show error if the note number conflicts with an existing final number
+    // Don't preemptively show errors for potential conflicts
+    const boxRow = Math.floor(boxIndex / 3);
+    const boxCol = boxIndex % 3;
+    const cellRow = Math.floor(cellIndex / 3);
+    const cellCol = Math.floor(cellIndex % 3);
+    
+    const globalRow = boxRow * 3 + cellRow;
+    const globalCol = boxCol * 3 + cellCol;
+    
+    // Check if this number already exists as a final value in the same row, column, or box
+    for (let b = 0; b < this.boxes.length; b++) {
+      for (let c = 0; c < this.boxes[b].cells.length; c++) {
+        const otherBoxRow = Math.floor(b / 3);
+        const otherBoxCol = b % 3;
+        const otherCellRow = Math.floor(c / 3);
+        const otherCellCol = Math.floor(c / 3);
+        
+        const otherGlobalRow = otherBoxRow * 3 + otherCellRow;
+        const otherGlobalCol = otherBoxCol * 3 + otherCellCol;
+        
+        // Skip the current cell
+        if (otherGlobalRow === globalRow && otherGlobalCol === globalCol) continue;
+        
+        // Check if in same row, column, or box
+        if (otherGlobalRow === globalRow || 
+            otherGlobalCol === globalCol || 
+            b === boxIndex) {
+          const otherCell = this.boxes[b].cells[c];
+          // Only check against final numbers (not other notes)
+          if (otherCell.value === num && otherCell.value !== null) {
+            return true; // Note conflicts with existing final number
+          }
+        }
+      }
+    }
+    
+    return false;
+  }
 }

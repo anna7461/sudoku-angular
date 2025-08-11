@@ -10,13 +10,25 @@
   
   <div class="game-buttons">
     <button class="new-game-btn" (click)="onNewGameClick()">
-      <span class="new-game-icon">🆕</span>
+      <i class="fas fa-plus-circle"></i>
       New Game
     </button>
     
     <button class="reset-btn" (click)="onResetClick()">
-      <span class="reset-icon">🔄</span>
+      <i class="fas fa-undo"></i>
       Reset Game
+    </button>
+  </div>
+  
+  <div class="notes-controls">
+    <button class="notes-toggle-btn" [class.active]="notesMode" (click)="onToggleNotesClick()">
+      <i class="fas fa-pencil-alt"></i>
+      {{ notesMode ? 'Notes ON' : 'Notes OFF' }}
+    </button>
+    
+    <button class="reset-notes-btn" (click)="onResetNotesClick()">
+      <i class="fas fa-eraser"></i>
+      Reset Notes
     </button>
   </div>
 </div>

@@ -11,6 +11,14 @@
   width: 365px;
   color: $dark;
   margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 16px;
+    color: #667eea;
+  }
 
   .difficulty-label {
     font-weight: 600;
@@ -21,6 +29,69 @@
     font-weight: bold;
     font-size: .9em;
     text-transform: uppercase;
+  }
+}
+
+.mistake-display {
+  width: 365px;
+  color: $dark;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 16px;
+    color: #e74c3c;
+  }
+
+  .mistake-label {
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  
+  .mistake-value {
+    font-weight: bold;
+    font-size: .9em;
+    color: #e74c3c;
+  }
+  
+  &.warning {
+    i, .mistake-value {
+      color: #f39c12;
+    }
+  }
+  
+  &.danger {
+    i, .mistake-value {
+      color: #e74c3c;
+    }
+    animation: pulse 1s infinite;
+  }
+}
+
+.score-display {
+  width: 365px;
+  color: $dark;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 16px;
+    color: #f39c12;
+  }
+
+  .score-label {
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  
+  .score-value {
+    font-weight: bold;
+    font-size: .9em;
+    color: #27ae60;
   }
 }
 
@@ -37,4 +108,10 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(0); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
