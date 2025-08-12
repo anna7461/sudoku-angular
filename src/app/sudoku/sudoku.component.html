@@ -5,7 +5,8 @@
             (resetGame)="resetGame()"
             (newGame)="onNewGame($event)"
             (toggleNotesMode)="toggleNotesMode()"
-            (resetNotes)="resetNotes()">
+            (resetNotes)="resetNotes()"
+            (hint)="provideHint()">
           </app-controls>
    
       <div class="game-content">
@@ -26,10 +27,7 @@
           <span class="score-label">Score:</span>
           <span class="score-value">{{ getCurrentScore() }}</span>
         </div>
-        
-
-        
-        
+    
         <app-board
           [boxes]="boxes"
           [selectedBoxIndex]="selectedBoxIndex"

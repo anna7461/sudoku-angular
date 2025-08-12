@@ -14,6 +14,7 @@ export class ControlsComponent {
   @Output() newGame = new EventEmitter<string>();
   @Output() toggleNotesMode = new EventEmitter<void>();
   @Output() resetNotes = new EventEmitter<void>();
+  @Output() hint = new EventEmitter<void>();
 
   difficulties = [
     { value: 'easy', label: 'Easy' },
@@ -43,5 +44,9 @@ export class ControlsComponent {
 
   onResetNotesClick() {
     this.resetNotes.emit();
+  }
+
+  onHintClick() {
+    this.hint.emit();
   }
 }

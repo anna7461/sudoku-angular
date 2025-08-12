@@ -749,6 +749,9 @@ export class SudokuComponent implements OnInit {
       
       // Clear current number after successful move
       this.currentNumber = null;
+      
+      // Clear all highlights after successful move
+      this.clearHighlights();
 
       // Check if puzzle is complete
       if (this.isPuzzleComplete()) {
@@ -820,6 +823,9 @@ export class SudokuComponent implements OnInit {
     
     // Clear current number when providing hint
     this.currentNumber = null;
+    
+    // Clear all highlights after providing hint
+    this.clearHighlights();
 
     // Update score (hints give fewer points)
     this.score += 5;
