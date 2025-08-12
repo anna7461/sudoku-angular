@@ -42,6 +42,14 @@ export class SudokuComponent implements OnInit {
     setTimeout(() => {
       this.loadGameState();
     }, 100);
+    
+    // Add document click listener for detecting clicks outside the board
+    document.addEventListener('click', this.documentClickHandler);
+  }
+
+  ngOnDestroy() {
+    // Remove document click listener to prevent memory leaks
+    document.removeEventListener('click', this.documentClickHandler);
   }
 
   private saveGameState(): void {
@@ -309,16 +317,24 @@ export class SudokuComponent implements OnInit {
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  handleClickOutside(event: Event) {
-    // Check if click is outside the sudoku container
+  // Manual event listener for clicks outside the board
+  private documentClickHandler = (event: Event) => {
+    console.log('Document click detected, sudokuContainer:', this.sudokuContainer);
     if (this.sudokuContainer && !this.sudokuContainer.nativeElement.contains(event.target as Node)) {
+      console.log('Click outside detected, clearing highlights');
       this.clearHighlights();
     }
-  }
+  };
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardInput(event: KeyboardEvent) {
+    // Check if the active element is outside the sudoku board
+    const activeElement = document.activeElement;
+    if (this.sudokuContainer && activeElement && !this.sudokuContainer.nativeElement.contains(activeElement)) {
+      this.clearHighlights();
+      return;
+    }
+
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
 
     // Number keys 1–9
