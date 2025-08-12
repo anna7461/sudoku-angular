@@ -6,7 +6,7 @@
          [class.selected]="isCellSelected(boxIndex, cellIndex)"
          [class.correct]="cell.state === 'correct'"
          [class.error]="cell.state === 'error'"
-         [class.non-editable]="cell.isFixed || cell.state === 'correct'"
+         [class.fixed-selected]="cell.isFixed && isCellSelected(boxIndex, cellIndex)"
          [class.number-highlighted]="isNumberHighlighted(boxIndex, cellIndex)"
          [class.current-number-highlighted]="isCurrentNumberHighlighted(boxIndex, cellIndex)"
          [class.related-highlighted]="isRelatedHighlighted(boxIndex, cellIndex)"

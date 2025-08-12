@@ -1,3 +1,5 @@
+@use "variables" as *;
+
 .number-pad {
   display: flex;
   margin: 10px auto;
@@ -8,5 +10,18 @@
     height: 40px;
     font-size: 1.2rem;
     cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    &.selected {
+      background-color: $primary;
+      color: $lightest;
+      border-color: $primary;
+      transform: translateY(-2px);
+    }
   }
 }

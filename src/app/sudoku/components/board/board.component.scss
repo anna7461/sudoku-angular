@@ -44,12 +44,15 @@
     background-color: transparent;
   }
 
-  &.non-editable {
-    cursor: not-allowed;
-
+  &.fixed-selected {
+    background-color: rgba(52, 73, 94, 0.3); // Dark blue with transparency
+    border: 2px solid $darkest;
+    color: $darkest;
+    position: relative;
+    
     &:hover {
-      background-color: $lightest;
-    }
+      background-color: rgba(52, 73, 94, 0.4);
+    } 
   }
 
   &.number-highlighted {

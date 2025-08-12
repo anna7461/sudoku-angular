@@ -1,4 +1,4 @@
-  <div class="sudoku-container">
+  <div class="sudoku-container" #sudokuContainer>
   
               <app-controls 
             [notesMode]="notesMode"
@@ -39,6 +39,7 @@
         </app-board>
 
         <app-number-pad
+          [currentNumber]="currentNumber"
           (numberClick)="onNumberPadClick($event)">
         </app-number-pad>
       </div>

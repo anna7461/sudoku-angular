@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class NumberPadComponent {
   @Input() disabled: boolean = false;
+  @Input() currentNumber: number | null = null;
   @Output() numberClick = new EventEmitter<number>();
 
   numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -18,5 +19,9 @@ export class NumberPadComponent {
     if (!this.disabled) {
       this.numberClick.emit(num);
     }
+  }
+
+  isNumberSelected(num: number): boolean {
+    return this.currentNumber === num;
   }
 }

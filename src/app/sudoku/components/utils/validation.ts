@@ -13,7 +13,7 @@ export function flattenBoxesToGrid(boxes: Box[]): (Cell | null)[][] {
 
     box.cells.forEach((cell, cellIndex) => {
       const cellRow = Math.floor(cellIndex / 3);
-      const cellCol = Math.floor(cellIndex % 3);
+      const cellCol = cellIndex % 3;
 
       grid[boxRow * 3 + cellRow][boxCol * 3 + cellCol] = cell;
     });
@@ -29,7 +29,7 @@ export function isValidMove(boxes: Box[], boxIndex: number, cellIndex: number, n
   const boxRow = Math.floor(boxIndex / 3);
   const boxCol = boxIndex % 3;
   const cellRow = Math.floor(cellIndex / 3);
-  const cellCol = Math.floor(cellIndex % 3);
+  const cellCol = cellIndex % 3;
 
   const row = boxRow * 3 + cellRow;
   const col = boxCol * 3 + cellCol;
@@ -106,7 +106,7 @@ export function isCellPlacementValid(boxes: Box[], boxIndex: number, cellIndex: 
   const boxRow = Math.floor(boxIndex / 3);
   const boxCol = boxIndex % 3;
   const cellRow = Math.floor(cellIndex / 3);
-  const cellCol = Math.floor(cellIndex % 3);
+  const cellCol = cellIndex % 3;
   
   const row = boxRow * 3 + cellRow;
   const col = boxCol * 3 + cellCol;
