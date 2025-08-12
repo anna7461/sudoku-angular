@@ -7,6 +7,7 @@ import {BoardComponent} from './components/board/board.component';
 import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
 import {TimerComponent} from './components/timer/timer.component';
+import {CongratulationsModalComponent, GameCompletionData} from './components/congratulations-modal/congratulations-modal.component';
 
 @Component({
   standalone: true,
@@ -17,7 +18,8 @@ import {TimerComponent} from './components/timer/timer.component';
     BoardComponent,
     NumberPadComponent,
     ControlsComponent,
-    TimerComponent
+    TimerComponent,
+    CongratulationsModalComponent
   ],
   styleUrls: ['./sudoku.component.scss']
 })
@@ -40,22 +42,32 @@ export class SudokuComponent implements OnInit {
   mistakeCount: number = 0; // Track mistakes made
   score: number = 0; // Track player score
   notesMode: boolean = false; // Toggle for notes mode
-  
+
   // Move tracking for undo functionality
   private moveHistory: Move[] = [];
   private readonly MAX_UNDO_STEPS = 50; // Limit undo steps to prevent memory issues
-  
+
   // Timer functionality
   isGamePaused: boolean = false;
   gameStartTime: number | null = null;
   totalGameTime: number = 0;
+  
+  // Congratulations modal functionality
+  showCongratulationsModal: boolean = false;
+  gameCompletionData: GameCompletionData | null = null;
 
   ngOnInit() {
+    console.log('ngOnInit: Initial state:', { 
+      isLoading: this.isLoading, 
+      mistakeCount: this.mistakeCount, 
+      boxesLength: this.boxes.length 
+    });
+    
     // Use setTimeout to prevent immediate state changes that cause blinking
     setTimeout(() => {
       this.loadGameState();
     }, 100);
-    
+
     // Add document click listener for detecting clicks outside the board
     document.addEventListener('click', this.documentClickHandler);
   }
@@ -67,7 +79,7 @@ export class SudokuComponent implements OnInit {
 
   private saveGameState(): void {
     try {
-      const gameState = { 
+      const gameState = {
         boxes: this.boxes,
         difficulty: this.currentDifficulty,
         mistakeCount: this.mistakeCount,
@@ -107,6 +119,13 @@ export class SudokuComponent implements OnInit {
           this.score = gameState.score ?? 0;
           this.notesMode = gameState.notesMode ?? false;
           
+          console.log('Loaded game state:', { 
+            difficulty: this.currentDifficulty, 
+            mistakeCount: this.mistakeCount, 
+            score: this.score, 
+            notesMode: this.notesMode 
+          });
+
           // Clear current number and selection when loading saved game
           this.currentNumber = null;
           this.selectedBoxIndex = null;
@@ -119,12 +138,12 @@ export class SudokuComponent implements OnInit {
           if (gameState.fixedCells && Array.isArray(gameState.fixedCells)) {
             this.fixedCells = gameState.fixedCells;
           }
-          
+
           // Load move history if available
           if (gameState.moveHistory && Array.isArray(gameState.moveHistory)) {
             this.moveHistory = gameState.moveHistory;
           }
-          
+
           // Load timer information if available
           if (gameState.gameStartTime !== undefined) {
             this.gameStartTime = gameState.gameStartTime;
@@ -134,6 +153,33 @@ export class SudokuComponent implements OnInit {
           }
           if (gameState.isGamePaused !== undefined) {
             this.isGamePaused = gameState.isGamePaused;
+          }
+          
+          // Check if the loaded game state has too many mistakes and auto-reset if needed
+          if (this.mistakeCount >= 3) {
+            console.log('Loaded game has too many mistakes, auto-resetting...');
+            this.mistakeCount = 0;
+            this.score = 0;
+            this.moveHistory = [];
+            this.gameStartTime = null;
+            this.totalGameTime = 0;
+            this.isGamePaused = false;
+          }
+          
+          // Check if the loaded game is already completed and show congratulations modal if so
+          if (this.boxes && this.boxes.length > 0 && this.hasWonGame()) {
+            console.log('Loaded game is already completed, showing congratulations modal...');
+            
+            // Prepare game completion data for the modal
+            this.gameCompletionData = {
+              difficulty: this.getCurrentDifficulty(),
+              timeSpent: this.timerComponent ? this.timerComponent.getFormattedTime() : '00:00',
+              score: this.score,
+              mistakes: this.mistakeCount
+            };
+            
+            // Show congratulations modal
+            this.showCongratulationsModal = true;
           }
 
           // If we have a saved game but no solution, we need to regenerate the puzzle
@@ -189,11 +235,11 @@ export class SudokuComponent implements OnInit {
     this.currentNumber = null;
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
-    
+
     // Clear move history for new game
     this.moveHistory = [];
-    
-    // Reset timer for new game
+
+        // Reset timer for new game
     this.gameStartTime = null;
     this.totalGameTime = 0;
     this.isGamePaused = false;
@@ -202,6 +248,10 @@ export class SudokuComponent implements OnInit {
     if (this.timerComponent) {
       this.timerComponent.resetGameTimer();
     }
+    
+    // Reset congratulations modal state
+    this.showCongratulationsModal = false;
+    this.gameCompletionData = null;
 
     // Small delay to prevent blinking
     setTimeout(() => {
@@ -254,6 +304,16 @@ export class SudokuComponent implements OnInit {
     this.isGamePaused = isPaused;
   }
 
+  // Congratulations modal event handlers
+  onNewGameFromModal(difficulty: string) {
+    this.showCongratulationsModal = false;
+    this.startNewGame(difficulty as 'easy' | 'medium' | 'hard' | 'expert');
+  }
+
+  onCloseCongratulationsModal() {
+    this.showCongratulationsModal = false;
+  }
+
   // Method to toggle notes mode
   toggleNotesMode() {
     this.notesMode = !this.notesMode;
@@ -270,7 +330,7 @@ export class SudokuComponent implements OnInit {
     }
 
     console.log('Resetting all notes from the board');
-    
+
     // Start timer on first move
     if (this.gameStartTime === null) {
       this.gameStartTime = Date.now();
@@ -280,12 +340,25 @@ export class SudokuComponent implements OnInit {
         this.timerComponent.startGameTimer();
       }
     }
-    
+
     // Store the previous state for move tracking (batch operation)
     const moves: Move[] = [];
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0) {
+      return;
+    }
+
     this.boxes.forEach((box, boxIndex) => {
+      if (!box || !box.cells || box.cells.length === 0) {
+        return;
+      }
+      
       box.cells.forEach((cell, cellIndex) => {
+        if (!cell) {
+          return;
+        }
+        
         // Only reset notes for non-fixed cells
         if (!cell.isFixed && cell.notes.length > 0) {
           const move: Move = {
@@ -300,20 +373,20 @@ export class SudokuComponent implements OnInit {
             timestamp: Date.now()
           };
           moves.push(move);
-          
+
           cell.notes = [];
         }
       });
     });
-    
+
     // Add all moves to the history
     this.moveHistory.push(...moves);
-    
+
     // Limit the undo stack size
     while (this.moveHistory.length > this.MAX_UNDO_STEPS) {
       this.moveHistory.shift(); // Remove oldest moves
     }
-    
+
     this.saveGameState();
 
     // Force change detection to update the UI
@@ -335,6 +408,15 @@ export class SudokuComponent implements OnInit {
     console.log('Undoing move:', lastMove);
 
     // Restore the previous cell state
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[lastMove.boxIndex] || 
+        !this.boxes[lastMove.boxIndex].cells || 
+        !this.boxes[lastMove.boxIndex].cells[lastMove.cellIndex]) {
+      console.error('Cannot undo: boxes not properly initialized');
+      return;
+    }
+    
     const cell = this.boxes[lastMove.boxIndex].cells[lastMove.cellIndex];
     cell.value = lastMove.previousValue;
     cell.notes = [...lastMove.previousNotes];
@@ -364,9 +446,13 @@ export class SudokuComponent implements OnInit {
     console.log('Move undone successfully');
   }
 
-  // Handle game over when mistake limit is reached
+    // Handle game over when mistake limit is reached
   private handleGameOver() {
     console.log('Game Over - mistake limit reached!');
+    
+    // Hide congratulations modal if it's visible
+    this.showCongratulationsModal = false;
+    this.gameCompletionData = null;
     
     // Show game over message
     setTimeout(() => {
@@ -378,7 +464,7 @@ export class SudokuComponent implements OnInit {
     }, 100);
   }
 
-  // Handle victory when puzzle is completed
+    // Handle victory when puzzle is completed
   private handleVictory() {
     console.log('Victory! Puzzle completed!');
     
@@ -387,14 +473,19 @@ export class SudokuComponent implements OnInit {
       this.timerComponent.resetGameTimer();
     }
     
-    // Show victory message
+    // Prepare game completion data for the modal
+    this.gameCompletionData = {
+      difficulty: this.getCurrentDifficulty(),
+      timeSpent: this.timerComponent ? this.timerComponent.getFormattedTime() : '00:00',
+      score: this.score,
+      mistakes: this.mistakeCount
+    };
+    
+    // Show congratulations modal with a small delay to ensure proper state propagation
     setTimeout(() => {
-      const message = `Congratulations! You've completed the puzzle!\nScore: ${this.score}\nMistakes: ${this.mistakeCount}`;
-      alert(message);
-      
-      // Optionally start a new game or keep the completed puzzle
-      // For now, we'll keep the completed puzzle visible
-    }, 100);
+      this.showCongratulationsModal = true;
+      console.log('Congratulations modal shown:', this.showCongratulationsModal);
+    }, 0);
   }
 
   // Navigate between cells using arrow keys
@@ -443,7 +534,7 @@ export class SudokuComponent implements OnInit {
     if (newBoxIndex >= 0 && newBoxIndex < 9 && newCellIndex >= 0 && newCellIndex < 9) {
       this.selectedBoxIndex = newBoxIndex;
       this.selectedCellIndex = newCellIndex;
-      
+
       // Force change detection to update highlights
       if (this.boardComponent) {
         this.boardComponent.detectChanges();
@@ -470,6 +561,15 @@ export class SudokuComponent implements OnInit {
     }
 
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      console.error('Cannot toggle note: boxes not properly initialized');
+      return;
+    }
 
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
 
@@ -510,7 +610,7 @@ export class SudokuComponent implements OnInit {
     };
 
     this.moveHistory.push(move);
-    
+
     // Limit the undo stack size
     if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
       this.moveHistory.shift(); // Remove oldest move
@@ -538,11 +638,24 @@ export class SudokuComponent implements OnInit {
     const selectedGlobalCol = selectedBoxCol * 3 + selectedCellCol;
 
     // Remove notes from cells in the same row, column, and box
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0) {
+      return;
+    }
+    
     this.boxes.forEach((box, boxIndex) => {
+      if (!box || !box.cells || box.cells.length === 0) {
+        return;
+      }
+      
       box.cells.forEach((cell, cellIndex) => {
+        if (!cell) {
+          return;
+        }
+        
         // Skip fixed cells - they shouldn't have notes modified
         if (cell.isFixed) return;
-        
+
         if (cell.notes.includes(num)) {
           const boxRow = Math.floor(boxIndex / 3);
           const boxCol = boxIndex % 3;
@@ -575,10 +688,10 @@ export class SudokuComponent implements OnInit {
     // Clear current number when selecting a new cell
     this.currentNumber = null;
 
-    console.log('Selection updated:', { 
-      boxIndex: this.selectedBoxIndex, 
-      cellIndex: this.selectedCellIndex, 
-      isEditable: event.isEditable 
+    console.log('Selection updated:', {
+      boxIndex: this.selectedBoxIndex,
+      cellIndex: this.selectedCellIndex,
+      isEditable: event.isEditable
     });
   }
 
@@ -623,7 +736,7 @@ export class SudokuComponent implements OnInit {
         }
         return;
       }
-      
+
       this.onNumberPadClick(parseInt(event.key, 10));
     }
     // Backspace or Delete clears the cell
@@ -653,7 +766,7 @@ export class SudokuComponent implements OnInit {
     this.currentNumber = null;
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
-    
+
     // 1. Generate solved board and store the solution for validation
     const solvedBoard = this.generateSolvedBoard();
     this.solution = solvedBoard.map(row => [...row]); // deep copy
@@ -837,10 +950,20 @@ export class SudokuComponent implements OnInit {
 
   // Check if the puzzle is complete (all cells filled correctly)
   private isPuzzleComplete(): boolean {
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0) {
+      return false;
+    }
+    
     for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
+      const box = this.boxes[boxIndex];
+      if (!box || !box.cells || box.cells.length === 0) {
+        return false;
+      }
+      
       for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
-        const cell = this.boxes[boxIndex].cells[cellIndex];
-        if (!cell.value || cell.state !== 'correct') {
+        const cell = box.cells[cellIndex];
+        if (!cell || !cell.value || cell.state !== 'correct') {
           return false;
         }
       }
@@ -850,10 +973,20 @@ export class SudokuComponent implements OnInit {
 
   // Check if the game is won (all non-fixed cells are correct)
   private isGameWon(): boolean {
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0) {
+      return false;
+    }
+    
     for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
+      const box = this.boxes[boxIndex];
+      if (!box || !box.cells || box.cells.length === 0) {
+        return false;
+      }
+      
       for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
-        const cell = this.boxes[boxIndex].cells[cellIndex];
-        if (!cell.isFixed && (!cell.value || cell.state !== 'correct')) {
+        const cell = box.cells[cellIndex];
+        if (!cell || (!cell.isFixed && (!cell.value || cell.state !== 'correct'))) {
           return false;
         }
       }
@@ -897,9 +1030,22 @@ export class SudokuComponent implements OnInit {
 
   // Validate entire board and update cell states
   private validateBoard(): void {
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0) {
+      return;
+    }
+    
     for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
+      const box = this.boxes[boxIndex];
+      if (!box || !box.cells || box.cells.length === 0) {
+        continue;
+      }
+      
       for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
-        const cell = this.boxes[boxIndex].cells[cellIndex];
+        const cell = box.cells[cellIndex];
+        if (!cell) {
+          continue;
+        }
 
         // Skip fixed cells and empty cells
         if (cell.isFixed || !cell.value) {
@@ -923,11 +1069,16 @@ export class SudokuComponent implements OnInit {
     // Calculate the index of the cell inside that box (0–8)
     const cellIndex = (row % 3) * 3 + (col % 3);
 
-    const box = this.boxes[boxIndex];
-    if (!box || !box.cells[cellIndex]) {
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[boxIndex] || 
+        !this.boxes[boxIndex].cells || 
+        !this.boxes[boxIndex].cells[cellIndex]) {
       console.warn(`Cell at row ${row}, col ${col} not found`);
       return;
     }
+
+    const box = this.boxes[boxIndex];
 
     const cell = box.cells[cellIndex];
     if (!cell.isGiven && !cell.isFixed) {
@@ -962,7 +1113,17 @@ export class SudokuComponent implements OnInit {
     }
 
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
-    const cell = this.boxes[this.selectedBoxIndex!].cells[this.selectedCellIndex!];
+    
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      console.error('Cannot clear cell: boxes not properly initialized');
+      return;
+    }
+    
+    const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
 
     // Start timer on first move
     if (this.gameStartTime === null) {
@@ -1015,7 +1176,7 @@ export class SudokuComponent implements OnInit {
     };
 
     this.moveHistory.push(move);
-    
+
     // Limit the undo stack size
     if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
       this.moveHistory.shift(); // Remove oldest move
@@ -1038,11 +1199,11 @@ export class SudokuComponent implements OnInit {
     this.currentNumber = null;
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
-    
+
     // Clear move history for reset game
     this.moveHistory = [];
-    
-    // Reset timer for reset game
+
+        // Reset timer for reset game
     this.gameStartTime = null;
     this.totalGameTime = 0;
     this.isGamePaused = false;
@@ -1051,17 +1212,26 @@ export class SudokuComponent implements OnInit {
     if (this.timerComponent) {
       this.timerComponent.resetGameTimer();
     }
+    
+    // Reset congratulations modal state
+    this.showCongratulationsModal = false;
+    this.gameCompletionData = null;
 
     // Reset all non-fixed cells to their initial state
-    this.boxes.forEach(box => {
-      box.cells.forEach(cell => {
-        if (!cell.isFixed) {
-          cell.value = null;
-          cell.notes = [];
-          cell.state = 'normal';
+    // Safety check: ensure boxes are properly initialized
+    if (this.boxes && this.boxes.length > 0) {
+      this.boxes.forEach(box => {
+        if (box && box.cells && box.cells.length > 0) {
+          box.cells.forEach(cell => {
+            if (cell && !cell.isFixed) {
+              cell.value = null;
+              cell.notes = [];
+              cell.state = 'normal';
+            }
+          });
         }
       });
-    });
+    }
 
     // Save the reset game state instead of clearing it
     this.saveGameState();
@@ -1092,7 +1262,7 @@ export class SudokuComponent implements OnInit {
 
     // Set the current number for highlighting
     this.currentNumber = num;
-    
+
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       // If no cell is selected, just highlight the number without doing anything else
       // Force change detection to update highlights
@@ -1103,6 +1273,15 @@ export class SudokuComponent implements OnInit {
     }
 
     // Check if the selected cell can be edited
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      console.error('Cannot edit: boxes not properly initialized');
+      return;
+    }
+    
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     if (cell.isFixed || cell.state === 'correct') {
       console.log('Cannot edit fixed or correct cell');
@@ -1135,16 +1314,16 @@ export class SudokuComponent implements OnInit {
       cell.value = num;
       cell.state = 'correct';
       cell.notes = []; // Clear notes when entering correct value
-      
+
       // Remove conflicting notes from related cells
       this.removeNotesWithNumber(num);
 
       // Update score
       this.score += 10;
-      
+
       // Clear current number after successful move
       this.currentNumber = null;
-      
+
       // Clear all highlights after successful move
       this.clearHighlights();
 
@@ -1158,13 +1337,13 @@ export class SudokuComponent implements OnInit {
       cell.value = num;
       cell.state = 'error';
       cell.notes = []; // Clear notes when entering incorrect value
-      
+
       // Remove conflicting notes from related cells
       this.removeNotesWithNumber(num);
 
       // Increment mistake count
       this.mistakeCount++;
-      
+
       // Clear current number after incorrect move
       this.currentNumber = null;
 
@@ -1190,7 +1369,7 @@ export class SudokuComponent implements OnInit {
     };
 
     this.moveHistory.push(move);
-    
+
     // Limit the undo stack size
     if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
       this.moveHistory.shift(); // Remove oldest move
@@ -1211,8 +1390,17 @@ export class SudokuComponent implements OnInit {
       return;
     }
 
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      console.error('Cannot provide hint: boxes not properly initialized');
+      return;
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
-    
+
     // Can't provide hints for fixed cells or already correct cells
     if (cell.isFixed || cell.state === 'correct') {
       console.log('Cannot provide hint for fixed or correct cell');
@@ -1233,13 +1421,13 @@ export class SudokuComponent implements OnInit {
     cell.value = correctValue;
     cell.state = 'correct';
     cell.notes = [];
-    
+
     // Remove conflicting notes from related cells
     this.removeNotesWithNumber(correctValue);
-    
+
     // Clear current number when providing hint
     this.currentNumber = null;
-    
+
     // Clear all highlights after providing hint
     this.clearHighlights();
 
@@ -1257,16 +1445,57 @@ export class SudokuComponent implements OnInit {
 
   // Check if the game is over (too many mistakes)
   public isGameOver(): boolean {
-    return this.mistakeCount >= 3;
+    const isOver = this.mistakeCount >= 3;
+    console.log('isGameOver:', { mistakeCount: this.mistakeCount, isOver });
+    return isOver;
   }
 
   // Check if the game is active (not over and not won)
   public isGameActive(): boolean {
-    return !this.isGameOver() && !this.hasWonGame();
+    // If still loading, assume game is active to prevent blocking initialization
+    if (this.isLoading) {
+      console.log('isGameActive: Loading state, returning true');
+      return true;
+    }
+    
+    // If boxes are not initialized yet, assume game is active (during initialization)
+    // This prevents the circular dependency issue where isGameActive blocks initialization
+    if (!this.boxes || this.boxes.length === 0) {
+      console.log('isGameActive: Boxes not initialized, returning true');
+      return true; // Assume active during initialization
+    }
+    
+    const gameOver = this.isGameOver();
+    const gameWon = this.hasWonGame();
+    
+    // A game is active if:
+    // 1. It's not over due to mistakes (gameOver = false)
+    // 2. It's not won yet (gameWon = false) - meaning the puzzle is still being solved
+    // OR if it's won but the congratulations modal is showing (user hasn't chosen next action yet)
+    const isActive = !gameOver && (!gameWon || this.showCongratulationsModal);
+    
+    console.log('isGameActive:', { 
+      gameOver, 
+      gameWon, 
+      showCongratulationsModal: this.showCongratulationsModal,
+      isActive, 
+      mistakeCount: this.mistakeCount 
+    });
+    
+    // Add stack trace for debugging
+    if (gameWon && !this.showCongratulationsModal) {
+      console.log('isGameActive called from:', new Error().stack);
+    }
+    
+    return isActive;
   }
 
   // Check if the game is won
   public hasWonGame(): boolean {
+    // If boxes are not initialized yet, game cannot be won
+    if (!this.boxes || this.boxes.length === 0) {
+      return false;
+    }
     return this.isGameWon();
   }
 
@@ -1323,7 +1552,15 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return { boxIndex: null, cellIndex: null, isEditable: false };
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      return { boxIndex: null, cellIndex: null, isEditable: false };
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return {
       boxIndex: this.selectedBoxIndex,
@@ -1337,7 +1574,15 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return false;
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      return false;
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return !cell.isFixed && cell.state !== 'correct';
   }
@@ -1347,7 +1592,15 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return null;
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      return null;
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return {
       value: cell.value,
@@ -1402,7 +1655,15 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return false;
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      return false;
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return cell.isFixed;
   }
@@ -1412,7 +1673,15 @@ export class SudokuComponent implements OnInit {
     if (boxIndex < 0 || boxIndex >= 9 || cellIndex < 0 || cellIndex >= 9) {
       return false;
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[boxIndex] || 
+        !this.boxes[boxIndex].cells || 
+        !this.boxes[boxIndex].cells[cellIndex]) {
+      return false;
+    }
+
     const cell = this.boxes[boxIndex].cells[cellIndex];
     return !cell.isFixed && cell.state !== 'correct';
   }
@@ -1422,7 +1691,7 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return false;
     }
-    
+
     return this.canCellBeEdited(this.selectedBoxIndex, this.selectedCellIndex);
   }
 
@@ -1431,7 +1700,15 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return null;
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      return null;
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return cell.value;
   }
@@ -1441,7 +1718,15 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return [];
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      return [];
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return [...cell.notes]; // Return a copy
   }
@@ -1451,7 +1736,15 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return 'normal';
     }
-    
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      return 'normal';
+    }
+
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return cell.state;
   }

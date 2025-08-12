@@ -41,10 +41,13 @@
   <span class="game-over-text">Game Over! Too many mistakes.</span>
 </div>
 
-<div class="victory-message" *ngIf="hasWonGame()">
-  <i class="fas fa-trophy"></i>
-  <span class="victory-text">Congratulations! Puzzle completed!</span>
-</div>
+<!-- Congratulations Modal -->
+<app-congratulations-modal
+  [isVisible]="showCongratulationsModal"
+  [gameData]="gameCompletionData"
+  (newGame)="onNewGameFromModal($event)"
+  (closeModal)="onCloseCongratulationsModal()">
+</app-congratulations-modal>
 
 
 <div class="sudoku-container" #sudokuContainer>
