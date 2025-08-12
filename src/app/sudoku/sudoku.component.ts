@@ -341,6 +341,60 @@ export class SudokuComponent implements OnInit {
     }, 100);
   }
 
+  // Navigate between cells using arrow keys
+  private navigateWithArrowKeys(key: string) {
+    if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
+
+    let newBoxIndex = this.selectedBoxIndex;
+    let newCellIndex = this.selectedCellIndex;
+
+    switch (key) {
+      case 'ArrowUp':
+        if (newCellIndex >= 3) {
+          newCellIndex -= 3;
+        } else if (newBoxIndex >= 3) {
+          newBoxIndex -= 3;
+          newCellIndex += 6;
+        }
+        break;
+      case 'ArrowDown':
+        if (newCellIndex < 6) {
+          newCellIndex += 3;
+        } else if (newBoxIndex < 6) {
+          newBoxIndex += 3;
+          newCellIndex -= 6;
+        }
+        break;
+      case 'ArrowLeft':
+        if (newCellIndex % 3 > 0) {
+          newCellIndex--;
+        } else if (newBoxIndex % 3 > 0) {
+          newBoxIndex--;
+          newCellIndex += 2;
+        }
+        break;
+      case 'ArrowRight':
+        if (newCellIndex % 3 < 2) {
+          newCellIndex++;
+        } else if (newBoxIndex % 3 < 2) {
+          newBoxIndex++;
+          newCellIndex -= 2;
+        }
+        break;
+    }
+
+    // Ensure the new position is valid
+    if (newBoxIndex >= 0 && newBoxIndex < 9 && newCellIndex >= 0 && newCellIndex < 9) {
+      this.selectedBoxIndex = newBoxIndex;
+      this.selectedCellIndex = newCellIndex;
+      
+      // Force change detection to update highlights
+      if (this.boardComponent) {
+        this.boardComponent.detectChanges();
+      }
+    }
+  }
+
   // Method to toggle a note in the selected cell
   private toggleNoteInCell(num: number) {
     // Check if game is still active
@@ -485,28 +539,45 @@ export class SudokuComponent implements OnInit {
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardInput(event: KeyboardEvent) {
-    // Check if the active element is outside the sudoku board
-    const activeElement = document.activeElement;
-    if (this.sudokuContainer && activeElement && !this.sudokuContainer.nativeElement.contains(activeElement)) {
-      this.clearHighlights();
-      return;
-    }
-
     // Check if game is still active
     if (!this.isGameActive()) {
       console.log('Game is not active - cannot make moves');
       return;
     }
 
-    if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
-
-    // Number keys 1–9
+    // Number keys 1–9 - always work for number input
     if (/^[1-9]$/.test(event.key)) {
+      // If no cell is selected, just highlight the number
+      if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
+        this.currentNumber = parseInt(event.key, 10);
+        console.log('Number highlighted:', this.currentNumber);
+        // Force change detection to update highlights
+        if (this.boardComponent) {
+          this.boardComponent.detectChanges();
+        }
+        return;
+      }
+      
       this.onNumberPadClick(parseInt(event.key, 10));
     }
     // Backspace or Delete clears the cell
     else if (event.key === 'Backspace' || event.key === 'Delete') {
+      if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
       this.clearCell();
+    }
+    // Escape key clears highlights
+    else if (event.key === 'Escape') {
+      this.clearHighlights();
+    }
+    // Space key toggles notes mode
+    else if (event.key === ' ') {
+      event.preventDefault(); // Prevent page scroll
+      this.toggleNotesMode();
+    }
+    // Arrow keys for navigation (optional enhancement)
+    else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      event.preventDefault();
+      this.navigateWithArrowKeys(event.key);
     }
   }
 
@@ -928,6 +999,10 @@ export class SudokuComponent implements OnInit {
     
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       // If no cell is selected, just highlight the number without doing anything else
+      // Force change detection to update highlights
+      if (this.boardComponent) {
+        this.boardComponent.detectChanges();
+      }
       return;
     }
 

@@ -1,6 +1,7 @@
 <app-controls 
 [notesMode]="notesMode"
 [canUndo]="canUndo()"
+[disabled]="!isGameActive()"
 (resetGame)="resetGame()"
 (newGame)="onNewGame($event)"
 (toggleNotesMode)="toggleNotesMode()"
@@ -54,6 +55,7 @@
         </app-board>
         <app-number-pad
         [currentNumber]="currentNumber"
+        [disabled]="!isGameActive()"
         (numberClick)="onNumberPadClick($event)">
         </app-number-pad>
        

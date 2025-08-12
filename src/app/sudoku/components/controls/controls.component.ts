@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 export class ControlsComponent {
   @Input() notesMode: boolean = false;
   @Input() canUndo: boolean = false;
+  @Input() disabled: boolean = false;
   @Output() resetGame = new EventEmitter<void>();
   @Output() newGame = new EventEmitter<string>();
   @Output() toggleNotesMode = new EventEmitter<void>();

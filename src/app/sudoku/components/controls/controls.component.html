@@ -9,34 +9,34 @@
   </div>
   
   <div class="game-buttons">
-    <button class="new-game-btn" (click)="onNewGameClick()">
+    <button class="new-game-btn" (click)="onNewGameClick()" [disabled]="disabled">
       <i class="fas fa-plus-circle"></i>
       New Game
     </button>
     
-    <button class="undo-btn" (click)="onUndoClick()" [disabled]="!canUndo">
+    <button class="undo-btn" (click)="onUndoClick()" [disabled]="!canUndo || disabled">
       <i class="fas fa-undo"></i>
       Undo
     </button>
     
-    <button class="reset-btn" (click)="onResetClick()">
+    <button class="reset-btn" (click)="onResetClick()" [disabled]="disabled">
       <i class="fas fa-redo"></i>
       Reset Game
     </button>
     
-    <button class="hint-btn" (click)="onHintClick()">
+    <button class="hint-btn" (click)="onHintClick()" [disabled]="disabled">
       <i class="fas fa-lightbulb"></i>
       Hint
     </button>
   </div>
   
   <div class="notes-controls">
-    <button class="notes-toggle-btn" [class.active]="notesMode" (click)="onToggleNotesClick()">
+    <button class="notes-toggle-btn" [class.active]="notesMode" (click)="onToggleNotesClick()" [disabled]="disabled">
       <i class="fas fa-pencil-alt"></i>
       {{ notesMode ? 'Notes ON' : 'Notes OFF' }}
     </button>
     
-    <button class="reset-notes-btn" (click)="onResetNotesClick()">
+    <button class="reset-notes-btn" (click)="onResetNotesClick()" [disabled]="disabled">
       <i class="fas fa-eraser"></i>
       Reset Notes
     </button>
