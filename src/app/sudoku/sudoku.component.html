@@ -1,10 +1,12 @@
 <app-controls 
 [notesMode]="notesMode"
+[canUndo]="canUndo()"
 (resetGame)="resetGame()"
 (newGame)="onNewGame($event)"
 (toggleNotesMode)="toggleNotesMode()"
 (resetNotes)="resetNotes()"
-(hint)="provideHint()">
+(hint)="provideHint()"
+(undo)="undo()">
 </app-controls>
 
 <div class="difficulty-display" >

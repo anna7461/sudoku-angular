@@ -14,8 +14,13 @@
       New Game
     </button>
     
-    <button class="reset-btn" (click)="onResetClick()">
+    <button class="undo-btn" (click)="onUndoClick()" [disabled]="!canUndo">
       <i class="fas fa-undo"></i>
+      Undo
+    </button>
+    
+    <button class="reset-btn" (click)="onResetClick()">
+      <i class="fas fa-redo"></i>
       Reset Game
     </button>
     

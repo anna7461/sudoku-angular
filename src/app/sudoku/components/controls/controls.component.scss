@@ -42,7 +42,7 @@
   gap: 15px;
 }
 
-.new-game-btn, .reset-btn, .hint-btn {
+.new-game-btn, .undo-btn, .reset-btn, .hint-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -76,6 +76,28 @@
 
   &:hover {
     background-color: #229954;
+  }
+}
+
+.undo-btn {
+  background-color: #f39c12;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #e67e22;
+  }
+
+  &:disabled {
+    background-color: #bdc3c7;
+    color: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+
+    &:hover {
+      transform: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
   }
 }
 

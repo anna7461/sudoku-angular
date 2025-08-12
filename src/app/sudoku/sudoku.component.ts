@@ -2,6 +2,7 @@ import {Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/c
 import {CommonModule} from '@angular/common';
 import {Box} from './models/box.model';
 import {Cell} from './models/cell.model';
+import {Move} from './models/move.model';
 import {BoardComponent} from './components/board/board.component';
 import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
@@ -36,6 +37,10 @@ export class SudokuComponent implements OnInit {
   mistakeCount: number = 0; // Track mistakes made
   score: number = 0; // Track player score
   notesMode: boolean = false; // Toggle for notes mode
+  
+  // Move tracking for undo functionality
+  private moveHistory: Move[] = [];
+  private readonly MAX_UNDO_STEPS = 50; // Limit undo steps to prevent memory issues
 
   ngOnInit() {
     // Use setTimeout to prevent immediate state changes that cause blinking
@@ -54,7 +59,7 @@ export class SudokuComponent implements OnInit {
 
   private saveGameState(): void {
     try {
-      const gameState = {
+      const gameState = { 
         boxes: this.boxes,
         difficulty: this.currentDifficulty,
         mistakeCount: this.mistakeCount,
@@ -62,6 +67,7 @@ export class SudokuComponent implements OnInit {
         notesMode: this.notesMode,
         solution: this.solution,
         fixedCells: this.fixedCells,
+        moveHistory: this.moveHistory,
         timestamp: Date.now()
       };
 
@@ -101,6 +107,11 @@ export class SudokuComponent implements OnInit {
           }
           if (gameState.fixedCells && Array.isArray(gameState.fixedCells)) {
             this.fixedCells = gameState.fixedCells;
+          }
+          
+          // Load move history if available
+          if (gameState.moveHistory && Array.isArray(gameState.moveHistory)) {
+            this.moveHistory = gameState.moveHistory;
           }
 
           // If we have a saved game but no solution, we need to regenerate the puzzle
@@ -156,6 +167,9 @@ export class SudokuComponent implements OnInit {
     this.currentNumber = null;
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
+    
+    // Clear move history for new game
+    this.moveHistory = [];
 
     // Small delay to prevent blinking
     setTimeout(() => {
@@ -189,6 +203,16 @@ export class SudokuComponent implements OnInit {
     return this.score;
   }
 
+  // Check if undo is available
+  canUndo(): boolean {
+    return this.moveHistory.length > 0;
+  }
+
+  // Get the number of available undo steps
+  getUndoStepsCount(): number {
+    return this.moveHistory.length;
+  }
+
   // Method to toggle notes mode
   toggleNotesMode() {
     this.notesMode = !this.notesMode;
@@ -199,20 +223,88 @@ export class SudokuComponent implements OnInit {
   // Method to reset all notes from the board
   resetNotes() {
     console.log('Resetting all notes from the board');
-    this.boxes.forEach(box => {
-      box.cells.forEach(cell => {
+    
+    // Store the previous state for move tracking (batch operation)
+    const moves: Move[] = [];
+    
+    this.boxes.forEach((box, boxIndex) => {
+      box.cells.forEach((cell, cellIndex) => {
         // Only reset notes for non-fixed cells
-        if (!cell.isFixed) {
+        if (!cell.isFixed && cell.notes.length > 0) {
+          const move: Move = {
+            boxIndex,
+            cellIndex,
+            previousValue: cell.value,
+            previousNotes: [...cell.notes],
+            previousState: cell.state,
+            newValue: cell.value,
+            newNotes: [],
+            newState: cell.state,
+            timestamp: Date.now()
+          };
+          moves.push(move);
+          
           cell.notes = [];
         }
       });
     });
+    
+    // Add all moves to the history
+    this.moveHistory.push(...moves);
+    
+    // Limit the undo stack size
+    while (this.moveHistory.length > this.MAX_UNDO_STEPS) {
+      this.moveHistory.shift(); // Remove oldest moves
+    }
+    
     this.saveGameState();
 
     // Force change detection to update the UI
     if (this.boardComponent) {
       this.boardComponent.detectChanges();
     }
+  }
+
+  // Undo the last move
+  undo() {
+    if (!this.canUndo()) {
+      console.log('No moves to undo');
+      return;
+    }
+
+    const lastMove = this.moveHistory.pop();
+    if (!lastMove) return;
+
+    console.log('Undoing move:', lastMove);
+
+    // Restore the previous cell state
+    const cell = this.boxes[lastMove.boxIndex].cells[lastMove.cellIndex];
+    cell.value = lastMove.previousValue;
+    cell.notes = [...lastMove.previousNotes];
+    cell.state = lastMove.previousState as 'normal' | 'correct' | 'error' | 'highlight';
+
+    // Update score if needed (reverse the score change)
+    if (lastMove.newState === 'correct' && lastMove.previousState !== 'correct') {
+      this.score = Math.max(0, this.score - 10); // Remove points for correct move
+    } else if (lastMove.newState === 'error' && lastMove.previousState !== 'error') {
+      this.score += 5; // Add back points for incorrect move
+      this.mistakeCount = Math.max(0, this.mistakeCount - 1); // Reduce mistake count
+    }
+
+    // Clear current selection and number
+    this.selectedBoxIndex = null;
+    this.selectedCellIndex = null;
+    this.currentNumber = null;
+
+    // Save game state
+    this.saveGameState();
+
+    // Force change detection to update the UI
+    if (this.boardComponent) {
+      this.boardComponent.detectChanges();
+    }
+
+    console.log('Move undone successfully');
   }
 
   // Method to toggle a note in the selected cell
@@ -227,6 +319,11 @@ export class SudokuComponent implements OnInit {
       return;
     }
 
+    // Store the previous state for move tracking
+    const previousValue = cell.value;
+    const previousNotes = [...cell.notes];
+    const previousState = cell.state;
+
     const noteIndex = cell.notes.indexOf(num);
 
     if (noteIndex === -1) {
@@ -237,6 +334,26 @@ export class SudokuComponent implements OnInit {
       // Remove note
       cell.notes.splice(noteIndex, 1);
       console.log(`Removed note ${num} from cell`);
+    }
+
+    // Record the move for undo functionality
+    const move: Move = {
+      boxIndex: this.selectedBoxIndex,
+      cellIndex: this.selectedCellIndex,
+      previousValue,
+      previousNotes,
+      previousState,
+      newValue: cell.value,
+      newNotes: [...cell.notes],
+      newState: cell.state,
+      timestamp: Date.now()
+    };
+
+    this.moveHistory.push(move);
+    
+    // Limit the undo stack size
+    if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
+      this.moveHistory.shift(); // Remove oldest move
     }
 
     // Save game state
@@ -664,6 +781,11 @@ export class SudokuComponent implements OnInit {
       return;
     }
 
+    // Store the previous state for move tracking
+    const previousValue = cell.value;
+    const previousNotes = [...cell.notes];
+    const previousState = cell.state;
+
     // Clear current number
     this.currentNumber = null;
 
@@ -678,6 +800,26 @@ export class SudokuComponent implements OnInit {
       cell.notes = [];
       cell.state = 'normal';
       console.log('Cleared cell value and notes');
+    }
+
+    // Record the move for undo functionality
+    const move: Move = {
+      boxIndex: this.selectedBoxIndex,
+      cellIndex: this.selectedCellIndex,
+      previousValue,
+      previousNotes,
+      previousState,
+      newValue: cell.value,
+      newNotes: [...cell.notes],
+      newState: cell.state,
+      timestamp: Date.now()
+    };
+
+    this.moveHistory.push(move);
+    
+    // Limit the undo stack size
+    if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
+      this.moveHistory.shift(); // Remove oldest move
     }
 
     // Force change detection to show the updated state
@@ -697,6 +839,9 @@ export class SudokuComponent implements OnInit {
     this.currentNumber = null;
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
+    
+    // Clear move history for reset game
+    this.moveHistory = [];
 
     // Reset all non-fixed cells to their initial state
     this.boxes.forEach(box => {
@@ -734,6 +879,11 @@ export class SudokuComponent implements OnInit {
       console.log('Cannot edit fixed or correct cell');
       return; // cannot edit fixed or correct cells
     }
+
+    // Store the previous state for move tracking
+    const previousValue = cell.value;
+    const previousNotes = [...cell.notes];
+    const previousState = cell.state;
 
     // Check if notes mode is active
     if (this.notesMode) {
@@ -794,6 +944,26 @@ export class SudokuComponent implements OnInit {
         console.log('Game over - too many mistakes!');
         // You could add game over logic here
       }
+    }
+
+    // Record the move for undo functionality
+    const move: Move = {
+      boxIndex: this.selectedBoxIndex,
+      cellIndex: this.selectedCellIndex,
+      previousValue,
+      previousNotes,
+      previousState,
+      newValue: cell.value,
+      newNotes: [...cell.notes],
+      newState: cell.state,
+      timestamp: Date.now()
+    };
+
+    this.moveHistory.push(move);
+    
+    // Limit the undo stack size
+    if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
+      this.moveHistory.shift(); // Remove oldest move
     }
 
     // Save game state

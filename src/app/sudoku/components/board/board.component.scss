@@ -73,11 +73,10 @@
   }
 
   &.current-number-highlighted {
-    background-color: rgba(37, 190, 118, 0.3); // Success color with transparency
-    border: 2px solid $success;
+    background-color: $lightest;
 
     .main-number {
-      color: $success;
+      color: $primary;
       font-weight: bold;
     }
 
@@ -139,8 +138,6 @@
       &.note-error {
         color: $danger;
         font-weight: bold;
-        background-color: rgba(231, 76, 60, 0.2);
-        border-radius: 2px;
       }
     }
   }
