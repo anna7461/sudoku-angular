@@ -36,6 +36,13 @@ export class BoardComponent {
     });
   }
 
+  /**
+   * Determines if a specific cell is currently selected based on its box and cell indices.
+   *
+   * @param {number} boxIndex - The index of the box containing the cell to check.
+   * @param {number} cellIndex - The index of the cell within the box to check.
+   * @return {boolean} Returns true if the specified cell is selected, otherwise false.
+   */
   isCellSelected(boxIndex: number, cellIndex: number): boolean {
     return this.selectedBoxIndex === boxIndex && this.selectedCellIndex === cellIndex;
   }

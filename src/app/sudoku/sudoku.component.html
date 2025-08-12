@@ -28,6 +28,14 @@
   <span class="score-value">{{ getCurrentScore() }}</span>
 </div>
 
+<app-timer
+  [isGameActive]="isGameActive()"
+  [isGamePaused]="isGamePaused"
+  [isGameCompleted]="hasWonGame()"
+  (timerUpdate)="onTimerUpdate($event)"
+  (pauseStateChange)="onPauseStateChange($event)">
+</app-timer>
+
 <div class="game-over-message" *ngIf="isGameOver()">
   <i class="fas fa-times-circle"></i>
   <span class="game-over-text">Game Over! Too many mistakes.</span>

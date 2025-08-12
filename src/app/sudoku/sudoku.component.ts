@@ -6,6 +6,7 @@ import {Move} from './models/move.model';
 import {BoardComponent} from './components/board/board.component';
 import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
+import {TimerComponent} from './components/timer/timer.component';
 
 @Component({
   standalone: true,
@@ -15,7 +16,8 @@ import {ControlsComponent} from './components/controls/controls.component';
     CommonModule,
     BoardComponent,
     NumberPadComponent,
-    ControlsComponent
+    ControlsComponent,
+    TimerComponent
   ],
   styleUrls: ['./sudoku.component.scss']
 })
@@ -23,6 +25,7 @@ export class SudokuComponent implements OnInit {
 
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
   @ViewChild('sudokuContainer', { read: ElementRef }) sudokuContainer!: ElementRef;
+  @ViewChild(TimerComponent) timerComponent!: TimerComponent;
 
   boxes: Box[] = [];
   private readonly STORAGE_KEY = 'sudoku-game-state';
@@ -41,6 +44,11 @@ export class SudokuComponent implements OnInit {
   // Move tracking for undo functionality
   private moveHistory: Move[] = [];
   private readonly MAX_UNDO_STEPS = 50; // Limit undo steps to prevent memory issues
+  
+  // Timer functionality
+  isGamePaused: boolean = false;
+  gameStartTime: number | null = null;
+  totalGameTime: number = 0;
 
   ngOnInit() {
     // Use setTimeout to prevent immediate state changes that cause blinking
@@ -68,6 +76,9 @@ export class SudokuComponent implements OnInit {
         solution: this.solution,
         fixedCells: this.fixedCells,
         moveHistory: this.moveHistory,
+        gameStartTime: this.gameStartTime,
+        totalGameTime: this.totalGameTime,
+        isGamePaused: this.isGamePaused,
         timestamp: Date.now()
       };
 
@@ -112,6 +123,17 @@ export class SudokuComponent implements OnInit {
           // Load move history if available
           if (gameState.moveHistory && Array.isArray(gameState.moveHistory)) {
             this.moveHistory = gameState.moveHistory;
+          }
+          
+          // Load timer information if available
+          if (gameState.gameStartTime !== undefined) {
+            this.gameStartTime = gameState.gameStartTime;
+          }
+          if (gameState.totalGameTime !== undefined) {
+            this.totalGameTime = gameState.totalGameTime;
+          }
+          if (gameState.isGamePaused !== undefined) {
+            this.isGamePaused = gameState.isGamePaused;
           }
 
           // If we have a saved game but no solution, we need to regenerate the puzzle
@@ -170,6 +192,16 @@ export class SudokuComponent implements OnInit {
     
     // Clear move history for new game
     this.moveHistory = [];
+    
+    // Reset timer for new game
+    this.gameStartTime = null;
+    this.totalGameTime = 0;
+    this.isGamePaused = false;
+    
+    // Reset the timer component
+    if (this.timerComponent) {
+      this.timerComponent.resetGameTimer();
+    }
 
     // Small delay to prevent blinking
     setTimeout(() => {
@@ -213,6 +245,15 @@ export class SudokuComponent implements OnInit {
     return this.moveHistory.length;
   }
 
+  // Timer event handlers
+  onTimerUpdate(elapsedSeconds: number) {
+    this.totalGameTime = elapsedSeconds;
+  }
+
+  onPauseStateChange(isPaused: boolean) {
+    this.isGamePaused = isPaused;
+  }
+
   // Method to toggle notes mode
   toggleNotesMode() {
     this.notesMode = !this.notesMode;
@@ -229,6 +270,16 @@ export class SudokuComponent implements OnInit {
     }
 
     console.log('Resetting all notes from the board');
+    
+    // Start timer on first move
+    if (this.gameStartTime === null) {
+      this.gameStartTime = Date.now();
+      console.log('Game timer started');
+      // Start the timer component
+      if (this.timerComponent) {
+        this.timerComponent.startGameTimer();
+      }
+    }
     
     // Store the previous state for move tracking (batch operation)
     const moves: Move[] = [];
@@ -331,6 +382,11 @@ export class SudokuComponent implements OnInit {
   private handleVictory() {
     console.log('Victory! Puzzle completed!');
     
+    // Reset timer when puzzle is completed
+    if (this.timerComponent) {
+      this.timerComponent.resetGameTimer();
+    }
+    
     // Show victory message
     setTimeout(() => {
       const message = `Congratulations! You've completed the puzzle!\nScore: ${this.score}\nMistakes: ${this.mistakeCount}`;
@@ -401,6 +457,16 @@ export class SudokuComponent implements OnInit {
     if (!this.isGameActive()) {
       console.log('Game is not active - cannot make moves');
       return;
+    }
+
+    // Start timer on first move
+    if (this.gameStartTime === null) {
+      this.gameStartTime = Date.now();
+      console.log('Game timer started');
+      // Start the timer component
+      if (this.timerComponent) {
+        this.timerComponent.startGameTimer();
+      }
     }
 
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
@@ -898,6 +964,16 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
     const cell = this.boxes[this.selectedBoxIndex!].cells[this.selectedCellIndex!];
 
+    // Start timer on first move
+    if (this.gameStartTime === null) {
+      this.gameStartTime = Date.now();
+      console.log('Game timer started');
+      // Start the timer component
+      if (this.timerComponent) {
+        this.timerComponent.startGameTimer();
+      }
+    }
+
     // Cannot clear fixed cells or cells that are already correct
     if (cell.isFixed || cell.state === 'correct') {
       console.log('Cannot clear fixed or correct cell');
@@ -965,6 +1041,16 @@ export class SudokuComponent implements OnInit {
     
     // Clear move history for reset game
     this.moveHistory = [];
+    
+    // Reset timer for reset game
+    this.gameStartTime = null;
+    this.totalGameTime = 0;
+    this.isGamePaused = false;
+    
+    // Reset the timer component
+    if (this.timerComponent) {
+      this.timerComponent.resetGameTimer();
+    }
 
     // Reset all non-fixed cells to their initial state
     this.boxes.forEach(box => {
@@ -992,6 +1078,16 @@ export class SudokuComponent implements OnInit {
     if (!this.isGameActive()) {
       console.log('Game is not active - cannot make moves');
       return;
+    }
+
+    // Start timer on first move
+    if (this.gameStartTime === null) {
+      this.gameStartTime = Date.now();
+      console.log('Game timer started');
+      // Start the timer component
+      if (this.timerComponent) {
+        this.timerComponent.startGameTimer();
+      }
     }
 
     // Set the current number for highlighting
