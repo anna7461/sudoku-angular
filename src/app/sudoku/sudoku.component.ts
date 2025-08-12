@@ -1254,6 +1254,41 @@ export class SudokuComponent implements OnInit {
     }, 150);
   }
 
+  // Calculate remaining count for each number (1-9)
+  calculateRemainingCounts(): { [key: number]: number } {
+    const counts: { [key: number]: number } = {};
+    
+    // Initialize counts - each number should appear 9 times in a complete sudoku
+    for (let i = 1; i <= 9; i++) {
+      counts[i] = 9;
+    }
+    
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0) {
+      return counts;
+    }
+    
+    // Count how many times each number is already placed on the board
+    this.boxes.forEach(box => {
+      if (!box || !box.cells || box.cells.length === 0) {
+        return;
+      }
+      
+      box.cells.forEach(cell => {
+        if (cell && cell.value !== null && cell.value >= 1 && cell.value <= 9) {
+          counts[cell.value]--;
+        }
+      });
+    });
+    
+    // Ensure counts don't go below 0
+    for (let i = 1; i <= 9; i++) {
+      counts[i] = Math.max(0, counts[i]);
+    }
+    
+    return counts;
+  }
+
   // Called when user clicks number on dock number pad
   onNumberPadClick(num: number) {
     // Check if game is still active

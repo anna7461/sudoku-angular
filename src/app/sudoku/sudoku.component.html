@@ -67,6 +67,7 @@
         <app-number-pad
         [currentNumber]="currentNumber"
         [disabled]="!isGameActive()"
+        [remainingCounts]="calculateRemainingCounts()"
         (numberClick)="onNumberPadClick($event)">
         </app-number-pad>
        

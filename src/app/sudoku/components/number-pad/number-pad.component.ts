@@ -11,17 +11,26 @@ import { CommonModule } from '@angular/common';
 export class NumberPadComponent {
   @Input() disabled: boolean = false;
   @Input() currentNumber: number | null = null;
+  @Input() remainingCounts: { [key: number]: number } = {};
   @Output() numberClick = new EventEmitter<number>();
 
   numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   onNumberClick(num: number) {
-    if (!this.disabled) {
+    if (!this.disabled && !this.isNumberCompleted(num)) {
       this.numberClick.emit(num);
     }
   }
 
   isNumberSelected(num: number): boolean {
     return this.currentNumber === num;
+  }
+
+  isNumberCompleted(num: number): boolean {
+    return this.remainingCounts[num] === 0;
+  }
+
+  getRemainingCount(num: number): number {
+    return this.remainingCounts[num] || 0;
   }
 }

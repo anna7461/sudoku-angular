@@ -1,7 +1,10 @@
 <div class="number-pad">
   <button *ngFor="let num of numbers"
           [class.selected]="isNumberSelected(num)"
+          [class.completed]="isNumberCompleted(num)"
+          [disabled]="isNumberCompleted(num)"
           (click)="onNumberClick(num)">
-    {{ num }}
+    <div class="number">{{ num }}</div>
+    <div class="count">{{ getRemainingCount(num) }}</div>
   </button>
 </div>
