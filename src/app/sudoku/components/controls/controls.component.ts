@@ -10,11 +10,13 @@ import { CommonModule } from '@angular/common';
 })
 export class ControlsComponent {
   @Input() notesMode: boolean = false;
+  @Input() numberFirstMode: boolean = false;
   @Input() canUndo: boolean = false;
   @Input() disabled: boolean = false;
   @Output() resetGame = new EventEmitter<void>();
   @Output() newGame = new EventEmitter<string>();
   @Output() toggleNotesMode = new EventEmitter<void>();
+  @Output() toggleNumberFirstMode = new EventEmitter<void>();
   @Output() resetNotes = new EventEmitter<void>();
   @Output() hint = new EventEmitter<void>();
   @Output() undo = new EventEmitter<void>();
@@ -55,5 +57,9 @@ export class ControlsComponent {
 
   onUndoClick() {
     this.undo.emit();
+  }
+
+  onToggleNumberFirstClick() {
+    this.toggleNumberFirstMode.emit();
   }
 }

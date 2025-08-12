@@ -122,7 +122,7 @@
   gap: 15px;
 }
 
-.notes-toggle-btn, .reset-notes-btn {
+.notes-toggle-btn, .number-first-toggle-btn, .reset-notes-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -161,6 +161,14 @@
     background-color: #3498db;
     color: white;
     border-color: #3498db;
+  }
+}
+
+.number-first-toggle-btn {
+  &.active {
+    background-color: #9b59b6;
+    color: white;
+    border-color: #9b59b6;
   }
 }
 

@@ -36,6 +36,11 @@
       {{ notesMode ? 'Notes ON' : 'Notes OFF' }}
     </button>
     
+    <button class="number-first-toggle-btn" [class.active]="numberFirstMode" (click)="onToggleNumberFirstClick()" [disabled]="disabled">
+      <i class="fas fa-mouse-pointer"></i>
+      {{ numberFirstMode ? 'Number-First ON' : 'Number-First OFF' }}
+    </button>
+    
     <button class="reset-notes-btn" (click)="onResetNotesClick()" [disabled]="disabled">
       <i class="fas fa-eraser"></i>
       Reset Notes

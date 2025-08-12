@@ -44,6 +44,8 @@ export class SudokuComponent implements OnInit {
   mistakeCount: number = 0; // Track mistakes made
   score: number = 0; // Track player score
   notesMode: boolean = false; // Toggle for notes mode
+  numberFirstMode: boolean = false; // Toggle for number-first mode
+  selectedNumber: number | null = null; // Selected number in number-first mode
 
   // Move tracking for undo functionality
   private moveHistory: Move[] = [];
@@ -87,6 +89,8 @@ export class SudokuComponent implements OnInit {
         mistakeCount: this.mistakeCount,
         score: this.score,
         notesMode: this.notesMode,
+        numberFirstMode: this.numberFirstMode,
+        selectedNumber: this.selectedNumber,
         solution: this.solution,
         fixedCells: this.fixedCells,
         moveHistory: this.moveHistory,
@@ -120,6 +124,8 @@ export class SudokuComponent implements OnInit {
           this.mistakeCount = gameState.mistakeCount ?? 0;
           this.score = gameState.score ?? 0;
           this.notesMode = gameState.notesMode ?? false;
+          this.numberFirstMode = gameState.numberFirstMode ?? false;
+          this.selectedNumber = gameState.selectedNumber ?? null;
           
           console.log('Loaded game state:', { 
             difficulty: this.currentDifficulty, 
@@ -238,6 +244,7 @@ export class SudokuComponent implements OnInit {
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
     this.currentNumber = null;
+    this.selectedNumber = null; // Reset selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
 
@@ -329,6 +336,153 @@ export class SudokuComponent implements OnInit {
     this.saveGameState();
   }
 
+  // Method to toggle number-first mode
+  toggleNumberFirstMode() {
+    this.numberFirstMode = !this.numberFirstMode;
+    // Clear selected number when disabling number-first mode
+    if (!this.numberFirstMode) {
+      this.selectedNumber = null;
+      this.currentNumber = null;
+    }
+    console.log(`Number-First mode ${this.numberFirstMode ? 'enabled' : 'disabled'}`);
+    this.saveGameState();
+  }
+
+  // Method to fill cell with selected number in number-first mode
+  private fillCellWithSelectedNumber() {
+    if (this.selectedNumber === null || this.selectedBoxIndex === null || this.selectedCellIndex === null) {
+      return;
+    }
+
+    // Check if game is still active
+    if (!this.isGameActive()) {
+      console.log('Game is not active - cannot make moves');
+      return;
+    }
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 || 
+        !this.boxes[this.selectedBoxIndex] || 
+        !this.boxes[this.selectedBoxIndex].cells || 
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      console.error('Cannot fill cell: boxes not properly initialized');
+      return;
+    }
+    
+    const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
+    if (cell.isFixed || cell.state === 'correct') {
+      console.log('Cannot edit fixed or correct cell');
+      return; // cannot edit fixed or correct cells
+    }
+
+    // Store the previous state for move tracking
+    const previousValue = cell.value;
+    const previousNotes = [...cell.notes];
+    const previousState = cell.state;
+
+    // Check if notes mode is active
+    if (this.notesMode) {
+      // In notes mode, toggle the note instead of filling the cell
+      this.toggleNoteInCell(this.selectedNumber);
+      return;
+    }
+
+    // Calculate global row and column for validation
+    const boxRow = Math.floor(this.selectedBoxIndex / 3);
+    const boxCol = this.selectedBoxIndex % 3;
+    const cellRow = Math.floor(this.selectedCellIndex / 3);
+    const cellCol = Math.floor(this.selectedCellIndex % 3);
+    const globalRow = boxRow * 3 + cellRow;
+    const globalCol = boxCol * 3 + cellCol;
+
+    // Store box and cell indices before they get cleared
+    const moveBoxIndex = this.selectedBoxIndex;
+    const moveCellIndex = this.selectedCellIndex;
+
+    // Check if the move is valid against the solution
+    if (this.solution[globalRow][globalCol] === this.selectedNumber) {
+      // Correct move
+      cell.value = this.selectedNumber;
+      cell.state = 'correct';
+      cell.notes = []; // Clear notes when entering correct value
+
+      // Remove conflicting notes from related cells
+      this.removeNotesWithNumber(this.selectedNumber);
+
+      // Update score
+      this.score += 10;
+
+      // Check if puzzle is complete
+      if (this.isPuzzleComplete()) {
+        console.log('Puzzle completed!');
+        this.handleVictory();
+      }
+    } else {
+      // Incorrect move
+      cell.value = this.selectedNumber;
+      cell.state = 'error';
+      cell.notes = []; // Clear notes when entering incorrect value
+
+      // Remove conflicting notes from related cells
+      this.removeNotesWithNumber(this.selectedNumber);
+
+      // Increment mistake count
+      this.mistakeCount++;
+
+      // Check if game over (3 mistakes)
+      if (this.mistakeCount >= 3) {
+        console.log('Game over - too many mistakes!');
+        this.handleGameOver();
+        return; // Stop processing the move
+      }
+    }
+
+    // Record the move for undo functionality BEFORE clearing highlights
+    const move: Move = {
+      boxIndex: moveBoxIndex,
+      cellIndex: moveCellIndex,
+      previousValue,
+      previousNotes,
+      previousState,
+      newValue: cell.value,
+      newNotes: [...cell.notes],
+      newState: cell.state,
+      timestamp: Date.now()
+    };
+
+    this.moveHistory.push(move);
+    console.log('Number-First Mode move recorded:', move);
+
+    // Limit the undo stack size
+    if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
+      this.moveHistory.shift(); // Remove oldest move
+    }
+
+    // Clear highlights after recording the move
+    this.clearHighlights();
+
+    // Check if this number is now complete and should be auto-deselected (after clearing highlights)
+    if (this.solution[globalRow][globalCol] === this.selectedNumber) {
+      const remainingCounts = this.calculateRemainingCounts();
+      if (remainingCounts[this.selectedNumber] === 0) {
+        console.log(`Number ${this.selectedNumber} completed, auto-deselecting`);
+        this.selectedNumber = null;
+        this.currentNumber = null;
+      }
+    }
+
+    // Save game state
+    this.saveGameState();
+
+    // Force comprehensive change detection to update the UI immediately
+    this.changeDetectorRef.detectChanges();
+    
+    // Also trigger board component change detection for cell styling
+    if (this.boardComponent) {
+      this.boardComponent.detectChanges();
+    }
+  }
+
   // Method to reset all notes from the board
   resetNotes() {
     // Check if game is still active
@@ -412,6 +566,7 @@ export class SudokuComponent implements OnInit {
     if (!lastMove) return;
 
     console.log('Undoing move:', lastMove);
+    console.log('Move history length before undo:', this.moveHistory.length + 1);
 
     // Restore the previous cell state
     // Safety check: ensure boxes are properly initialized
@@ -440,6 +595,15 @@ export class SudokuComponent implements OnInit {
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
     this.currentNumber = null;
+    
+    // Also clear selected number in Number-First Mode to avoid confusion
+    // But only if that number is no longer available
+    if (this.selectedNumber !== null) {
+      const remainingCounts = this.calculateRemainingCounts();
+      if (remainingCounts[this.selectedNumber] === 0) {
+        this.selectedNumber = null;
+      }
+    }
 
     // Save game state
     this.saveGameState();
@@ -700,8 +864,17 @@ export class SudokuComponent implements OnInit {
     this.selectedBoxIndex = event.boxIndex;
     this.selectedCellIndex = event.cellIndex;
 
-    // Clear current number when selecting a new cell
-    this.currentNumber = null;
+    // In number-first mode, if a number is selected, auto-fill the cell
+    if (this.numberFirstMode && this.selectedNumber !== null && event.isEditable) {
+      console.log(`Auto-filling cell with selected number ${this.selectedNumber} in Number-First mode`);
+      this.fillCellWithSelectedNumber();
+      return;
+    }
+
+    // Clear current number when selecting a new cell (only in normal mode)
+    if (!this.numberFirstMode) {
+      this.currentNumber = null;
+    }
 
     console.log('Selection updated:', {
       boxIndex: this.selectedBoxIndex,
@@ -714,7 +887,11 @@ export class SudokuComponent implements OnInit {
     // Clear cell selection and current number to remove all highlights
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
-    this.currentNumber = null;
+    
+    // Only clear currentNumber if not in number-first mode, preserve selectedNumber
+    if (!this.numberFirstMode) {
+      this.currentNumber = null;
+    }
 
     // Force change detection to update the UI
     this.changeDetectorRef.detectChanges();
@@ -777,6 +954,7 @@ export class SudokuComponent implements OnInit {
   initializeBoard(difficulty?: 'easy' | 'medium' | 'hard' | 'expert') {
     // Clear current number and selection when initializing new board
     this.currentNumber = null;
+    this.selectedNumber = null;
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
 
@@ -1208,6 +1386,7 @@ export class SudokuComponent implements OnInit {
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
     this.currentNumber = null;
+    this.selectedNumber = null; // Reset selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
 
@@ -1307,6 +1486,17 @@ export class SudokuComponent implements OnInit {
       }
     }
 
+    // Handle number-first mode
+    if (this.numberFirstMode) {
+      // In number-first mode, clicking a number selects it
+      this.selectedNumber = num;
+      this.currentNumber = num; // Also set for highlighting consistency
+      console.log(`Selected number ${num} in Number-First mode`);
+      this.saveGameState();
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+
     // Set the current number for highlighting
     this.currentNumber = num;
 
@@ -1392,6 +1582,9 @@ export class SudokuComponent implements OnInit {
       // Clear current number after incorrect move
       this.currentNumber = null;
 
+      // Clear all highlights after incorrect move too
+      this.clearHighlights();
+
       // Check if game over (3 mistakes)
       if (this.mistakeCount >= 3) {
         console.log('Game over - too many mistakes!');
@@ -1423,7 +1616,10 @@ export class SudokuComponent implements OnInit {
     // Save game state
     this.saveGameState();
 
-    // Force change detection to update the UI
+    // Force comprehensive change detection to update the UI immediately
+    this.changeDetectorRef.detectChanges();
+    
+    // Also trigger board component change detection for cell styling
     if (this.boardComponent) {
       this.boardComponent.detectChanges();
     }

@@ -11,6 +11,8 @@ import { CommonModule } from '@angular/common';
 export class NumberPadComponent {
   @Input() disabled: boolean = false;
   @Input() currentNumber: number | null = null;
+  @Input() selectedNumber: number | null = null; // For number-first mode
+  @Input() numberFirstMode: boolean = false;
   @Input() remainingCounts: { [key: number]: number } = {};
   @Output() numberClick = new EventEmitter<number>();
 
@@ -23,6 +25,9 @@ export class NumberPadComponent {
   }
 
   isNumberSelected(num: number): boolean {
+    if (this.numberFirstMode) {
+      return this.selectedNumber === num;
+    }
     return this.currentNumber === num;
   }
 

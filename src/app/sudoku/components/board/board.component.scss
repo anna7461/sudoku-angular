@@ -46,11 +46,19 @@
   &.correct {
     color: $success;
     background-color: transparent;
+
+    .main-number {
+      color: $success !important;
+    }
   }
 
   &.error {
     color: $danger;
     background-color: transparent;
+
+    .main-number {
+      color: $danger !important;
+    }
   }
 
   &.fixed-selected {
