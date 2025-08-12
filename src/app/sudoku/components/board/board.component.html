@@ -1,4 +1,4 @@
-<div class="board">
+<div class="board" [class.disabled]="disabled">
   <div class="box" *ngFor="let box of boxes; let boxIndex = index">
     <div class="cell"
          *ngFor="let cell of box.cells; let cellIndex = index"

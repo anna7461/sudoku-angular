@@ -5,6 +5,15 @@
   grid-template-columns: repeat(3, 1fr);
   border: 1px solid $darkest;
   width: 365px;
+
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    
+    .cell {
+      cursor: not-allowed;
+    }
+  }
 }
 
 .box {

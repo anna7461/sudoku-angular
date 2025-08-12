@@ -222,6 +222,12 @@ export class SudokuComponent implements OnInit {
 
   // Method to reset all notes from the board
   resetNotes() {
+    // Check if game is still active
+    if (!this.isGameActive()) {
+      console.log('Game is not active - cannot make moves');
+      return;
+    }
+
     console.log('Resetting all notes from the board');
     
     // Store the previous state for move tracking (batch operation)
@@ -307,8 +313,42 @@ export class SudokuComponent implements OnInit {
     console.log('Move undone successfully');
   }
 
+  // Handle game over when mistake limit is reached
+  private handleGameOver() {
+    console.log('Game Over - mistake limit reached!');
+    
+    // Show game over message
+    setTimeout(() => {
+      const message = 'Game Over! You have made 3 mistakes. The game will restart.';
+      alert(message);
+      
+      // Restart the game
+      this.resetGame();
+    }, 100);
+  }
+
+  // Handle victory when puzzle is completed
+  private handleVictory() {
+    console.log('Victory! Puzzle completed!');
+    
+    // Show victory message
+    setTimeout(() => {
+      const message = `Congratulations! You've completed the puzzle!\nScore: ${this.score}\nMistakes: ${this.mistakeCount}`;
+      alert(message);
+      
+      // Optionally start a new game or keep the completed puzzle
+      // For now, we'll keep the completed puzzle visible
+    }, 100);
+  }
+
   // Method to toggle a note in the selected cell
   private toggleNoteInCell(num: number) {
+    // Check if game is still active
+    if (!this.isGameActive()) {
+      console.log('Game is not active - cannot make moves');
+      return;
+    }
+
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
 
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
@@ -449,6 +489,12 @@ export class SudokuComponent implements OnInit {
     const activeElement = document.activeElement;
     if (this.sudokuContainer && activeElement && !this.sudokuContainer.nativeElement.contains(activeElement)) {
       this.clearHighlights();
+      return;
+    }
+
+    // Check if game is still active
+    if (!this.isGameActive()) {
+      console.log('Game is not active - cannot make moves');
       return;
     }
 
@@ -772,6 +818,12 @@ export class SudokuComponent implements OnInit {
 
 
   clearCell() {
+    // Check if game is still active
+    if (!this.isGameActive()) {
+      console.log('Game is not active - cannot make moves');
+      return;
+    }
+
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
     const cell = this.boxes[this.selectedBoxIndex!].cells[this.selectedCellIndex!];
 
@@ -865,6 +917,12 @@ export class SudokuComponent implements OnInit {
 
   // Called when user clicks number on dock number pad
   onNumberPadClick(num: number) {
+    // Check if game is still active
+    if (!this.isGameActive()) {
+      console.log('Game is not active - cannot make moves');
+      return;
+    }
+
     // Set the current number for highlighting
     this.currentNumber = num;
     
@@ -922,7 +980,7 @@ export class SudokuComponent implements OnInit {
       // Check if puzzle is complete
       if (this.isPuzzleComplete()) {
         console.log('Puzzle completed!');
-        // You could add a completion celebration here
+        this.handleVictory();
       }
     } else {
       // Incorrect move
@@ -942,7 +1000,8 @@ export class SudokuComponent implements OnInit {
       // Check if game over (3 mistakes)
       if (this.mistakeCount >= 3) {
         console.log('Game over - too many mistakes!');
-        // You could add game over logic here
+        this.handleGameOver();
+        return; // Stop processing the move
       }
     }
 
@@ -1028,6 +1087,11 @@ export class SudokuComponent implements OnInit {
   // Check if the game is over (too many mistakes)
   public isGameOver(): boolean {
     return this.mistakeCount >= 3;
+  }
+
+  // Check if the game is active (not over and not won)
+  public isGameActive(): boolean {
+    return !this.isGameOver() && !this.hasWonGame();
   }
 
   // Check if the game is won

@@ -14,11 +14,17 @@ export class BoardComponent {
   @Input() selectedBoxIndex: number | null = null;
   @Input() selectedCellIndex: number | null = null;
   @Input() currentNumber: number | null = null;
+  @Input() disabled: boolean = false;
   @Output() cellSelected = new EventEmitter<{ boxIndex: number, cellIndex: number, isEditable: boolean }>();
 
   constructor(private cdr: ChangeDetectorRef) {}
 
   onCellClick(boxIndex: number, cellIndex: number) {
+    // Don't allow cell selection if board is disabled
+    if (this.disabled) {
+      return;
+    }
+
     const cell = this.boxes[boxIndex].cells[cellIndex];
 
     // Allow selecting any cell for highlighting, but emit with additional info

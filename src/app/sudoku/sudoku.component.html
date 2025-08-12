@@ -27,6 +27,16 @@
   <span class="score-value">{{ getCurrentScore() }}</span>
 </div>
 
+<div class="game-over-message" *ngIf="isGameOver()">
+  <i class="fas fa-times-circle"></i>
+  <span class="game-over-text">Game Over! Too many mistakes.</span>
+</div>
+
+<div class="victory-message" *ngIf="hasWonGame()">
+  <i class="fas fa-trophy"></i>
+  <span class="victory-text">Congratulations! Puzzle completed!</span>
+</div>
+
 
 <div class="sudoku-container" #sudokuContainer>
   
@@ -39,6 +49,7 @@
           [selectedBoxIndex]="selectedBoxIndex"
           [selectedCellIndex]="selectedCellIndex"
           [currentNumber]="currentNumber"
+          [disabled]="!isGameActive()"
           (cellSelected)="onCellSelected($event)">
         </app-board>
         <app-number-pad
