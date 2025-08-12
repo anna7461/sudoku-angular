@@ -1,0 +1,76 @@
+<div class="modal-backdrop" 
+     *ngIf="isVisible" 
+     (click)="onBackdropClick()"
+     (keydown)="onKeyDown($event)"
+     (keydown.tab)="onTabKey($event)"
+     tabindex="0"
+     role="dialog"
+     aria-labelledby="congratulations-title"
+     aria-describedby="game-stats"
+     aria-modal="true">
+  
+  <div #modalContent class="modal-content" (click)="onModalContentClick($event)">
+    <div class="modal-header">
+      <button class="close-button" 
+              (click)="onClose()" 
+              aria-label="Close congratulations modal">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2 id="congratulations-title" class="congratulations-title">
+        <i class="fas fa-trophy"></i>
+        Congratulations! Puzzle completed!
+      </h2>
+    </div>
+
+    <div class="modal-body" *ngIf="gameData">
+      <div id="game-stats" class="game-stats">
+        <div class="stat-item">
+          <i class="fas fa-layer-group"></i>
+          <span class="stat-label">Difficulty:</span>
+          <span class="stat-value">{{ gameData.difficulty }}</span>
+        </div>
+        
+        <div class="stat-item">
+          <i class="fas fa-clock"></i>
+          <span class="stat-label">Time:</span>
+          <span class="stat-value">{{ gameData.timeSpent }}</span>
+        </div>
+        
+        <div class="stat-item">
+          <i class="fas fa-star"></i>
+          <span class="stat-label">Score:</span>
+          <span class="stat-value">{{ gameData.score }}</span>
+        </div>
+        
+        <div class="stat-item">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span class="stat-label">Mistakes:</span>
+          <span class="stat-value">{{ gameData.mistakes }}</span>
+        </div>
+      </div>
+
+      <div class="difficulty-selector">
+        <label for="difficulty-select">Next Game Difficulty:</label>
+        <select id="difficulty-select" 
+                [(ngModel)]="selectedDifficulty"
+                (change)="onDifficultyChange($event)">
+          <option *ngFor="let diff of difficulties" 
+                  [value]="diff.value">
+            {{ diff.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="onClose()">
+        <i class="fas fa-times"></i>
+        Close
+      </button>
+      <button class="btn btn-primary" (click)="onNewGame()">
+        <i class="fas fa-play"></i>
+        New Game
+      </button>
+    </div>
+  </div>
+</div>

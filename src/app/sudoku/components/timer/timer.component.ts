@@ -118,6 +118,23 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     const seconds = this.elapsedSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
+  
+  // Get the most accurate current elapsed time (even when paused)
+  getCurrentElapsedTime(): number {
+    if (this.startTime > 0) {
+      const currentTime = Date.now();
+      return Math.floor((currentTime - this.startTime - this.totalPausedTime) / 1000);
+    }
+    return this.elapsedSeconds;
+  }
+  
+  // Get formatted time using the most accurate current time
+  getCurrentFormattedTime(): string {
+    const currentSeconds = this.getCurrentElapsedTime();
+    const minutes = Math.floor(currentSeconds / 60);
+    const seconds = currentSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
 
   // Handle external pause state changes
   ngOnChanges(changes: SimpleChanges) {

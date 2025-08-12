@@ -1,4 +1,4 @@
-import {Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, OnInit, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Box} from './models/box.model';
 import {Cell} from './models/cell.model';
@@ -28,6 +28,8 @@ export class SudokuComponent implements OnInit {
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
   @ViewChild('sudokuContainer', { read: ElementRef }) sudokuContainer!: ElementRef;
   @ViewChild(TimerComponent) timerComponent!: TimerComponent;
+
+  constructor(private changeDetectorRef: ChangeDetectorRef) {}
 
   boxes: Box[] = [];
   private readonly STORAGE_KEY = 'sudoku-game-state';
@@ -173,13 +175,16 @@ export class SudokuComponent implements OnInit {
             // Prepare game completion data for the modal
             this.gameCompletionData = {
               difficulty: this.getCurrentDifficulty(),
-              timeSpent: this.timerComponent ? this.timerComponent.getFormattedTime() : '00:00',
+              timeSpent: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
               score: this.score,
               mistakes: this.mistakeCount
             };
             
             // Show congratulations modal
             this.showCongratulationsModal = true;
+            
+            // Trigger change detection to ensure the modal is rendered
+            this.changeDetectorRef.detectChanges();
           }
 
           // If we have a saved game but no solution, we need to regenerate the puzzle
@@ -252,6 +257,7 @@ export class SudokuComponent implements OnInit {
     // Reset congratulations modal state
     this.showCongratulationsModal = false;
     this.gameCompletionData = null;
+    this.changeDetectorRef.detectChanges();
 
     // Small delay to prevent blinking
     setTimeout(() => {
@@ -307,11 +313,13 @@ export class SudokuComponent implements OnInit {
   // Congratulations modal event handlers
   onNewGameFromModal(difficulty: string) {
     this.showCongratulationsModal = false;
+    this.changeDetectorRef.detectChanges();
     this.startNewGame(difficulty as 'easy' | 'medium' | 'hard' | 'expert');
   }
 
   onCloseCongratulationsModal() {
     this.showCongratulationsModal = false;
+    this.changeDetectorRef.detectChanges();
   }
 
   // Method to toggle notes mode
@@ -390,9 +398,7 @@ export class SudokuComponent implements OnInit {
     this.saveGameState();
 
     // Force change detection to update the UI
-    if (this.boardComponent) {
-      this.boardComponent.detectChanges();
-    }
+    this.changeDetectorRef.detectChanges();
   }
 
   // Undo the last move
@@ -439,9 +445,7 @@ export class SudokuComponent implements OnInit {
     this.saveGameState();
 
     // Force change detection to update the UI
-    if (this.boardComponent) {
-      this.boardComponent.detectChanges();
-    }
+    this.changeDetectorRef.detectChanges();
 
     console.log('Move undone successfully');
   }
@@ -453,6 +457,7 @@ export class SudokuComponent implements OnInit {
     // Hide congratulations modal if it's visible
     this.showCongratulationsModal = false;
     this.gameCompletionData = null;
+    this.changeDetectorRef.detectChanges();
     
     // Show game over message
     setTimeout(() => {
@@ -464,30 +469,44 @@ export class SudokuComponent implements OnInit {
     }, 100);
   }
 
-    // Handle victory when puzzle is completed
+  // Handle victory when puzzle is completed
   private handleVictory() {
     console.log('Victory! Puzzle completed!');
+    console.log('Timer state before victory:', {
+      totalGameTime: this.totalGameTime,
+      gameStartTime: this.gameStartTime,
+      isGamePaused: this.isGamePaused
+    });
     
-    // Reset timer when puzzle is completed
+    // Pause the timer when puzzle is completed
     if (this.timerComponent) {
-      this.timerComponent.resetGameTimer();
+      this.timerComponent.pauseTimer();
+      console.log('Timer paused');
     }
     
     // Prepare game completion data for the modal
     this.gameCompletionData = {
       difficulty: this.getCurrentDifficulty(),
-      timeSpent: this.timerComponent ? this.timerComponent.getFormattedTime() : '00:00',
+      timeSpent: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
       score: this.score,
       mistakes: this.mistakeCount
     };
     
-    // Show congratulations modal with a small delay to ensure proper state propagation
-    setTimeout(() => {
-      this.showCongratulationsModal = true;
-      console.log('Congratulations modal shown:', this.showCongratulationsModal);
-    }, 0);
+    console.log('Game completion data prepared:', this.gameCompletionData);
+    
+    // Show congratulations modal immediately
+    this.showCongratulationsModal = true;
+    console.log('Congratulations modal shown:', this.showCongratulationsModal);
+    console.log('Game completion data:', this.gameCompletionData);
+    
+    // Trigger change detection to ensure the modal is rendered
+    this.changeDetectorRef.detectChanges();
+    
+    // Save game state after showing the modal
+    this.saveGameState();
+    console.log('Game state saved after victory');
   }
-
+  
   // Navigate between cells using arrow keys
   private navigateWithArrowKeys(key: string) {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
@@ -536,9 +555,7 @@ export class SudokuComponent implements OnInit {
       this.selectedCellIndex = newCellIndex;
 
       // Force change detection to update highlights
-      if (this.boardComponent) {
-        this.boardComponent.detectChanges();
-      }
+      this.changeDetectorRef.detectChanges();
     }
   }
 
@@ -620,9 +637,7 @@ export class SudokuComponent implements OnInit {
     this.saveGameState();
 
     // Force change detection to update the UI
-    if (this.boardComponent) {
-      this.boardComponent.detectChanges();
-    }
+    this.changeDetectorRef.detectChanges();
   }
 
   // Method to remove notes with a specific number from related cells
@@ -702,9 +717,7 @@ export class SudokuComponent implements OnInit {
     this.currentNumber = null;
 
     // Force change detection to update the UI
-    if (this.boardComponent) {
-      this.boardComponent.detectChanges();
-    }
+    this.changeDetectorRef.detectChanges();
   }
 
   // Manual event listener for clicks outside the board
@@ -1183,9 +1196,7 @@ export class SudokuComponent implements OnInit {
     }
 
     // Force change detection to show the updated state
-    if (this.boardComponent) {
-      this.boardComponent.detectChanges();
-    }
+    this.changeDetectorRef.detectChanges();
 
     // Save game state after clearing
     this.saveGameState();
@@ -1216,6 +1227,7 @@ export class SudokuComponent implements OnInit {
     // Reset congratulations modal state
     this.showCongratulationsModal = false;
     this.gameCompletionData = null;
+    this.changeDetectorRef.detectChanges();
 
     // Reset all non-fixed cells to their initial state
     // Safety check: ensure boxes are properly initialized
@@ -1266,9 +1278,7 @@ export class SudokuComponent implements OnInit {
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       // If no cell is selected, just highlight the number without doing anything else
       // Force change detection to update highlights
-      if (this.boardComponent) {
-        this.boardComponent.detectChanges();
-      }
+      this.changeDetectorRef.detectChanges();
       return;
     }
 
@@ -1438,9 +1448,7 @@ export class SudokuComponent implements OnInit {
     this.saveGameState();
 
     // Force change detection
-    if (this.boardComponent) {
-      this.boardComponent.detectChanges();
-    }
+    this.changeDetectorRef.detectChanges();
   }
 
   // Check if the game is over (too many mistakes)
