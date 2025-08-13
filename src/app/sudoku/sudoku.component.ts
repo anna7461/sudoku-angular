@@ -62,6 +62,27 @@ export class SudokuComponent implements OnInit {
   showCongratulationsModal: boolean = false;
   gameCompletionData: GameCompletionData | null = null;
 
+  // Cache for isGameActive to prevent ExpressionChangedAfterItHasBeenCheckedError
+  private _cachedIsGameActive: boolean = true;
+  private _gameActiveLastCheck: { [key: string]: any } = {};
+  
+  // Cache for game state to avoid repeated calculations
+  private _cachedGameOver: boolean = false;
+  private _cachedGameWon: boolean = false;
+
+  private invalidateGameActiveCache(): void {
+    this._gameActiveLastCheck = {};
+    this._cachedGameOver = false;
+    this._cachedGameWon = false;
+  }
+
+  private resetGameStateCache(): void {
+    this._cachedIsGameActive = true;
+    this._gameActiveLastCheck = {};
+    this._cachedGameOver = false;
+    this._cachedGameWon = false;
+  }
+
   ngOnInit() {
     console.log('ngOnInit: Initial state:', {
       isLoading: this.isLoading,
@@ -188,6 +209,7 @@ export class SudokuComponent implements OnInit {
             this.gameStartTime = null;
             this.totalGameTime = 0;
             this.isGamePaused = false;
+            this.invalidateGameActiveCache();
           }
 
           // Check if the loaded game is already completed and show congratulations modal if so
@@ -234,6 +256,8 @@ export class SudokuComponent implements OnInit {
     const elapsed = Date.now() - startTime;
     setTimeout(() => {
       this.isLoading = false;
+      this.invalidateGameActiveCache();
+      this.changeDetectorRef.detectChanges();
     }, Math.max(0, minLoadingTime - elapsed));
   }
 
@@ -280,6 +304,7 @@ export class SudokuComponent implements OnInit {
     // Reset congratulations modal state
     this.showCongratulationsModal = false;
     this.gameCompletionData = null;
+    this.invalidateGameActiveCache();
     this.changeDetectorRef.detectChanges();
 
     // Small delay to prevent blinking
@@ -292,6 +317,8 @@ export class SudokuComponent implements OnInit {
       // Ensure minimum loading time
       setTimeout(() => {
         this.isLoading = false;
+        this.invalidateGameActiveCache();
+        this.changeDetectorRef.detectChanges();
       }, 200);
     }, 150);
   }
@@ -354,6 +381,7 @@ export class SudokuComponent implements OnInit {
 
   onCloseCongratulationsModal() {
     this.showCongratulationsModal = false;
+    this.invalidateGameActiveCache();
     this.changeDetectorRef.detectChanges();
   }
 
@@ -482,6 +510,7 @@ export class SudokuComponent implements OnInit {
 
       // Increment mistake count
       this.mistakeCount++;
+      this.invalidateGameActiveCache();
 
       // Check if game over (3 mistakes)
       if (this.mistakeCount >= 3) {
@@ -751,6 +780,9 @@ export class SudokuComponent implements OnInit {
     console.log('Congratulations modal shown:', this.showCongratulationsModal);
     console.log('Game completion data:', this.gameCompletionData);
 
+    // Invalidate game active cache since modal state changed
+    this.invalidateGameActiveCache();
+    
     // Trigger change detection to ensure the modal is rendered
     this.changeDetectorRef.detectChanges();
 
@@ -1094,6 +1126,9 @@ export class SudokuComponent implements OnInit {
 
     // 5. Save initial game state
     this.saveGameState();
+    
+    // 6. Invalidate game active cache since boxes are now initialized
+    this.invalidateGameActiveCache();
   }
 
   private generateSudokuPuzzle(difficulty?: 'easy' | 'medium' | 'hard' | 'expert'): number[][] {
@@ -1116,7 +1151,7 @@ export class SudokuComponent implements OnInit {
     }
 
     // Use Sudoku solver to complete the board
-    this.solveSudoku(board);
+    this.solveSudoku(board);  
     return board;
   }
 
@@ -1218,13 +1253,13 @@ export class SudokuComponent implements OnInit {
     // Copy the solved board
     const puzzle = solvedBoard.map(row => [...row]);
 
-    // Number of cells to remove based on difficulty
-    const difficultyMap: Record<string, number> = {
-      easy: 30,
-      medium: 40,
-      hard: 50,
-      expert: 60
-    };
+          // Number of cells to remove based on difficulty
+      const difficultyMap: Record<string, number> = {
+        easy: 30,
+        medium: 40,
+        hard: 50,
+        expert: 60
+      };
     const cellsToRemove = difficultyMap[difficulty] ?? 45;
 
     // Generate list of positions (0–80)
@@ -1538,6 +1573,7 @@ export class SudokuComponent implements OnInit {
     // Reset congratulations modal state
     this.showCongratulationsModal = false;
     this.gameCompletionData = null;
+    this.invalidateGameActiveCache();
     this.changeDetectorRef.detectChanges();
 
     // Reset all non-fixed cells to their initial state
@@ -1562,6 +1598,8 @@ export class SudokuComponent implements OnInit {
     // Small delay to prevent blinking
     setTimeout(() => {
       this.isLoading = false;
+      this.invalidateGameActiveCache();
+      this.changeDetectorRef.detectChanges();
     }, 150);
   }
 
@@ -1714,6 +1752,7 @@ export class SudokuComponent implements OnInit {
 
       // Increment mistake count
       this.mistakeCount++;
+      this.invalidateGameActiveCache();
 
       // Clear current number after incorrect move
       this.currentNumber = null;
@@ -1821,48 +1860,65 @@ export class SudokuComponent implements OnInit {
   // Check if the game is over (too many mistakes)
   public isGameOver(): boolean {
     const isOver = this.mistakeCount >= 3;
-    console.log('isGameOver:', { mistakeCount: this.mistakeCount, isOver });
     return isOver;
   }
 
   // Check if the game is active (not over and not won)
   public isGameActive(): boolean {
-    // If still loading, assume game is active to prevent blocking initialization
-    if (this.isLoading) {
-      console.log('isGameActive: Loading state, returning true');
-      return true;
+    // During change detection cycles, use a more stable approach
+    try {
+      // Create a snapshot of current relevant state
+      const currentState = {
+        isLoading: this.isLoading,
+        boxesLength: this.boxes?.length || 0,
+        mistakeCount: this.mistakeCount,
+        showCongratulationsModal: this.showCongratulationsModal
+      };
+
+      // Check if state has changed since last call
+      const stateChanged = JSON.stringify(currentState) !== JSON.stringify(this._gameActiveLastCheck);
+      
+      if (!stateChanged) {
+        return this._cachedIsGameActive;
+      }
+
+      // Update last check state
+      this._gameActiveLastCheck = { ...currentState };
+
+      // If still loading, assume game is active to prevent blocking initialization
+      if (this.isLoading) {
+        this._cachedIsGameActive = true;
+        return this._cachedIsGameActive;
+      }
+
+      // If boxes are not initialized yet, assume game is active (during initialization)
+      // This prevents the circular dependency issue where isGameActive blocks initialization
+      if (!this.boxes || this.boxes.length === 0) {
+        this._cachedIsGameActive = true;
+        return this._cachedIsGameActive;
+      }
+
+      // Use cached values to avoid repeated calculations
+      if (this._cachedGameOver === false) {
+        this._cachedGameOver = this.isGameOver();
+      }
+      if (this._cachedGameWon === false) {
+        this._cachedGameWon = this.hasWonGame();
+      }
+
+      // A game is active if:
+      // 1. It's not over due to mistakes (gameOver = false)
+      // 2. It's not won yet (gameWon = false) - meaning the puzzle is still being solved
+      // OR if it's won but the congratulations modal is showing (user hasn't chosen next action yet)
+      const isActive = !this._cachedGameOver && (!this._cachedGameWon || this.showCongratulationsModal);
+
+      this._cachedIsGameActive = isActive;
+      return this._cachedIsGameActive;
+    } catch (error) {
+      // Fallback in case of any errors during change detection
+      console.warn('Error in isGameActive, using cached value:', error);
+      return this._cachedIsGameActive;
     }
-
-    // If boxes are not initialized yet, assume game is active (during initialization)
-    // This prevents the circular dependency issue where isGameActive blocks initialization
-    if (!this.boxes || this.boxes.length === 0) {
-      console.log('isGameActive: Boxes not initialized, returning true');
-      return true; // Assume active during initialization
-    }
-
-    const gameOver = this.isGameOver();
-    const gameWon = this.hasWonGame();
-
-    // A game is active if:
-    // 1. It's not over due to mistakes (gameOver = false)
-    // 2. It's not won yet (gameWon = false) - meaning the puzzle is still being solved
-    // OR if it's won but the congratulations modal is showing (user hasn't chosen next action yet)
-    const isActive = !gameOver && (!gameWon || this.showCongratulationsModal);
-
-    console.log('isGameActive:', {
-      gameOver,
-      gameWon,
-      showCongratulationsModal: this.showCongratulationsModal,
-      isActive,
-      mistakeCount: this.mistakeCount
-    });
-
-    // Add stack trace for debugging
-    if (gameWon && !this.showCongratulationsModal) {
-      console.log('isGameActive called from:', new Error().stack);
-    }
-
-    return isActive;
   }
 
   // Check if the game is won
