@@ -304,7 +304,7 @@ export class SudokuComponent implements OnInit {
     // Reset congratulations modal state
     this.showCongratulationsModal = false;
     this.gameCompletionData = null;
-    this.invalidateGameActiveCache();
+    this.resetGameStateCache();
     this.changeDetectorRef.detectChanges();
 
     // Small delay to prevent blinking
@@ -1863,6 +1863,14 @@ export class SudokuComponent implements OnInit {
     return isOver;
   }
 
+  // Cached getter for template use to prevent repeated calculations
+  public get isGameOverCached(): boolean {
+    if (this._cachedGameOver === false) {
+      this._cachedGameOver = this.isGameOver();
+    }
+    return this._cachedGameOver;
+  }
+
   // Check if the game is active (not over and not won)
   public isGameActive(): boolean {
     // During change detection cycles, use a more stable approach
@@ -1928,6 +1936,14 @@ export class SudokuComponent implements OnInit {
       return false;
     }
     return this.isGameWon();
+  }
+
+  // Cached getter for template use to prevent repeated calculations
+  public get hasWonGameCached(): boolean {
+    if (this._cachedGameWon === false) {
+      this._cachedGameWon = this.hasWonGame();
+    }
+    return this._cachedGameWon;
   }
 
   // Get current board state for debugging (public method)
