@@ -300,14 +300,26 @@ export class SudokuComponent implements OnInit {
     return this.score;
   }
 
-  // Check if undo is available
+  // Check if undo is available (only for non-correct moves)
   canUndo(): boolean {
-    return this.moveHistory.length > 0;
+    if (this.moveHistory.length === 0) {
+      return false;
+    }
+    
+    // Find the last move that can be undone (not a correct number placement)
+    for (let i = this.moveHistory.length - 1; i >= 0; i--) {
+      const move = this.moveHistory[i];
+      if (move.newState !== 'correct') {
+        return true;
+      }
+    }
+    
+    return false;
   }
 
-  // Get the number of available undo steps
+  // Get the number of available undo steps (only non-correct moves)
   getUndoStepsCount(): number {
-    return this.moveHistory.length;
+    return this.moveHistory.filter(move => move.newState !== 'correct').length;
   }
 
   // Timer event handlers
@@ -565,8 +577,21 @@ export class SudokuComponent implements OnInit {
       return;
     }
 
-    const lastMove = this.moveHistory.pop();
-    if (!lastMove) return;
+    // Find and remove the last undoable move (skip correct moves)
+    let lastMove: Move | undefined;
+    while (this.moveHistory.length > 0) {
+      const move = this.moveHistory.pop();
+      if (move && move.newState !== 'correct') {
+        lastMove = move;
+        break;
+      }
+      // If it's a correct move, we skip it (effectively removing it from undo history)
+    }
+    
+    if (!lastMove) {
+      console.log('No undoable moves found');
+      return;
+    }
 
     console.log('Undoing move:', lastMove);
     console.log('Move history length before undo:', this.moveHistory.length + 1);

@@ -9,63 +9,72 @@
     flex: 1 1 30px;
     height: 50px;
     cursor: pointer;
-    border: 2px solid transparent;
     transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4px;
-    
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid $light;
+    background-color: $white;
+
     &:hover:not(:disabled) {
       transform: translateY(-2px);
+      background-color: $lightest;
     }
-    
+
     &.selected {
       background-color: $primary;
       color: $lightest;
       border-color: $primary;
       transform: translateY(-2px);
-    }
-    
-    &.selected-number-first {
-      background-color: #9b59b6;
-      color: white;
-      border-color: #9b59b6;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
-      
-      .number {
-        font-size: 1.3rem;
+
+      &:hover {
+        background-color: $primary;
+        color: $lightest;
+        border-color: $primary;
+        transform: translateY(-2px);
       }
     }
-    
+
+    &.selected-number-first {
+      background-color: $primary;
+      color: $lightest;
+      border-color: $primary;
+      transform: translateY(-2px);
+
+      .number {
+        font-size: 24px;
+      }
+    }
+
     &.completed {
       opacity: 0.4;
       cursor: not-allowed;
-      
+
       &:hover {
         transform: none;
       }
     }
-    
+
     &:disabled {
       cursor: not-allowed;
       opacity: 0.4;
-      
+      background-color: $lightest;
+
       &:hover {
         transform: none;
       }
     }
-    
+
     .number {
-      font-size: 1.2rem;
-      font-weight: bold;
+      font-size: 24px;
       line-height: 1;
     }
-    
+
     .count {
-      font-size: 0.75rem;
+      font-size: 12px;
       line-height: 1;
       margin-top: 2px;
       opacity: 0.8;
