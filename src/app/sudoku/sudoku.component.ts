@@ -7,6 +7,7 @@ import {BoardComponent} from './components/board/board.component';
 import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
 import {TimerComponent} from './components/timer/timer.component';
+import {BoardControlsComponent} from './components/board-controls/board-controls.component';
 import {CongratulationsModalComponent, GameCompletionData} from './components/congratulations-modal/congratulations-modal.component';
 
 @Component({
@@ -19,6 +20,7 @@ import {CongratulationsModalComponent, GameCompletionData} from './components/co
     NumberPadComponent,
     ControlsComponent,
     TimerComponent,
+    BoardControlsComponent,
     CongratulationsModalComponent
   ],
   styleUrls: ['./sudoku.component.scss']
@@ -557,6 +559,7 @@ export class SudokuComponent implements OnInit {
 
   // Undo the last move
   undo() {
+    console.log('Sudoku: undo() called, moveHistory length:', this.moveHistory.length);
     if (!this.canUndo()) {
       console.log('No moves to undo');
       return;
@@ -569,12 +572,32 @@ export class SudokuComponent implements OnInit {
     console.log('Move history length before undo:', this.moveHistory.length + 1);
 
     // Restore the previous cell state
-    // Safety check: ensure boxes are properly initialized
-    if (!this.boxes || this.boxes.length === 0 ||
-        !this.boxes[lastMove.boxIndex] ||
-        !this.boxes[lastMove.boxIndex].cells ||
-        !this.boxes[lastMove.boxIndex].cells[lastMove.cellIndex]) {
-      console.error('Cannot undo: boxes not properly initialized');
+    // Safety check: ensure boxes are properly initialized and indices are valid
+    console.log('Undo debug - boxes length:', this.boxes?.length, 'lastMove:', lastMove);
+    console.log('Undo debug - boxIndex:', lastMove.boxIndex, 'cellIndex:', lastMove.cellIndex);
+    
+    if (!this.boxes || this.boxes.length === 0) {
+      console.error('Cannot undo: boxes array is empty or null');
+      return;
+    }
+    
+    if (lastMove.boxIndex < 0 || lastMove.boxIndex >= this.boxes.length) {
+      console.error('Cannot undo: invalid boxIndex', lastMove.boxIndex);
+      return;
+    }
+    
+    if (!this.boxes[lastMove.boxIndex] || !this.boxes[lastMove.boxIndex].cells) {
+      console.error('Cannot undo: box or cells array is null at index', lastMove.boxIndex);
+      return;
+    }
+    
+    if (lastMove.cellIndex < 0 || lastMove.cellIndex >= this.boxes[lastMove.boxIndex].cells.length) {
+      console.error('Cannot undo: invalid cellIndex', lastMove.cellIndex);
+      return;
+    }
+    
+    if (!this.boxes[lastMove.boxIndex].cells[lastMove.cellIndex]) {
+      console.error('Cannot undo: cell is null at boxIndex', lastMove.boxIndex, 'cellIndex', lastMove.cellIndex);
       return;
     }
 
@@ -754,6 +777,10 @@ export class SudokuComponent implements OnInit {
 
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
 
+    // Store box and cell indices before any potential clearing
+    const moveBoxIndex = this.selectedBoxIndex;
+    const moveCellIndex = this.selectedCellIndex;
+
     // Cannot add notes to fixed cells or cells that are already correct
     if (cell.isFixed || cell.state === 'correct') {
       console.log('Cannot add notes to fixed or correct cell');
@@ -779,8 +806,8 @@ export class SudokuComponent implements OnInit {
 
     // Record the move for undo functionality
     const move: Move = {
-      boxIndex: this.selectedBoxIndex,
-      cellIndex: this.selectedCellIndex,
+      boxIndex: moveBoxIndex,
+      cellIndex: moveCellIndex,
       previousValue,
       previousNotes,
       previousState,
@@ -1316,6 +1343,10 @@ export class SudokuComponent implements OnInit {
 
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
 
+    // Store box and cell indices before any potential clearing
+    const moveBoxIndex = this.selectedBoxIndex;
+    const moveCellIndex = this.selectedCellIndex;
+
     // Start timer on first move
     if (this.gameStartTime === null) {
       this.gameStartTime = Date.now();
@@ -1355,8 +1386,8 @@ export class SudokuComponent implements OnInit {
 
     // Record the move for undo functionality
     const move: Move = {
-      boxIndex: this.selectedBoxIndex,
-      cellIndex: this.selectedCellIndex,
+      boxIndex: moveBoxIndex,
+      cellIndex: moveCellIndex,
       previousValue,
       previousNotes,
       previousState,
@@ -1543,6 +1574,10 @@ export class SudokuComponent implements OnInit {
     const globalRow = boxRow * 3 + cellRow;
     const globalCol = boxCol * 3 + cellCol;
 
+    // Store box and cell indices before they get cleared
+    const moveBoxIndex = this.selectedBoxIndex;
+    const moveCellIndex = this.selectedCellIndex;
+
     // Check if the move is valid against the solution
     if (this.solution[globalRow][globalCol] === num) {
       // Correct move
@@ -1595,8 +1630,8 @@ export class SudokuComponent implements OnInit {
 
     // Record the move for undo functionality
     const move: Move = {
-      boxIndex: this.selectedBoxIndex,
-      cellIndex: this.selectedCellIndex,
+      boxIndex: moveBoxIndex,
+      cellIndex: moveCellIndex,
       previousValue,
       previousNotes,
       previousState,

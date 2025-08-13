@@ -1,15 +1,9 @@
 <app-controls
-  [notesMode]="notesMode"
   [numberFirstMode]="numberFirstMode"
-  [canUndo]="canUndo()"
   [disabled]="!isGameActive()"
   (resetGame)="resetGame()"
   (newGame)="onNewGame($event)"
-  (toggleNotesMode)="toggleNotesMode()"
   (toggleNumberFirstMode)="toggleNumberFirstMode()"
-  (resetNotes)="resetNotes()"
-  (hint)="provideHint()"
-  (undo)="undo()"
 />
 
 <div class="puzzle-info-container">
@@ -28,8 +22,6 @@
     (pauseStateChange)="onPauseStateChange($event)">
   </app-timer>
 </div>
-
-
 <div class="game-over-message" *ngIf="isGameOver()">
   <i class="fas fa-times-circle"></i>
   <span class="game-over-text">Game Over! Too many mistakes.</span>
@@ -43,12 +35,8 @@
   (closeModal)="onCloseCongratulationsModal()">
 </app-congratulations-modal>
 
-
 <div class="sudoku-container" #sudokuContainer>
-
-
   <div class="game-content">
-
     <app-board
       [boxes]="boxes"
       [selectedBoxIndex]="selectedBoxIndex"
@@ -57,6 +45,15 @@
       [disabled]="!isGameActive()"
       (cellSelected)="onCellSelected($event)">
     </app-board>
+    <app-board-controls
+      [notesMode]="notesMode"
+      [canUndo]="canUndo()"
+      [disabled]="!isGameActive()"
+      (undo)="undo()"
+      (resetNotes)="resetNotes()"
+      (toggleNotesMode)="toggleNotesMode()"
+      (hint)="provideHint()">
+    </app-board-controls>
     <app-number-pad
       [currentNumber]="currentNumber"
       [selectedNumber]="selectedNumber"
@@ -65,7 +62,5 @@
       [remainingCounts]="calculateRemainingCounts()"
       (numberClick)="onNumberPadClick($event)">
     </app-number-pad>
-
   </div>
-
 </div>

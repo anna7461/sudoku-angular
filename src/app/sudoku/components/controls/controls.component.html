@@ -24,39 +24,3 @@
     </button>
   </div>
 </div>
-
-<div class="board-controls">
-  <button
-    class="board-control-button"
-    (click)="onUndoClick()"
-    [disabled]="!canUndo || disabled"
-  >
-    <i class="fas fa-undo"></i>
-    <span>Undo</span>
-  </button>
-  <button
-    class="board-control-button"
-    (click)="onResetNotesClick()"
-    [disabled]="disabled"
-  >
-    <i class="fas fa-eraser"></i>
-    <span>Reset Notes</span>
-  </button>
-  <button
-    class="board-control-button"
-    [class.active]="notesMode"
-    (click)="onToggleNotesClick()"
-    [disabled]="disabled"
-  >
-    <i class="fas fa-pencil-alt"></i>
-    <span>{{ notesMode ? 'Notes ON' : 'Notes OFF' }}</span>
-  </button>
-  <button
-    class="board-control-button"
-    (click)="onHintClick()"
-    [disabled]="disabled"
-  >
-    <i class="fas fa-lightbulb"></i>
-    <span>Hint</span>
-  </button>
-</div>
