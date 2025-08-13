@@ -7,43 +7,56 @@
       </option>
     </select>
   </div>
-  
   <div class="game-buttons">
     <button class="new-game-btn" (click)="onNewGameClick()" [disabled]="disabled">
       <i class="fas fa-plus-circle"></i>
       New Game
     </button>
-    
-    <button class="undo-btn" (click)="onUndoClick()" [disabled]="!canUndo || disabled">
-      <i class="fas fa-undo"></i>
-      Undo
-    </button>
-    
     <button class="reset-btn" (click)="onResetClick()" [disabled]="disabled">
       <i class="fas fa-redo"></i>
       Reset Game
     </button>
-    
-    <button class="hint-btn" (click)="onHintClick()" [disabled]="disabled">
-      <i class="fas fa-lightbulb"></i>
-      Hint
-    </button>
   </div>
-  
   <div class="notes-controls">
-    <button class="notes-toggle-btn" [class.active]="notesMode" (click)="onToggleNotesClick()" [disabled]="disabled">
-      <i class="fas fa-pencil-alt"></i>
-      {{ notesMode ? 'Notes ON' : 'Notes OFF' }}
-    </button>
-    
     <button class="number-first-toggle-btn" [class.active]="numberFirstMode" (click)="onToggleNumberFirstClick()" [disabled]="disabled">
       <i class="fas fa-mouse-pointer"></i>
       {{ numberFirstMode ? 'Number-First ON' : 'Number-First OFF' }}
     </button>
-    
-    <button class="reset-notes-btn" (click)="onResetNotesClick()" [disabled]="disabled">
-      <i class="fas fa-eraser"></i>
-      Reset Notes
-    </button>
   </div>
+</div>
+
+<div class="board-controls">
+  <button
+    class="board-control-button"
+    (click)="onUndoClick()"
+    [disabled]="!canUndo || disabled"
+  >
+    <i class="fas fa-undo"></i>
+    <span>Undo</span>
+  </button>
+  <button
+    class="board-control-button"
+    (click)="onResetNotesClick()"
+    [disabled]="disabled"
+  >
+    <i class="fas fa-eraser"></i>
+    <span>Reset Notes</span>
+  </button>
+  <button
+    class="board-control-button"
+    [class.active]="notesMode"
+    (click)="onToggleNotesClick()"
+    [disabled]="disabled"
+  >
+    <i class="fas fa-pencil-alt"></i>
+    <span>{{ notesMode ? 'Notes ON' : 'Notes OFF' }}</span>
+  </button>
+  <button
+    class="board-control-button"
+    (click)="onHintClick()"
+    [disabled]="disabled"
+  >
+    <i class="fas fa-lightbulb"></i>
+    <span>Hint</span>
+  </button>
 </div>

@@ -1,5 +1,13 @@
 @use "./variables" as *;
 
+.margin-right-4 {
+  margin-right: 4px;
+}
+
+.text-center {
+  text-align: center;
+}
+
 :host(app-sudoku) {
   display: flex;
     flex-direction: column;
@@ -15,93 +23,37 @@
   width: fit-content;
 }
 
-.difficulty-display {
-  width: 365px;
+.puzzle-info-container {
+  width: 455px;
+  margin-bottom: 4px;
+  font-size: 14px;
   color: $dark;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  i {
-    font-size: 16px;
-    color: #667eea;
-  }
-
-  .difficulty-label {
-    font-weight: 600;
-    margin-right: 8px;
-  }
-  
-  .difficulty-value {
-    font-weight: bold;
-    font-size: .9em;
-    text-transform: uppercase;
-  }
+  display: grid;
+  grid-template-areas: '... score ...'
+                       'mistakes difficulty time';
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-row-gap: 20px;
 }
 
-.mistake-display {
-  width: 365px;
-  color: $dark;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  i {
-    font-size: 16px;
-    color: #e74c3c;
-  }
-
-  .mistake-label {
-    font-weight: 600;
-    margin-right: 8px;
-  }
-  
-  .mistake-value {
-    font-weight: bold;
-    font-size: .9em;
-    color: #e74c3c;
-  }
-  
-  &.warning {
-    i, .mistake-value {
-      color: #f39c12;
-    }
-  }
-  
-  &.danger {
-    i, .mistake-value {
-      color: #e74c3c;
-    }
-    animation: pulse 1s infinite;
-  }
+.score {
+  grid-area: score;
+  font-size: 20px;
+  font-weight: bold;
+  color: $primary;
 }
 
-.score-display {
-  width: 365px;
-  color: $dark;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  i {
-    font-size: 16px;
-    color: #f39c12;
-  }
-
-  .score-label {
-    font-weight: 600;
-    margin-right: 8px;
-  }
-  
-  .score-value {
-    font-weight: bold;
-    font-size: .9em;
-    color: #27ae60;
-  }
+.mistakes {
+  grid-area: mistakes;
 }
+
+.difficulty {
+  grid-area: difficulty;
+}
+
+.time {
+  grid-area: time;
+}
+
 
 .game-over-message {
   width: 365px;

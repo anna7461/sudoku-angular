@@ -4,12 +4,12 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border: 1px solid $darkest;
-  width: 365px;
+  width: fit-content;
 
   &.disabled {
     opacity: 0.6;
     pointer-events: none;
-    
+
     .cell {
       cursor: not-allowed;
     }
@@ -18,8 +18,8 @@
 
 .box {
   display: grid;
-  grid-template-columns: repeat(3, 40px);
-  grid-template-rows: repeat(3, 40px);
+  grid-template-columns: repeat(3, 50px);
+  grid-template-rows: repeat(3, 50px);
   border: 1px solid $darkest;
 }
 
@@ -29,7 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 22px;
   cursor: pointer;
   user-select: none;
   font-weight: bold;
@@ -66,10 +66,10 @@
     border: 2px solid $darkest;
     color: $darkest;
     position: relative;
-    
+
     &:hover {
       background-color: rgba(52, 73, 94, 0.4);
-    } 
+    }
   }
 
   &.number-highlighted {
@@ -134,27 +134,33 @@
     left: 2px;
     right: 2px;
     bottom: 2px;
-    font-size: 0.6rem;
+    font-size: 11px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     color: $medium;
+    grid-gap: 2px;
+
 
     .note {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.5rem;
       font-weight: normal;
-      
+      border-radius: 2px;
+
       &.has-note {
         color: $medium;
-        font-weight: bold;
       }
-      
+
       &.note-error {
-        color: $danger;
-        font-weight: bold;
+        background-color: $danger;
+        color: $lightest;
+      }
+
+      &.note-selected {
+        background-color: $primary;
+        color: $lightest;
       }
     }
   }

@@ -1,3 +1,5 @@
+@use "../../variables" as *;
+
 .controls-container {
   display: flex;
   flex-direction: column;
@@ -10,13 +12,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  
+
   label {
     font-weight: 600;
     color: #333;
     font-size: 14px;
   }
-  
+
   select {
     padding: 8px 12px;
     border: 2px solid #ddd;
@@ -25,12 +27,12 @@
     background-color: white;
     cursor: pointer;
     transition: border-color 0.2s ease;
-    
+
     &:focus {
       outline: none;
       border-color: #3498db;
     }
-    
+
     &:hover {
       border-color: #bdc3c7;
     }
@@ -156,13 +158,7 @@
   }
 }
 
-.notes-toggle-btn {
-  &.active {
-    background-color: #3498db;
-    color: white;
-    border-color: #3498db;
-  }
-}
+
 
 .number-first-toggle-btn {
   &.active {
@@ -175,5 +171,57 @@
 .reset-notes-btn {
   &:hover {
     border-color: #e74c3c;
+  }
+}
+
+.board-controls {
+  display: grid;
+  grid-template-columns: repeat(4, 100px);
+}
+
+.board-control-button {
+  display: grid;
+  grid-template-rows: 25px auto;
+  grid-row-gap: 10px;
+  background: none;
+  border: none;
+  color: $dark;
+  padding: 15px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: $primary;
+    transform: translateY(-1px);
+
+    span {
+      font-weight: bold;
+    }
+  }
+
+
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  i {
+    font-size: 24px;
+  }
+
+  span {
+    font-size: 12px;
+  }
+
+  &.active:not(:disabled) {
+    color: $primary;
+    transform: translateY(0);
+
+    span {
+      font-weight: bold;
+      color: $primary;
+    }
   }
 }
