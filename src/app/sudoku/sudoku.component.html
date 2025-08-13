@@ -16,6 +16,8 @@
     [isGameActive]="isGameActive()"
     [isGamePaused]="isGamePaused"
     [isGameCompleted]="hasWonGame()"
+    [gameStartTime]="gameStartTime"
+    [savedElapsedTime]="totalGameTime"
     (timerUpdate)="onTimerUpdate($event)"
     (pauseStateChange)="onPauseStateChange($event)">
   </app-timer>

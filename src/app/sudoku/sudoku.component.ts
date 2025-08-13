@@ -165,6 +165,9 @@ export class SudokuComponent implements OnInit {
             this.isGamePaused = gameState.isGamePaused;
           }
 
+          // Timer component will automatically restore from localStorage
+          // No need to manually call restoration here
+
           // Check if the loaded game state has too many mistakes and auto-reset if needed
           if (this.mistakeCount >= 3) {
             console.log('Loaded game has too many mistakes, auto-resetting...');
