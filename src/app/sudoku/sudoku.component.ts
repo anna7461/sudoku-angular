@@ -69,18 +69,29 @@ export class SudokuComponent implements OnInit {
       boxesLength: this.boxes.length
     });
 
+    // Make component accessible from browser console for testing (browser only)
+    if (typeof window !== 'undefined') {
+      (window as any).sudokuComponent = this;
+      console.log('SudokuComponent available at window.sudokuComponent');
+      console.log('Test unique puzzle generation with: window.sudokuComponent.testUniquePuzzleGeneration()');
+    }
+
     // Use setTimeout to prevent immediate state changes that cause blinking
     setTimeout(() => {
       this.loadGameState();
     }, 100);
 
-    // Add document click listener for detecting clicks outside the board
-    document.addEventListener('click', this.documentClickHandler);
+    // Add document click listener for detecting clicks outside the board (browser only)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', this.documentClickHandler);
+    }
   }
 
   ngOnDestroy() {
-    // Remove document click listener to prevent memory leaks
-    document.removeEventListener('click', this.documentClickHandler);
+    // Remove document click listener to prevent memory leaks (browser only)
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('click', this.documentClickHandler);
+    }
   }
 
   private saveGameState(): void {
@@ -1097,14 +1108,15 @@ export class SudokuComponent implements OnInit {
     // Initialize empty 9x9 board
     const board = Array.from({ length: 9 }, () => Array(9).fill(0));
 
-    // Fill the first row with numbers 1–9
+    // Fill the first row with numbers 1–9 in random order
+    const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    this.shuffleArray(numbers);
     for (let i = 0; i < 9; i++) {
-      board[0][i] = i + 1;
+      board[0][i] = numbers[i];
     }
 
     // Use Sudoku solver to complete the board
     this.solveSudoku(board);
-
     return board;
   }
 
@@ -1142,8 +1154,11 @@ export class SudokuComponent implements OnInit {
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
         if (board[row][col] === 0) {
-          // Try numbers 1-9
-          for (let num = 1; num <= 9; num++) {
+          // Try numbers 1-9 in random order for more varied solutions
+          const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+          this.shuffleArray(numbers);
+          
+          for (const num of numbers) {
             if (this.isValidPlacement(board, row, col, num)) {
               board[row][col] = num;
 
@@ -1159,6 +1174,41 @@ export class SudokuComponent implements OnInit {
       }
     }
     return true; // board is solved
+  }
+
+  /**
+   * Shuffles array in place using Fisher-Yates algorithm
+   */
+  private shuffleArray<T>(array: T[]): void {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  /**
+   * Test method to verify unique puzzle generation
+   * This method can be called from browser console for testing
+   */
+  public testUniquePuzzleGeneration() {
+    console.log('Testing unique puzzle generation...');
+    const boards: string[] = [];
+    
+    for (let i = 0; i < 5; i++) {
+      const board = this.generateSolvedBoard();
+      const boardString = board.map(row => row.join('')).join('');
+      boards.push(boardString);
+      console.log(`Board ${i + 1} first row:`, board[0]);
+    }
+    
+    const uniqueBoards = new Set(boards);
+    console.log(`Generated ${boards.length} boards, ${uniqueBoards.size} unique`);
+    
+    if (uniqueBoards.size === boards.length) {
+      console.log('✅ SUCCESS: All generated boards are unique!');
+    } else {
+      console.log('❌ WARNING: Some boards were duplicated');
+    }
   }
 
   private createPuzzleFromSolved(
@@ -1180,11 +1230,8 @@ export class SudokuComponent implements OnInit {
     // Generate list of positions (0–80)
     const positions = Array.from({ length: 81 }, (_, i) => i);
 
-    // Shuffle positions using Fisher–Yates
-    for (let i = positions.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [positions[i], positions[j]] = [positions[j], positions[i]];
-    }
+    // Shuffle positions using our new shuffleArray method
+    this.shuffleArray(positions);
 
     // Remove cells
     for (let i = 0; i < cellsToRemove; i++) {
