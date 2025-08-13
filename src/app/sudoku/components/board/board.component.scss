@@ -104,8 +104,8 @@
   }
 
   &.related-highlighted {
-    background-color: rgba(54, 153, 255, 0.1); // Info color with transparency
-    border: 1px solid rgba(54, 153, 255, 0.3);
+    background-color: rgba($primary, 0.035); // Info color with transparency
+    border: 1px solid rgba($primary, 0.2);
   }
 
   // Override related highlighting for selected cell
