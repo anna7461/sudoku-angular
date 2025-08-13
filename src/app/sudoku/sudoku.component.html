@@ -1,9 +1,7 @@
 <app-controls
-  [numberFirstMode]="numberFirstMode"
   [disabled]="!isGameActive()"
   (resetGame)="resetGame()"
   (newGame)="onNewGame($event)"
-  (toggleNumberFirstMode)="toggleNumberFirstMode()"
 />
 
 <div class="puzzle-info-container">
@@ -47,11 +45,13 @@
     </app-board>
     <app-board-controls
       [notesMode]="notesMode"
+      [numberFirstMode]="numberFirstMode"
       [canUndo]="canUndo()"
       [disabled]="!isGameActive()"
       (undo)="undo()"
       (resetNotes)="resetNotes()"
       (toggleNotesMode)="toggleNotesMode()"
+      (toggleNumberFirstMode)="toggleNumberFirstMode()"
       (hint)="provideHint()">
     </app-board-controls>
     <app-number-pad

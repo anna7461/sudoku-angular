@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 export class BoardControlsComponent {
   // Input properties for board controls
   @Input() notesMode: boolean = false;
+  @Input() numberFirstMode: boolean = false;
   @Input() canUndo: boolean = false;
   @Input() disabled: boolean = false;
 
@@ -18,6 +19,7 @@ export class BoardControlsComponent {
   @Output() undo = new EventEmitter<void>();
   @Output() resetNotes = new EventEmitter<void>();
   @Output() toggleNotesMode = new EventEmitter<void>();
+  @Output() toggleNumberFirstMode = new EventEmitter<void>();
   @Output() hint = new EventEmitter<void>();
 
   onUndoClick() {
@@ -30,6 +32,10 @@ export class BoardControlsComponent {
 
   onToggleNotesClick() {
     this.toggleNotesMode.emit();
+  }
+
+  onToggleNumberFirstClick() {
+    this.toggleNumberFirstMode.emit();
   }
 
   onHintClick() {

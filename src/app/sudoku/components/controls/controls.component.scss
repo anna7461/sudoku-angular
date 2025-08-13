@@ -118,59 +118,6 @@
   }
 }
 
-.notes-controls {
-  display: flex;
-  gap: 15px;
-}
 
-.notes-toggle-btn, .number-first-toggle-btn, .reset-notes-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 15px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: white;
-  color: #333;
-
-  &:hover:not(:disabled) {
-    border-color: #3498db;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  i {
-    font-size: 14px;
-  }
-}
-
-
-
-.number-first-toggle-btn {
-  &.active {
-    background-color: $primary;
-    color: $lightest;
-    border-color: $primary;
-  }
-}
-
-.reset-notes-btn {
-  &:hover {
-    border-color: #e74c3c;
-  }
-}
 
 

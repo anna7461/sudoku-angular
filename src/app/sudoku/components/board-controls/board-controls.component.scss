@@ -2,7 +2,7 @@
 
 .board-controls {
   display: grid;
-  grid-template-columns: repeat(4, 100px);
+  grid-template-columns: repeat(5, 100px);
 }
 
 .board-control-button {
@@ -12,7 +12,7 @@
   background: none;
   border: none;
   color: $dark;
-  padding: 15px;
+  margin: 15px;
   transition: all 0.2s ease;
   cursor: pointer;
 

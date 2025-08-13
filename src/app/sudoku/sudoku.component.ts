@@ -662,7 +662,7 @@ export class SudokuComponent implements OnInit {
       this.score = Math.max(0, this.score - 10); // Remove points for correct move
     } else if (lastMove.newState === 'error' && lastMove.previousState !== 'error') {
       this.score += 5; // Add back points for incorrect move
-      this.mistakeCount = Math.max(0, this.mistakeCount - 1); // Reduce mistake count
+      // Note: Mistake count is NOT decremented - mistakes should only increase
     }
 
     // Clear current selection and number

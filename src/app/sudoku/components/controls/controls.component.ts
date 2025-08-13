@@ -9,11 +9,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./controls.component.scss']
 })
 export class ControlsComponent {
-  @Input() numberFirstMode: boolean = false;
   @Input() disabled: boolean = false;
   @Output() resetGame = new EventEmitter<void>();
   @Output() newGame = new EventEmitter<string>();
-  @Output() toggleNumberFirstMode = new EventEmitter<void>();
 
   difficulties = [
     { value: 'easy', label: 'Easy' },
@@ -35,9 +33,5 @@ export class ControlsComponent {
   onDifficultyChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     this.selectedDifficulty = target.value as 'easy' | 'medium' | 'hard' | 'expert';
-  }
-
-  onToggleNumberFirstClick() {
-    this.toggleNumberFirstMode.emit();
   }
 }
