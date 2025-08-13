@@ -3,8 +3,15 @@
           [class.selected]="isNumberSelected(num)"
           [class.selected-number-first]="numberFirstMode && selectedNumber === num"
           [class.completed]="isNumberCompleted(num)"
+          [class.being-held]="isBeingHeld[num]"
           [disabled]="isNumberCompleted(num)"
-          (click)="onNumberClick(num)">
+          (click)="onNumberClick(num)"
+          (mousedown)="onMouseDown(num, $event)"
+          (mouseup)="onMouseUp(num, $event)"
+          (mouseleave)="onMouseLeave(num)"
+          (touchstart)="onTouchStart(num, $event)"
+          (touchend)="onTouchEnd(num, $event)"
+          (touchcancel)="onTouchCancel(num)">
     <div class="number">{{ num }}</div>
     <div class="count">{{ getRemainingCount(num) }}</div>
   </button>

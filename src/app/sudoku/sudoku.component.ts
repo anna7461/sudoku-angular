@@ -362,6 +362,32 @@ export class SudokuComponent implements OnInit {
     this.saveGameState();
   }
 
+  // Handler for number pad press-and-hold toggle events
+  onNumberPadToggleMode(event: { number: number | null }) {
+    console.log('onNumberPadToggleMode called with:', event);
+    
+    if (event.number === null) {
+      // Turn off number-first mode
+      this.numberFirstMode = false;
+      this.selectedNumber = null;
+      this.currentNumber = null;
+      console.log('Number-First mode turned OFF via press-and-hold');
+    } else {
+      // Turn on number-first mode and set the selected number
+      this.numberFirstMode = true;
+      this.selectedNumber = event.number;
+      this.currentNumber = event.number; // Also set for highlighting consistency
+      console.log(`Number-First mode turned ON via press-and-hold with number ${this.selectedNumber}`);
+    }
+    
+    // Force change detection to ensure UI updates
+    this.changeDetectorRef.detectChanges();
+    
+    this.saveGameState();
+    
+    console.log(`Updated state: numberFirstMode=${this.numberFirstMode}, selectedNumber=${this.selectedNumber}`);
+  }
+
   // Method to fill cell with selected number in number-first mode
   private fillCellWithSelectedNumber() {
     if (this.selectedNumber === null || this.selectedBoxIndex === null || this.selectedCellIndex === null) {

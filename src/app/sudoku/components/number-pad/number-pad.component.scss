@@ -49,6 +49,18 @@
       }
     }
 
+    &.being-held {
+      background-color: $primary;
+      border-color: $primary;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba($primary, 0.3);
+      animation: pulse-hold 1s ease-in-out infinite;
+
+      .number {
+        font-weight: bold;
+      }
+    }
+
     &.completed {
       opacity: 0.4;
       cursor: not-allowed;
@@ -79,5 +91,17 @@
       margin-top: 2px;
       opacity: 0.8;
     }
+  }
+}
+
+@keyframes pulse-hold {
+  0% {
+    box-shadow: 0 4px 8px rgba($primary, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 12px rgba(rgba($primary, 0.3), 0.5);
+  }
+  100% {
+    box-shadow: 0 4px 8px rgba($primary, 0.3);
   }
 }

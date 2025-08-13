@@ -60,7 +60,8 @@
       [numberFirstMode]="numberFirstMode"
       [disabled]="!isGameActive()"
       [remainingCounts]="calculateRemainingCounts()"
-      (numberClick)="onNumberPadClick($event)">
+      (numberClick)="onNumberPadClick($event)"
+      (toggleNumberFirstMode)="onNumberPadToggleMode($event)">
     </app-number-pad>
   </div>
 </div>

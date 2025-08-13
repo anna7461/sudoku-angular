@@ -162,9 +162,9 @@
 
 .number-first-toggle-btn {
   &.active {
-    background-color: #9b59b6;
-    color: white;
-    border-color: #9b59b6;
+    background-color: $primary;
+    color: $lightest;
+    border-color: $primary;
   }
 }
 
