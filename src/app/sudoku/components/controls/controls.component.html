@@ -1,20 +1,19 @@
 <div class="controls-container">
+  <label for="difficulty">Difficulty:</label>
   <div class="difficulty-selector">
-    <label for="difficulty">Difficulty:</label>
+    
     <select id="difficulty" [value]="selectedDifficulty" (change)="onDifficultyChange($event)">
       <option *ngFor="let diff of difficulties" [value]="diff.value">
         {{ diff.label }}
       </option>
     </select>
   </div>
-  <div class="game-buttons">
-    <button class="new-game-btn" (click)="onNewGameClick()" [disabled]="disabled">
-      <i class="fas fa-plus-circle"></i>
-      New Game
-    </button>
-    <button class="reset-btn" (click)="onResetClick()" [disabled]="disabled">
-      <i class="fas fa-redo"></i>
-      Reset Game
-    </button>
-  </div>
+  <button class="new-game-btn" (click)="onNewGameClick()" [disabled]="disabled">
+    <i class="fas fa-plus-circle"></i>
+    New Game
+  </button>
+  <button class="reset-btn" (click)="onResetClick()" [disabled]="disabled">
+    <i class="fas fa-redo"></i>
+    Reset Game
+  </button>
 </div>

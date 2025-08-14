@@ -73,8 +73,8 @@
   }
 
   &.number-highlighted {
-    color: $primary;
-    background-color: $lightest;
+    background-color: $primary;
+    color: $lightest;
     //background-color: rgba(255, 168, 0, 0.2); // Warning color with transparency
     //border: 2px solid $warning;
 
@@ -89,23 +89,21 @@
     }
   }
 
-  &.current-number-highlighted {
-    background-color: $lightest;
 
-    .main-number {
-      color: $primary;
-      font-weight: bold;
-    }
+
+  &.related-highlighted {
+    background-color: rgba($primary, 0.035); // Info color with transparency
+    border: 1px solid rgba($primary, 0.2);
+  }
+
+  &.current-number-highlighted {
+    background-color: $primary;
+    color: $lightest;
 
     .note {
       color: $success;
       font-weight: bold;
     }
-  }
-
-  &.related-highlighted {
-    background-color: rgba($primary, 0.035); // Info color with transparency
-    border: 1px solid rgba($primary, 0.2);
   }
 
   // Override related highlighting for selected cell

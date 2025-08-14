@@ -83,6 +83,14 @@ export class SudokuComponent implements OnInit {
     this._cachedGameWon = false;
   }
 
+  /**
+   * Clear the current board cell selection
+   */
+  private clearBoardSelection(): void {
+    this.selectedBoxIndex = null;
+    this.selectedCellIndex = null;
+  }
+
   ngOnInit() {
     console.log('ngOnInit: Initial state:', {
       isLoading: this.isLoading,
@@ -1670,134 +1678,16 @@ export class SudokuComponent implements OnInit {
     // Set the current number for highlighting
     this.currentNumber = num;
 
-    if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
-      // If no cell is selected, just highlight the number without doing anything else
-      // Force change detection to update highlights
-      this.changeDetectorRef.detectChanges();
-      return;
-    }
-
-    // Check if the selected cell can be edited
-    // Safety check: ensure boxes are properly initialized
-    if (!this.boxes || this.boxes.length === 0 ||
-        !this.boxes[this.selectedBoxIndex] ||
-        !this.boxes[this.selectedBoxIndex].cells ||
-        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
-      console.error('Cannot edit: boxes not properly initialized');
-      return;
-    }
-
-    const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
-    if (cell.isFixed || cell.state === 'correct') {
-      console.log('Cannot edit fixed or correct cell');
-      return; // cannot edit fixed or correct cells
-    }
-
-    // Store the previous state for move tracking
-    const previousValue = cell.value;
-    const previousNotes = [...cell.notes];
-    const previousState = cell.state;
-
-    // Check if notes mode is active
-    if (this.notesMode) {
-      // In notes mode, toggle the note instead of filling the cell
-      this.toggleNoteInCell(num);
-      return;
-    }
-
-    // Calculate global row and column for validation
-    const boxRow = Math.floor(this.selectedBoxIndex / 3);
-    const boxCol = this.selectedBoxIndex % 3;
-    const cellRow = Math.floor(this.selectedCellIndex / 3);
-    const cellCol = Math.floor(this.selectedCellIndex % 3);
-    const globalRow = boxRow * 3 + cellRow;
-    const globalCol = boxCol * 3 + cellCol;
-
-    // Store box and cell indices before they get cleared
-    const moveBoxIndex = this.selectedBoxIndex;
-    const moveCellIndex = this.selectedCellIndex;
-
-    // Check if the move is valid against the solution
-    if (this.solution[globalRow][globalCol] === num) {
-      // Correct move
-      cell.value = num;
-      cell.state = 'correct';
-      cell.notes = []; // Clear notes when entering correct value
-
-      // Remove conflicting notes from related cells
-      this.removeNotesWithNumber(num);
-
-      // Update score
-      this.score += 10;
-
-      // Clear current number after successful move
-      this.currentNumber = null;
-
-      // Clear all highlights after successful move
-      this.clearHighlights();
-
-      // Check if puzzle is complete
-      if (this.isPuzzleComplete()) {
-        console.log('Puzzle completed!');
-        this.handleVictory();
-      }
-    } else {
-      // Incorrect move
-      cell.value = num;
-      cell.state = 'error';
-      cell.notes = []; // Clear notes when entering incorrect value
-
-      // Remove conflicting notes from related cells
-      this.removeNotesWithNumber(num);
-
-      // Increment mistake count
-      this.mistakeCount++;
-      this.invalidateGameActiveCache();
-
-      // Clear current number after incorrect move
-      this.currentNumber = null;
-
-      // Clear all highlights after incorrect move too
-      this.clearHighlights();
-
-      // Check if game over (3 mistakes)
-      if (this.mistakeCount >= 3) {
-        console.log('Game over - too many mistakes!');
-        this.handleGameOver();
-        return; // Stop processing the move
-      }
-    }
-
-    // Record the move for undo functionality
-    const move: Move = {
-      boxIndex: moveBoxIndex,
-      cellIndex: moveCellIndex,
-      previousValue,
-      previousNotes,
-      previousState,
-      newValue: cell.value,
-      newNotes: [...cell.notes],
-      newState: cell.state,
-      timestamp: Date.now()
-    };
-
-    this.moveHistory.push(move);
-
-    // Limit the undo stack size
-    if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
-      this.moveHistory.shift(); // Remove oldest move
-    }
-
-    // Save game state
-    this.saveGameState();
-
-    // Force comprehensive change detection to update the UI immediately
+    // Clear board selection when clicking a number from the dock
+    // This ensures only the dock number is highlighted, not both the board cell and dock number
+    this.clearBoardSelection();
+    
+    // Force change detection to update highlights
     this.changeDetectorRef.detectChanges();
-
-    // Also trigger board component change detection for cell styling
-    if (this.boardComponent) {
-      this.boardComponent.detectChanges();
-    }
+    
+    // After clearing board selection, we can't proceed with editing a cell
+    // The user would need to click a cell first, then click a number
+    return;
   }
 
     // Provide a hint by revealing the correct number for the selected cell

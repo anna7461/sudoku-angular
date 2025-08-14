@@ -25,7 +25,7 @@
     <i class="fas fa-pencil-alt"></i>
     <span>{{ notesMode ? 'Notes ON' : 'Notes OFF' }}</span>
   </button>
-
+ 
   <button
     class="board-control-button"
     (click)="onHintClick()"
@@ -34,13 +34,13 @@
     <i class="fas fa-lightbulb"></i>
     <span>Hint</span>
   </button>
-  <button
-  class="board-control-button"
-  [class.active]="numberFirstMode"
-  (click)="onToggleNumberFirstClick()"
-  [disabled]="disabled"
->
-  <i class="fas fa-mouse-pointer"></i>
-  <span>{{ numberFirstMode ? 'Number-First ON' : 'Number-First OFF' }}</span>
-</button>
+   <button
+    class="board-control-button"
+    [class.active]="numberFirstMode"
+    (click)="onToggleNumberFirstClick()"
+    [disabled]="disabled"
+  >
+    <i class="fas fa-mouse-pointer"></i>
+    <span>{{ numberFirstMode ? 'Number-First ON' : 'Number-First OFF' }}</span>
+  </button>
 </div>
