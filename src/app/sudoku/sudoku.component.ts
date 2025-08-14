@@ -1071,6 +1071,9 @@ export class SudokuComponent implements OnInit {
     this.selectedBoxIndex = event.boxIndex;
     this.selectedCellIndex = event.cellIndex;
 
+    // Get the selected cell for dock highlighting logic
+    const selectedCell = this.boxes[event.boxIndex]?.cells[event.cellIndex];
+
     // In number-first mode, if a number is selected, auto-fill the cell
     if (this.numberFirstMode && this.selectedNumber !== null && event.isEditable) {
       console.log(`Auto-filling cell with selected number ${this.selectedNumber} in Number-First mode`);
@@ -1078,15 +1081,23 @@ export class SudokuComponent implements OnInit {
       return;
     }
 
-    // Clear current number when selecting a new cell (only in normal mode)
-    if (!this.numberFirstMode) {
+    // Highlight the dock number if the selected cell has a value (works in both modes)
+    if (selectedCell && selectedCell.value && selectedCell.value >= 1 && selectedCell.value <= 9) {
+      // Set currentNumber to highlight the corresponding dock number
+      this.currentNumber = selectedCell.value;
+      console.log(`Highlighting dock number ${selectedCell.value} for selected cell (mode: ${this.numberFirstMode ? 'number-first' : 'normal'})`);
+    } else {
+      // Clear current number if cell is empty
       this.currentNumber = null;
+      console.log('Clearing dock number highlight - empty cell selected');
     }
 
     console.log('Selection updated:', {
       boxIndex: this.selectedBoxIndex,
       cellIndex: this.selectedCellIndex,
-      isEditable: event.isEditable
+      isEditable: event.isEditable,
+      currentNumber: this.currentNumber,
+      mode: this.numberFirstMode ? 'number-first' : 'normal'
     });
   }
 
@@ -1723,10 +1734,11 @@ export class SudokuComponent implements OnInit {
 
     // Handle number-first mode
     if (this.numberFirstMode) {
-      // In number-first mode, clicking a number selects it
+      // In number-first mode, clicking a number selects it and clears board selection
       this.selectedNumber = num;
       this.currentNumber = num; // Also set for highlighting consistency
-      console.log(`Selected number ${num} in Number-First mode`);
+      this.clearBoardSelection(); // Clear board selection to show only dock highlight
+      console.log(`Selected number ${num} in Number-First mode - board selection cleared`);
       this.saveGameState();
       this.changeDetectorRef.detectChanges();
       return;
@@ -1755,11 +1767,16 @@ export class SudokuComponent implements OnInit {
         return;
       } else {
         console.log('Selected cell is not editable (fixed or correct)');
+        // Clear selection since we can't fill this cell
+        this.clearBoardSelection();
       }
+    } else {
+      // No cell selected, clear any existing selection
+      this.clearBoardSelection();
     }
 
-    // If no editable cell is selected, just highlight the number
-    console.log(`No editable cell selected, highlighting number ${num}`);
+    // Just highlight the number
+    console.log(`Highlighting number ${num} from dock`);
 
     // Force change detection to update highlights
     this.changeDetectorRef.detectChanges();
@@ -1983,7 +2000,7 @@ export class SudokuComponent implements OnInit {
       return { boxIndex: null, cellIndex: null, isEditable: false };
     }
 
-    // Safety check: ensure boxes are properly initialized
+    // Safety check: ensure boxes are properly initialized  
     if (!this.boxes || this.boxes.length === 0 ||
         !this.boxes[this.selectedBoxIndex] ||
         !this.boxes[this.selectedBoxIndex].cells ||
