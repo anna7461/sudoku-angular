@@ -30,15 +30,16 @@ export class CongratulationsModalComponent implements OnInit, AfterViewInit {
   get isVisible(): boolean {
     return this._isVisible;
   }
-  
+
   private _isVisible: boolean = false;
-  
+
   @Input() gameData: GameCompletionData | null = null;
   @Output() newGame = new EventEmitter<string>();
   @Output() closeModal = new EventEmitter<void>();
 
   selectedDifficulty: string = 'easy';
   difficulties: { value: string; label: string }[] = [
+    { value: 'test', label: 'Test' },
     { value: 'easy', label: 'Easy' },
     { value: 'medium', label: 'Medium' },
     { value: 'hard', label: 'Hard' },
@@ -93,12 +94,12 @@ export class CongratulationsModalComponent implements OnInit, AfterViewInit {
     const focusableElements = this.modalContent?.nativeElement.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) return;
-    
+
     const firstElement = focusableElements[0] as HTMLElement;
     const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-    
+
     if (keyboardEvent.shiftKey) {
       if (document.activeElement === firstElement) {
         keyboardEvent.preventDefault();

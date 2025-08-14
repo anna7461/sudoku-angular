@@ -65,7 +65,7 @@ export class SudokuComponent implements OnInit {
   // Cache for isGameActive to prevent ExpressionChangedAfterItHasBeenCheckedError
   private _cachedIsGameActive: boolean = true;
   private _gameActiveLastCheck: { [key: string]: any } = {};
-  
+
   // Cache for game state to avoid repeated calculations
   private _cachedGameOver: boolean = false;
   private _cachedGameWon: boolean = false;
@@ -243,7 +243,7 @@ export class SudokuComponent implements OnInit {
           // This ensures we can still validate moves
           if (!this.solution || this.solution.length === 0) {
             console.log('Regenerating solution for saved game...');
-            this.initializeBoard(this.currentDifficulty as 'easy' | 'medium' | 'hard' | 'expert');
+            this.initializeBoard(this.currentDifficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert');
           }
 
           console.log('Game state loaded:', gameState);
@@ -280,19 +280,19 @@ export class SudokuComponent implements OnInit {
 
   // Method to handle new game event from controls component
   onNewGame(difficulty: string) {
-    const validDifficulty = difficulty as 'easy' | 'medium' | 'hard' | 'expert';
+    const validDifficulty = difficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert';
     this.startNewGame(validDifficulty);
   }
 
-  // Method to start a new game with specific difficulty
-  startNewGame(difficulty?: 'easy' | 'medium' | 'hard' | 'expert') {
+  // Method to start a new game with a specific difficulty
+  startNewGame(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert') {
     console.log(`Starting new game with difficulty: ${difficulty || ''}`);
     this.isLoading = true;
     this.clearGameState();
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
     this.currentNumber = null;
-    this.selectedNumber = null; // Reset selected number for number-first mode
+    this.selectedNumber = null; // Reset the selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
 
@@ -354,7 +354,7 @@ export class SudokuComponent implements OnInit {
     if (this.moveHistory.length === 0) {
       return false;
     }
-    
+
     // Find the last move that can be undone (not a correct number placement)
     for (let i = this.moveHistory.length - 1; i >= 0; i--) {
       const move = this.moveHistory[i];
@@ -362,7 +362,7 @@ export class SudokuComponent implements OnInit {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -384,7 +384,7 @@ export class SudokuComponent implements OnInit {
   onNewGameFromModal(difficulty: string) {
     this.showCongratulationsModal = false;
     this.changeDetectorRef.detectChanges();
-    this.startNewGame(difficulty as 'easy' | 'medium' | 'hard' | 'expert');
+    this.startNewGame(difficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert');
   }
 
   onCloseCongratulationsModal() {
@@ -415,7 +415,7 @@ export class SudokuComponent implements OnInit {
   // Handler for number pad press-and-hold toggle events
   onNumberPadToggleMode(event: { number: number | null }) {
     console.log('onNumberPadToggleMode called with:', event);
-    
+
     if (event.number === null) {
       // Turn off number-first mode
       this.numberFirstMode = false;
@@ -429,13 +429,130 @@ export class SudokuComponent implements OnInit {
       this.currentNumber = event.number; // Also set for highlighting consistency
       console.log(`Number-First mode turned ON via press-and-hold with number ${this.selectedNumber}`);
     }
-    
+
     // Force change detection to ensure UI updates
     this.changeDetectorRef.detectChanges();
-    
+
     this.saveGameState();
-    
+
     console.log(`Updated state: numberFirstMode=${this.numberFirstMode}, selectedNumber=${this.selectedNumber}`);
+  }
+
+  // Method to fill the currently selected cell with a specific number
+  private fillSelectedCellWithNumber(num: number) {
+    if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
+      return;
+    }
+
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 ||
+        !this.boxes[this.selectedBoxIndex] ||
+        !this.boxes[this.selectedBoxIndex].cells ||
+        !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+      console.error('Cannot fill cell: boxes not properly initialized');
+      return;
+    }
+
+    const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
+    if (cell.isFixed || cell.state === 'correct') {
+      console.log('Cannot edit fixed or correct cell');
+      return;
+    }
+
+    // Store the previous state for move tracking
+    const previousValue = cell.value;
+    const previousNotes = [...cell.notes];
+    const previousState = cell.state;
+
+    // Check if notes mode is active
+    if (this.notesMode) {
+      // In notes mode, toggle the note instead of filling the cell
+      this.toggleNoteInCell(num);
+      return;
+    }
+
+    // Calculate global row and column for validation
+    const boxRow = Math.floor(this.selectedBoxIndex / 3);
+    const boxCol = this.selectedBoxIndex % 3;
+    const cellRow = Math.floor(this.selectedCellIndex / 3);
+    const cellCol = Math.floor(this.selectedCellIndex % 3);
+    const globalRow = boxRow * 3 + cellRow;
+    const globalCol = boxCol * 3 + cellCol;
+
+    // Store box and cell indices before they get cleared
+    const moveBoxIndex = this.selectedBoxIndex;
+    const moveCellIndex = this.selectedCellIndex;
+
+    // Check if the move is valid against the solution
+    if (this.solution[globalRow][globalCol] === num) {
+      // Correct move
+      cell.value = num;
+      cell.state = 'correct';
+      cell.notes = []; // Clear notes when entering correct value
+
+      // Remove conflicting notes from related cells
+      this.removeNotesWithNumber(num);
+
+      // Update score
+      this.score += 10;
+
+      // Check if puzzle is complete
+      if (this.isPuzzleComplete()) {
+        console.log('Puzzle completed!');
+        this.handleVictory();
+      }
+    } else {
+      // Incorrect move
+      cell.value = num;
+      cell.state = 'error';
+      cell.notes = []; // Clear notes when entering incorrect value
+
+      // Remove conflicting notes from related cells
+      this.removeNotesWithNumber(num);
+
+      // Increment mistake count
+      this.mistakeCount++;
+      this.invalidateGameActiveCache();
+
+      // Check if game over (3 mistakes)
+      if (this.mistakeCount >= 3) {
+        console.log('Game over - too many mistakes!');
+        this.handleGameOver();
+        return; // Stop processing the move
+      }
+    }
+
+    // Record the move for undo functionality
+    const move: Move = {
+      boxIndex: moveBoxIndex,
+      cellIndex: moveCellIndex,
+      previousValue,
+      previousNotes,
+      previousState,
+      newValue: cell.value,
+      newNotes: [...cell.notes],
+      newState: cell.state,
+      timestamp: Date.now()
+    };
+
+    this.moveHistory.push(move);
+    console.log('Move recorded:', move);
+
+    // Limit the undo stack size
+    if (this.moveHistory.length > this.MAX_UNDO_STEPS) {
+      this.moveHistory.shift(); // Remove oldest move
+    }
+
+    // Save game state
+    this.saveGameState();
+
+    // Force comprehensive change detection to update the UI immediately
+    this.changeDetectorRef.detectChanges();
+
+    // Also trigger board component change detection for cell styling
+    if (this.boardComponent) {
+      this.boardComponent.detectChanges();
+    }
   }
 
   // Method to fill cell with selected number in number-first mode
@@ -664,7 +781,7 @@ export class SudokuComponent implements OnInit {
       }
       // If it's a correct move, we skip it (effectively removing it from undo history)
     }
-    
+
     if (!lastMove) {
       console.log('No undoable moves found');
       return;
@@ -677,27 +794,27 @@ export class SudokuComponent implements OnInit {
     // Safety check: ensure boxes are properly initialized and indices are valid
     console.log('Undo debug - boxes length:', this.boxes?.length, 'lastMove:', lastMove);
     console.log('Undo debug - boxIndex:', lastMove.boxIndex, 'cellIndex:', lastMove.cellIndex);
-    
+
     if (!this.boxes || this.boxes.length === 0) {
       console.error('Cannot undo: boxes array is empty or null');
       return;
     }
-    
+
     if (lastMove.boxIndex < 0 || lastMove.boxIndex >= this.boxes.length) {
       console.error('Cannot undo: invalid boxIndex', lastMove.boxIndex);
       return;
     }
-    
+
     if (!this.boxes[lastMove.boxIndex] || !this.boxes[lastMove.boxIndex].cells) {
       console.error('Cannot undo: box or cells array is null at index', lastMove.boxIndex);
       return;
     }
-    
+
     if (lastMove.cellIndex < 0 || lastMove.cellIndex >= this.boxes[lastMove.boxIndex].cells.length) {
       console.error('Cannot undo: invalid cellIndex', lastMove.cellIndex);
       return;
     }
-    
+
     if (!this.boxes[lastMove.boxIndex].cells[lastMove.cellIndex]) {
       console.error('Cannot undo: cell is null at boxIndex', lastMove.boxIndex, 'cellIndex', lastMove.cellIndex);
       return;
@@ -790,7 +907,7 @@ export class SudokuComponent implements OnInit {
 
     // Invalidate game active cache since modal state changed
     this.invalidateGameActiveCache();
-    
+
     // Trigger change detection to ensure the modal is rendered
     this.changeDetectorRef.detectChanges();
 
@@ -1083,7 +1200,7 @@ export class SudokuComponent implements OnInit {
   }
 
 
-  initializeBoard(difficulty?: 'easy' | 'medium' | 'hard' | 'expert') {
+  initializeBoard(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert') {
     // Clear current number and selection when initializing new board
     this.currentNumber = null;
     this.selectedNumber = null;
@@ -1134,12 +1251,12 @@ export class SudokuComponent implements OnInit {
 
     // 5. Save initial game state
     this.saveGameState();
-    
+
     // 6. Invalidate game active cache since boxes are now initialized
     this.invalidateGameActiveCache();
   }
 
-  private generateSudokuPuzzle(difficulty?: 'easy' | 'medium' | 'hard' | 'expert'): number[][] {
+  private generateSudokuPuzzle(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert'): number[][] {
     // Start with a solved Sudoku board
     const solvedBoard = this.generateSolvedBoard();
 
@@ -1159,7 +1276,7 @@ export class SudokuComponent implements OnInit {
     }
 
     // Use Sudoku solver to complete the board
-    this.solveSudoku(board);  
+    this.solveSudoku(board);
     return board;
   }
 
@@ -1200,7 +1317,7 @@ export class SudokuComponent implements OnInit {
           // Try numbers 1-9 in random order for more varied solutions
           const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
           this.shuffleArray(numbers);
-          
+
           for (const num of numbers) {
             if (this.isValidPlacement(board, row, col, num)) {
               board[row][col] = num;
@@ -1236,17 +1353,17 @@ export class SudokuComponent implements OnInit {
   public testUniquePuzzleGeneration() {
     console.log('Testing unique puzzle generation...');
     const boards: string[] = [];
-    
+
     for (let i = 0; i < 5; i++) {
       const board = this.generateSolvedBoard();
       const boardString = board.map(row => row.join('')).join('');
       boards.push(boardString);
       console.log(`Board ${i + 1} first row:`, board[0]);
     }
-    
+
     const uniqueBoards = new Set(boards);
     console.log(`Generated ${boards.length} boards, ${uniqueBoards.size} unique`);
-    
+
     if (uniqueBoards.size === boards.length) {
       console.log('✅ SUCCESS: All generated boards are unique!');
     } else {
@@ -1256,13 +1373,14 @@ export class SudokuComponent implements OnInit {
 
   private createPuzzleFromSolved(
     solvedBoard: number[][],
-    difficulty: 'easy' | 'medium' | 'hard' | 'expert' = 'medium'
+    difficulty: 'test' | 'easy' | 'medium' | 'hard' | 'expert' = 'medium'
   ): number[][] {
     // Copy the solved board
     const puzzle = solvedBoard.map(row => [...row]);
 
           // Number of cells to remove based on difficulty
       const difficultyMap: Record<string, number> = {
+        test: 1,
         easy: 30,
         medium: 40,
         hard: 50,
@@ -1678,16 +1796,34 @@ export class SudokuComponent implements OnInit {
     // Set the current number for highlighting
     this.currentNumber = num;
 
-    // Clear board selection when clicking a number from the dock
-    // This ensures only the dock number is highlighted, not both the board cell and dock number
-    this.clearBoardSelection();
-    
+    // If a cell is selected and it's editable, fill it with the clicked number
+    if (this.selectedBoxIndex !== null && this.selectedCellIndex !== null) {
+      // Safety check: ensure boxes are properly initialized
+      if (!this.boxes || this.boxes.length === 0 ||
+          !this.boxes[this.selectedBoxIndex] ||
+          !this.boxes[this.selectedBoxIndex].cells ||
+          !this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex]) {
+        console.error('Cannot fill cell: boxes not properly initialized');
+        return;
+      }
+
+      const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
+
+      // Check if cell is editable
+      if (!cell.isFixed && cell.state !== 'correct') {
+        console.log(`Filling selected cell with number ${num}`);
+        this.fillSelectedCellWithNumber(num);
+        return;
+      } else {
+        console.log('Selected cell is not editable (fixed or correct)');
+      }
+    }
+
+    // If no editable cell is selected, just highlight the number
+    console.log(`No editable cell selected, highlighting number ${num}`);
+
     // Force change detection to update highlights
     this.changeDetectorRef.detectChanges();
-    
-    // After clearing board selection, we can't proceed with editing a cell
-    // The user would need to click a cell first, then click a number
-    return;
   }
 
     // Provide a hint by revealing the correct number for the selected cell
@@ -1775,7 +1911,7 @@ export class SudokuComponent implements OnInit {
 
       // Check if state has changed since last call
       const stateChanged = JSON.stringify(currentState) !== JSON.stringify(this._gameActiveLastCheck);
-      
+
       if (!stateChanged) {
         return this._cachedIsGameActive;
       }

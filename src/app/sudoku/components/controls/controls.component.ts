@@ -14,6 +14,7 @@ export class ControlsComponent {
   @Output() newGame = new EventEmitter<string>();
 
   difficulties = [
+    { value: 'test', label: 'Test' },
     { value: 'easy', label: 'Easy' },
     { value: 'medium', label: 'Medium' },
     { value: 'hard', label: 'Hard' },
@@ -32,6 +33,6 @@ export class ControlsComponent {
 
   onDifficultyChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    this.selectedDifficulty = target.value as 'easy' | 'medium' | 'hard' | 'expert';
+    this.selectedDifficulty = target.value as 'test' | 'easy' | 'medium' | 'hard' | 'expert';
   }
 }
