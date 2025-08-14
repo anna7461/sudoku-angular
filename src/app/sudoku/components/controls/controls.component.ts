@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ControlsComponent {
   @Input() disabled: boolean = false;
+  @Input() resetDisabled: boolean = false;
   @Output() resetGame = new EventEmitter<void>();
   @Output() newGame = new EventEmitter<string>();
 

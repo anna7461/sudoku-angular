@@ -8,7 +8,6 @@ import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
 import {TimerComponent} from './components/timer/timer.component';
 import {BoardControlsComponent} from './components/board-controls/board-controls.component';
-import {CongratulationsModalComponent, GameCompletionData} from './components/congratulations-modal/congratulations-modal.component';
 
 @Component({
   standalone: true,
@@ -20,8 +19,7 @@ import {CongratulationsModalComponent, GameCompletionData} from './components/co
     NumberPadComponent,
     ControlsComponent,
     TimerComponent,
-    BoardControlsComponent,
-    CongratulationsModalComponent
+    BoardControlsComponent
   ],
   styleUrls: ['./sudoku.component.scss']
 })
@@ -58,10 +56,6 @@ export class SudokuComponent implements OnInit {
   gameStartTime: number | null = null;
   totalGameTime: number = 0;
 
-  // Congratulations modal functionality
-  showCongratulationsModal: boolean = false;
-  gameCompletionData: GameCompletionData | null = null;
-
   // Cache for isGameActive to prevent ExpressionChangedAfterItHasBeenCheckedError
   private _cachedIsGameActive: boolean = true;
   private _gameActiveLastCheck: { [key: string]: any } = {};
@@ -69,11 +63,15 @@ export class SudokuComponent implements OnInit {
   // Cache for game state to avoid repeated calculations
   private _cachedGameOver: boolean = false;
   private _cachedGameWon: boolean = false;
+  private _cachedResetDisabled: boolean | null = null;
+  private _cachedControlsAvailable: boolean | null = null;
 
   private invalidateGameActiveCache(): void {
     this._gameActiveLastCheck = {};
     this._cachedGameOver = false;
     this._cachedGameWon = false;
+    this._cachedResetDisabled = null;
+    this._cachedControlsAvailable = null;
   }
 
   private resetGameStateCache(): void {
@@ -81,6 +79,8 @@ export class SudokuComponent implements OnInit {
     this._gameActiveLastCheck = {};
     this._cachedGameOver = false;
     this._cachedGameWon = false;
+    this._cachedResetDisabled = null;
+    this._cachedControlsAvailable = null;
   }
 
   /**
@@ -220,23 +220,10 @@ export class SudokuComponent implements OnInit {
             this.invalidateGameActiveCache();
           }
 
-          // Check if the loaded game is already completed and show congratulations modal if so
+          // Check if the loaded game is already completed
           if (this.boxes && this.boxes.length > 0 && this.hasWonGame()) {
-            console.log('Loaded game is already completed, showing congratulations modal...');
-
-            // Prepare game completion data for the modal
-            this.gameCompletionData = {
-              difficulty: this.getCurrentDifficulty(),
-              timeSpent: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
-              score: this.score,
-              mistakes: this.mistakeCount
-            };
-
-            // Show congratulations modal
-            this.showCongratulationsModal = true;
-
-            // Trigger change detection to ensure the modal is rendered
-            this.changeDetectorRef.detectChanges();
+            console.log('Loaded game is already completed');
+            console.log('🏆 Game was completed previously!');
           }
 
           // If we have a saved game but no solution, we need to regenerate the puzzle
@@ -309,9 +296,7 @@ export class SudokuComponent implements OnInit {
       this.timerComponent.resetGameTimer();
     }
 
-    // Reset congratulations modal state
-    this.showCongratulationsModal = false;
-    this.gameCompletionData = null;
+    // Reset game state
     this.resetGameStateCache();
     this.changeDetectorRef.detectChanges();
 
@@ -380,18 +365,7 @@ export class SudokuComponent implements OnInit {
     this.isGamePaused = isPaused;
   }
 
-  // Congratulations modal event handlers
-  onNewGameFromModal(difficulty: string) {
-    this.showCongratulationsModal = false;
-    this.changeDetectorRef.detectChanges();
-    this.startNewGame(difficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert');
-  }
 
-  onCloseCongratulationsModal() {
-    this.showCongratulationsModal = false;
-    this.invalidateGameActiveCache();
-    this.changeDetectorRef.detectChanges();
-  }
 
   // Method to toggle notes mode
   toggleNotesMode() {
@@ -498,7 +472,7 @@ export class SudokuComponent implements OnInit {
 
       // Check if puzzle is complete
       if (this.isPuzzleComplete()) {
-        console.log('Puzzle completed!');
+        console.log('🏆 Puzzle completed in fillSelectedCellWithNumber!');
         this.handleVictory();
       }
     } else {
@@ -621,7 +595,7 @@ export class SudokuComponent implements OnInit {
 
       // Check if puzzle is complete
       if (this.isPuzzleComplete()) {
-        console.log('Puzzle completed!');
+        console.log('🏆 Puzzle completed in fillCellWithSelectedNumber (number-first mode)!');
         this.handleVictory();
       }
     } else {
@@ -860,11 +834,6 @@ export class SudokuComponent implements OnInit {
   private handleGameOver() {
     console.log('Game Over - mistake limit reached!');
 
-    // Hide congratulations modal if it's visible
-    this.showCongratulationsModal = false;
-    this.gameCompletionData = null;
-    this.changeDetectorRef.detectChanges();
-
     // Show game over message
     setTimeout(() => {
       const message = 'Game Over! You have made 3 mistakes. The game will restart.';
@@ -877,43 +846,32 @@ export class SudokuComponent implements OnInit {
 
   // Handle victory when puzzle is completed
   private handleVictory() {
-    console.log('Victory! Puzzle completed!');
-    console.log('Timer state before victory:', {
-      totalGameTime: this.totalGameTime,
-      gameStartTime: this.gameStartTime,
-      isGamePaused: this.isGamePaused
-    });
-
+    console.log('🎉 Victory! Puzzle completed!');
+    
+    // Invalidate game state cache since the game is now won
+    this.invalidateGameActiveCache();
+    
     // Pause the timer when puzzle is completed
     if (this.timerComponent) {
       this.timerComponent.pauseTimer();
-      console.log('Timer paused');
+      console.log('⏱️ Timer paused');
     }
 
-    // Prepare game completion data for the modal
-    this.gameCompletionData = {
-      difficulty: this.getCurrentDifficulty(),
-      timeSpent: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
-      score: this.score,
-      mistakes: this.mistakeCount
-    };
-
-    console.log('Game completion data prepared:', this.gameCompletionData);
-
-    // Show congratulations modal immediately
-    this.showCongratulationsModal = true;
-    console.log('Congratulations modal shown:', this.showCongratulationsModal);
-    console.log('Game completion data:', this.gameCompletionData);
-
-    // Invalidate game active cache since modal state changed
-    this.invalidateGameActiveCache();
-
-    // Trigger change detection to ensure the modal is rendered
-    this.changeDetectorRef.detectChanges();
-
-    // Save game state after showing the modal
+    // Show a simple victory message
+    console.log('🏆 Congratulations! You completed the puzzle!');
+    console.log(`🎯 Difficulty: ${this.getCurrentDifficulty()}`);
+    console.log(`⏱️ Time: ${this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00'}`);
+    console.log(`⭐ Score: ${this.score}`);
+    console.log(`❌ Mistakes: ${this.mistakeCount}`);
+    
+    // Save the completed game state
     this.saveGameState();
-    console.log('Game state saved after victory');
+    
+    // Show a browser alert for now
+    setTimeout(() => {
+      const timeSpent = this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00';
+      alert(`🎉 Congratulations! Puzzle completed!\n\nDifficulty: ${this.getCurrentDifficulty()}\nTime: ${timeSpent}\nScore: ${this.score}\nMistakes: ${this.mistakeCount}`);
+    }, 100);
   }
 
   // Navigate between cells using arrow keys
@@ -1430,25 +1388,8 @@ export class SudokuComponent implements OnInit {
 
   // Check if the puzzle is complete (all cells filled correctly)
   private isPuzzleComplete(): boolean {
-    // Safety check: ensure boxes are properly initialized
-    if (!this.boxes || this.boxes.length === 0) {
-      return false;
-    }
-
-    for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
-      const box = this.boxes[boxIndex];
-      if (!box || !box.cells || box.cells.length === 0) {
-        return false;
-      }
-
-      for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
-        const cell = box.cells[cellIndex];
-        if (!cell || !cell.value || cell.state !== 'correct') {
-          return false;
-        }
-      }
-    }
-    return true;
+    // Use the same logic as isGameWon to ensure consistency
+    return this.isGameWon();
   }
 
   // Check if the game is won (all non-fixed cells are correct)
@@ -1696,9 +1637,7 @@ export class SudokuComponent implements OnInit {
       this.timerComponent.resetGameTimer();
     }
 
-    // Reset congratulations modal state
-    this.showCongratulationsModal = false;
-    this.gameCompletionData = null;
+    // Reset game state
     this.invalidateGameActiveCache();
     this.changeDetectorRef.detectChanges();
 
@@ -1905,8 +1844,7 @@ export class SudokuComponent implements OnInit {
       const currentState = {
         isLoading: this.isLoading,
         boxesLength: this.boxes?.length || 0,
-        mistakeCount: this.mistakeCount,
-        showCongratulationsModal: this.showCongratulationsModal
+        mistakeCount: this.mistakeCount
       };
 
       // Check if state has changed since last call
@@ -1943,8 +1881,7 @@ export class SudokuComponent implements OnInit {
       // A game is active if:
       // 1. It's not over due to mistakes (gameOver = false)
       // 2. It's not won yet (gameWon = false) - meaning the puzzle is still being solved
-      // OR if it's won but the congratulations modal is showing (user hasn't chosen next action yet)
-      const isActive = !this._cachedGameOver && (!this._cachedGameWon || this.showCongratulationsModal);
+      const isActive = !this._cachedGameOver && !this._cachedGameWon;
 
       this._cachedIsGameActive = isActive;
       return this._cachedIsGameActive;
@@ -1953,6 +1890,26 @@ export class SudokuComponent implements OnInit {
       console.warn('Error in isGameActive, using cached value:', error);
       return this._cachedIsGameActive;
     }
+  }
+
+  // Cached getter for controls availability to prevent repeated calculations
+  public get areControlsAvailableCached(): boolean {
+    if (this._cachedControlsAvailable === null) {
+      // Controls are available unless there are too many mistakes (game over)
+      // They remain available even after winning to allow starting a new game
+      this._cachedControlsAvailable = !this.isLoading && !this.isGameOverCached;
+    }
+    return this._cachedControlsAvailable!; // Non-null assertion since we set it above
+  }
+
+  // Cached getter for reset disabled state to prevent repeated calculations
+  public get isResetDisabledCached(): boolean {
+    if (this._cachedResetDisabled === null) {
+      // Reset is disabled when the game is completed (won)
+      // This prevents resetting a completed puzzle and forces starting a new game instead
+      this._cachedResetDisabled = this.hasWonGameCached;
+    }
+    return this._cachedResetDisabled!; // Non-null assertion since we set it above
   }
 
   // Check if the game is won
@@ -2221,4 +2178,6 @@ export class SudokuComponent implements OnInit {
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return cell.state;
   }
+
+
 }

@@ -1,8 +1,10 @@
 <app-controls
-  [disabled]="!isGameActive()"
+  [disabled]="!areControlsAvailableCached"
+  [resetDisabled]="isResetDisabledCached"
   (resetGame)="resetGame()"
   (newGame)="onNewGame($event)"
 />
+
 <div>
   <div class="puzzle-info-container">
     <div class="score text-center"><span>Score: {{ getCurrentScore() }}</span></div>
@@ -59,11 +61,3 @@
     </div>
   </div>
 </div>
-
-<!-- Congratulations Modal -->
-<app-congratulations-modal
-  [isVisible]="showCongratulationsModal"
-  [gameData]="gameCompletionData"
-  (newGame)="onNewGameFromModal($event)"
-  (closeModal)="onCloseCongratulationsModal()">
-</app-congratulations-modal>
