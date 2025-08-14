@@ -440,8 +440,11 @@ export class SudokuComponent implements OnInit {
 
     // Check if notes mode is active
     if (this.notesMode) {
-      // In notes mode, toggle the note instead of filling the cell
-      this.toggleNoteInCell(num);
+      // In notes mode, check if cell can accept notes before toggling
+      if (this.canCellAcceptNotes(this.selectedBoxIndex, this.selectedCellIndex)) {
+        this.toggleNoteInCell(num);
+      }
+      // If cell can't accept notes, just return without any action or visual feedback
       return;
     }
 
@@ -563,8 +566,11 @@ export class SudokuComponent implements OnInit {
 
     // Check if notes mode is active
     if (this.notesMode) {
-      // In notes mode, toggle the note instead of filling the cell
-      this.toggleNoteInCell(this.selectedNumber);
+      // In notes mode, check if cell can accept notes before toggling
+      if (this.canCellAcceptNotes(this.selectedBoxIndex, this.selectedCellIndex)) {
+        this.toggleNoteInCell(this.selectedNumber);
+      }
+      // If cell can't accept notes, just return without any action or visual feedback
       return;
     }
 
@@ -926,6 +932,22 @@ export class SudokuComponent implements OnInit {
     }
   }
 
+  // Centralized method to check if a cell can accept notes
+  private canCellAcceptNotes(boxIndex: number, cellIndex: number): boolean {
+    // Safety check: ensure boxes are properly initialized
+    if (!this.boxes || this.boxes.length === 0 ||
+        !this.boxes[boxIndex] ||
+        !this.boxes[boxIndex].cells ||
+        !this.boxes[boxIndex].cells[cellIndex]) {
+      return false;
+    }
+
+    const cell = this.boxes[boxIndex].cells[cellIndex];
+    
+    // Cannot add notes to fixed cells or cells that are already correct
+    return !(cell.isFixed || cell.state === 'correct');
+  }
+
   // Method to toggle a note in the selected cell
   private toggleNoteInCell(num: number) {
     // Check if game is still active
@@ -946,6 +968,12 @@ export class SudokuComponent implements OnInit {
 
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
 
+    // Check if the selected cell can accept notes using centralized validation
+    if (!this.canCellAcceptNotes(this.selectedBoxIndex, this.selectedCellIndex)) {
+      console.log('Cannot add notes to fixed or correct cell');
+      return;
+    }
+
     // Safety check: ensure boxes are properly initialized
     if (!this.boxes || this.boxes.length === 0 ||
         !this.boxes[this.selectedBoxIndex] ||
@@ -960,12 +988,6 @@ export class SudokuComponent implements OnInit {
     // Store box and cell indices before any potential clearing
     const moveBoxIndex = this.selectedBoxIndex;
     const moveCellIndex = this.selectedCellIndex;
-
-    // Cannot add notes to fixed cells or cells that are already correct
-    if (cell.isFixed || cell.state === 'correct') {
-      console.log('Cannot add notes to fixed or correct cell');
-      return;
-    }
 
     // Store the previous state for move tracking
     const previousValue = cell.value;
