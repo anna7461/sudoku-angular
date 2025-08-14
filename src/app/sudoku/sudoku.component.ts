@@ -1213,7 +1213,7 @@ export class SudokuComponent implements OnInit {
 
     // 2. Create puzzle from solved board
     const puzzle = this.createPuzzleFromSolved(solvedBoard, difficulty);
-    this.currentDifficulty = difficulty || '';
+    this.currentDifficulty = difficulty || 'test';
 
     console.log(
       difficulty
@@ -1373,7 +1373,7 @@ export class SudokuComponent implements OnInit {
 
   private createPuzzleFromSolved(
     solvedBoard: number[][],
-    difficulty: 'test' | 'easy' | 'medium' | 'hard' | 'expert' = 'medium'
+    difficulty: 'test' | 'easy' | 'medium' | 'hard' | 'expert' = 'test'
   ): number[][] {
     // Copy the solved board
     const puzzle = solvedBoard.map(row => [...row]);

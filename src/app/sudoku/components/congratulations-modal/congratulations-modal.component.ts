@@ -37,7 +37,7 @@ export class CongratulationsModalComponent implements OnInit, AfterViewInit {
   @Output() newGame = new EventEmitter<string>();
   @Output() closeModal = new EventEmitter<void>();
 
-  selectedDifficulty: string = 'easy';
+  selectedDifficulty: string = 'test';
   difficulties: { value: string; label: string }[] = [
     { value: 'test', label: 'Test' },
     { value: 'easy', label: 'Easy' },
@@ -48,7 +48,7 @@ export class CongratulationsModalComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     if (this.gameData) {
-      this.selectedDifficulty = this.gameData.difficulty || 'easy';
+      this.selectedDifficulty = this.gameData.difficulty || 'test';
     }
   }
 

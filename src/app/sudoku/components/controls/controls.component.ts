@@ -21,7 +21,7 @@ export class ControlsComponent {
     { value: 'expert', label: 'Expert' }
   ];
 
-  selectedDifficulty: string = 'medium';
+  selectedDifficulty: string = 'test';
 
   onResetClick() {
     this.resetGame.emit();
