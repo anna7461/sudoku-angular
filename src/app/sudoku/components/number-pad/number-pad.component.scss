@@ -19,6 +19,10 @@
 
     :host-context(.theme-dark-mode) & {
       background-color: var(--color-bg-darkest);
+
+      &.selected {
+        background-color: var(--color-primary);
+      }
     }
 
     &:hover:not(:disabled) {
