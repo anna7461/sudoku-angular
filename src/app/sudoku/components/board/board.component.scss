@@ -1,13 +1,11 @@
-@use "../../variables" as *;
-
 .board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border: 1px solid $darkest;
+  border: 1px solid var(--color-border-darkest);
   width: fit-content;
 
   &.disabled {
-    opacity: 0.6;
+    opacity: var(--color-button-disabled-opacity);
     pointer-events: none;
 
     .cell {
@@ -20,12 +18,12 @@
   display: grid;
   grid-template-columns: repeat(3, 50px);
   grid-template-rows: repeat(3, 50px);
-  border: 1px solid $darkest;
+  border: 1px solid var(--color-border-darkest);
 }
 
 .cell {
   position: relative;
-  border: 1px solid $light;
+  border: 1px solid var(--color-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,57 +32,58 @@
   user-select: none;
   font-weight: bold;
 
+  :host-context(.theme-dark-mode) {
+    background-color: var(--color-bg-white);
+  }
+
   &.fixed {
-    color: $darkest;
+    color: var(--color-cell-fixed);
   }
 
   &.selected {
-    background-color: $primary;
-    color: $lightest;
+    background-color: var(--color-cell-selected);
+    color: var(--color-cell-selected-text);
   }
 
   &.correct {
-    color: $primary;
+    color: var(--color-cell-correct);
     background-color: transparent;
 
     .main-number {
-      // color: $primary !important;
+      // color: var(--color-cell-correct) !important;
     }
   }
 
   &.error {
-    color: $danger;
+    color: var(--color-cell-error);
     background-color: transparent;
 
     .main-number {
-      color: $danger !important;
+      color: var(--color-cell-error) !important;
     }
   }
 
   &.fixed-selected {
-    background-color: rgba(52, 73, 94, 0.3); // Dark blue with transparency
-    border: 2px solid $darkest;
-    color: $darkest;
+    background-color: var(--color-cell-highlighted);
+    border: 2px solid var(--color-border-darkest);
+    color: var(--color-cell-fixed);
     position: relative;
 
     &:hover {
-      background-color: rgba(52, 73, 94, 0.4);
+      background-color: var(--color-cell-highlighted-border);
     }
   }
 
   &.number-highlighted {
-    background-color: $primary;
-    color: $lightest;
-    //background-color: rgba(255, 168, 0, 0.2); // Warning color with transparency
-    //border: 2px solid $warning;
+    background-color: var(--color-cell-number-highlighted);
+    color: var(--color-cell-selected-text);
 
     .main-number {
-      //color: $warning;
-      //font-weight: bold;
+      // Additional styling if needed
     }
 
     .note {
-      color: $warning;
+      color: var(--color-warning);
       font-weight: bold;
     }
   }
@@ -92,37 +91,37 @@
 
 
   &.related-highlighted {
-    background-color: rgba($primary, 0.035); // Info color with transparency
-    border: 1px solid rgba($primary, 0.2);
+    background-color: var(--color-cell-highlighted);
+    border: 1px solid var(--color-cell-highlighted-border);
   }
 
   &.current-number-highlighted {
-    background-color: $primary;
-    color: $lightest;
+    background-color: var(--color-primary);
+    color: var(--color-cell-selected-text);
 
     .note {
-      color: $success;
+      color: var(--color-success);
       font-weight: bold;
     }
   }
 
   // Override related highlighting for selected cell
   &.selected.related-highlighted {
-    background-color: $primary;
-    border: 2px solid $primary;
+    background-color: var(--color-primary);
+    border: 2px solid var(--color-primary);
   }
 
   // Override number highlighting for selected cell
   &.selected.number-highlighted {
-    background-color: $primary;
-    border: 2px solid $primary;
+    background-color: var(--color-primary);
+    border: 2px solid var(--color-primary);
 
     .main-number {
-      color: $lightest;
+      color: var(--color-cell-selected-text);
     }
 
     .note {
-      color: $lightest;
+      color: var(--color-cell-selected-text);
     }
   }
 
@@ -136,9 +135,8 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    color: $medium;
+    color: var(--color-cell-notes);
     grid-gap: 2px;
-
 
     .note {
       display: flex;
@@ -148,17 +146,17 @@
       border-radius: 2px;
 
       &.has-note {
-        color: $medium;
+        color: var(--color-cell-notes);
       }
 
       &.note-error {
-        background-color: $danger;
-        color: $lightest;
+        background-color: var(--color-danger);
+        color: var(--color-cell-selected-text);
       }
 
       &.note-selected {
-        background-color: $primary;
-        color: $lightest;
+        background-color: var(--color-primary);
+        color: var(--color-cell-selected-text);
       }
     }
   }

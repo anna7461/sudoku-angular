@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ThemeService, Theme } from '../../services/theme.service';
 
 @Component({
   selector: 'app-board-controls',
@@ -22,6 +23,23 @@ export class BoardControlsComponent {
   @Output() toggleNumberFirstMode = new EventEmitter<void>();
   @Output() hint = new EventEmitter<void>();
 
+  currentTheme!: Theme;
+  showThemePopup = false;
+  availableThemes: Theme[] = [];
+
+  constructor(private themeService: ThemeService) {
+    // Get all available themes
+    this.availableThemes = this.themeService.getAllThemes();
+    
+    // Set initial theme
+    this.currentTheme = this.themeService.getCurrentTheme();
+    
+    // Subscribe to theme changes
+    this.themeService.currentTheme$.subscribe(theme => {
+      this.currentTheme = theme;
+    });
+  }
+
   onUndoClick() {
     this.undo.emit();
   }
@@ -40,5 +58,18 @@ export class BoardControlsComponent {
 
   onHintClick() {
     this.hint.emit();
+  }
+
+  onThemeToggleClick() {
+    this.showThemePopup = !this.showThemePopup;
+  }
+
+  onThemeSelect(theme: Theme) {
+    this.themeService.setTheme(theme);
+    this.showThemePopup = false;
+  }
+
+  onCloseThemePopup() {
+    this.showThemePopup = false;
   }
 }

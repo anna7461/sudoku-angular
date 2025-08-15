@@ -8,6 +8,7 @@ import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
 import {TimerComponent} from './components/timer/timer.component';
 import {BoardControlsComponent} from './components/board-controls/board-controls.component';
+import {ThemeService} from './services/theme.service';
 
 @Component({
   standalone: true,
@@ -21,7 +22,10 @@ import {BoardControlsComponent} from './components/board-controls/board-controls
     TimerComponent,
     BoardControlsComponent
   ],
-  styleUrls: ['./sudoku.component.scss']
+  styleUrls: ['./sudoku.component.scss'],
+  host: {
+    '[class]': 'getThemeClass()'
+  }
 })
 export class SudokuComponent implements OnInit {
 
@@ -29,7 +33,17 @@ export class SudokuComponent implements OnInit {
   @ViewChild('sudokuContainer', { read: ElementRef }) sudokuContainer!: ElementRef;
   @ViewChild(TimerComponent) timerComponent!: TimerComponent;
 
-  constructor(private changeDetectorRef: ChangeDetectorRef) {}
+  constructor(
+    private changeDetectorRef: ChangeDetectorRef,
+    private themeService: ThemeService
+  ) {}
+
+  /**
+   * Get the current theme class for the host element
+   */
+  getThemeClass(): string {
+    return this.themeService.getCurrentTheme().className;
+  }
 
   boxes: Box[] = [];
   private readonly STORAGE_KEY = 'sudoku-game-state';

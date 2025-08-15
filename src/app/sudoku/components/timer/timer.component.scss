@@ -1,5 +1,3 @@
-@use "../../variables" as *;
-
 .timer-container {
   display: grid;
   grid-template-columns: auto 20px;
@@ -9,13 +7,13 @@
 .pause-btn {
   cursor: pointer;
   transition: all 0.2s ease;
-  color: $medium;
+  color: var(--color-text-medium);
   border: none;
   background: none;
 
   &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    color: $primary;
+    transform: var(--color-hover-transform);
+    color: var(--color-primary);
   }
 
   &:active:not(:disabled) {
@@ -23,14 +21,13 @@
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: var(--color-button-disabled-opacity);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
   }
 
   &.paused {
-
     &:hover:not(:disabled) {
     }
   }
