@@ -18,7 +18,11 @@ export class PauseService {
     message: 'Game is paused'
   });
   
+  // New subject for game pause state that components can subscribe to
+  private gamePauseStateSubject = new BehaviorSubject<boolean>(false);
+  
   public pauseDialog$ = this.pauseDialogSubject.asObservable();
+  public gamePauseState$ = this.gamePauseStateSubject.asObservable();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
@@ -30,6 +34,9 @@ export class PauseService {
       isVisible: true,
       message: 'Game is paused'
     });
+    
+    // Update game pause state
+    this.gamePauseStateSubject.next(true);
     
     // Save pause state to localStorage
     if (isPlatformBrowser(this.platformId)) {
@@ -46,6 +53,9 @@ export class PauseService {
       message: 'Game is paused'
     });
     
+    // Update game pause state
+    this.gamePauseStateSubject.next(false);
+    
     // Clear pause state from localStorage
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.PAUSE_KEY);
@@ -56,7 +66,7 @@ export class PauseService {
    * Check if game is currently paused
    */
   isGamePaused(): boolean {
-    return this.pauseDialogSubject.value.isVisible;
+    return this.gamePauseStateSubject.value;
   }
 
   /**

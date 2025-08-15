@@ -23,6 +23,7 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   private pausedTime: number = 0;
   private totalPausedTime: number = 0;
   private readonly TIMER_STORAGE_KEY = 'sudoku-timer-state';
+  private pauseStateSubscription: any; // Add subscription property
   
   elapsedSeconds: number = 0;
   isPaused: boolean = false;
@@ -32,6 +33,17 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   constructor(private pauseService: PauseService) {}
 
   ngOnInit() {
+    // Subscribe to pause service game state changes
+    this.pauseStateSubscription = this.pauseService.gamePauseState$.subscribe(isPaused => {
+      if (isPaused && !this.isPaused) {
+        // Game was paused, pause the timer
+        this.pauseTimer();
+      } else if (!isPaused && this.isPaused) {
+        // Game was resumed, continue the timer
+        this.continueTimer();
+      }
+    });
+
     // Delay restoration slightly to avoid race conditions with parent component
     setTimeout(() => {
       this.restoreTimerState();
@@ -40,6 +52,9 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     this.stopTimer();
+    if (this.pauseStateSubscription) {
+      this.pauseStateSubscription.unsubscribe();
+    }
   }
 
   startTimer() {
@@ -273,11 +288,11 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
 
   togglePause() {
     if (this.isPaused) {
-      this.continueTimer();
+      // Resume the game through the pause service
+      this.pauseService.resumeGame();
     } else {
       // Use PauseService to pause the game
       this.pauseService.pauseGame();
-      this.pauseTimer();
     }
   }
 
