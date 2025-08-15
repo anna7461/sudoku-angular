@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PauseService } from '../../services/pause.service';
 
 @Component({
   selector: 'app-timer',
@@ -27,6 +28,8 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   isPaused: boolean = false;
   hasStarted: boolean = false;
   private isRestored: boolean = false; // Flag to prevent multiple restorations
+
+  constructor(private pauseService: PauseService) {}
 
   ngOnInit() {
     // Delay restoration slightly to avoid race conditions with parent component
@@ -272,6 +275,8 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isPaused) {
       this.continueTimer();
     } else {
+      // Use PauseService to pause the game
+      this.pauseService.pauseGame();
       this.pauseTimer();
     }
   }

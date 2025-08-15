@@ -1,4 +1,4 @@
-import {Component, ElementRef, HostListener, OnInit, ViewChild, ChangeDetectorRef} from '@angular/core';
+import {Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Box} from './models/box.model';
 import {Cell} from './models/cell.model';
@@ -8,7 +8,11 @@ import {NumberPadComponent} from './components/number-pad/number-pad.component';
 import {ControlsComponent} from './components/controls/controls.component';
 import {TimerComponent} from './components/timer/timer.component';
 import {BoardControlsComponent} from './components/board-controls/board-controls.component';
+import {PauseDialogComponent} from './components/pause-dialog/pause-dialog.component';
 import {ThemeService} from './services/theme.service';
+import {PauseService} from './services/pause.service';
+import {GameResetService} from './services/game-reset.service';
+import {NewGameService, GameDifficulty} from './services/new-game.service';
 
 @Component({
   standalone: true,
@@ -20,14 +24,15 @@ import {ThemeService} from './services/theme.service';
     NumberPadComponent,
     ControlsComponent,
     TimerComponent,
-    BoardControlsComponent
+    BoardControlsComponent,
+    PauseDialogComponent
   ],
   styleUrls: ['./sudoku.component.scss'],
   host: {
     '[class]': 'getThemeClass()'
   }
 })
-export class SudokuComponent implements OnInit {
+export class SudokuComponent implements OnInit, OnDestroy {
 
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
   @ViewChild('sudokuContainer', { read: ElementRef }) sudokuContainer!: ElementRef;
@@ -35,7 +40,10 @@ export class SudokuComponent implements OnInit {
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private pauseService: PauseService,
+    private gameResetService: GameResetService,
+    private newGameService: NewGameService
   ) {}
 
   /**
@@ -128,6 +136,19 @@ export class SudokuComponent implements OnInit {
     if (typeof document !== 'undefined') {
       document.addEventListener('click', this.documentClickHandler);
     }
+
+    // Listen for game reset events from GameResetService
+    if (typeof window !== 'undefined') {
+      window.addEventListener('sudoku-game-reset', this.handleGameReset.bind(this) as EventListener);
+    }
+
+    // Listen for new game events from NewGameService
+    if (typeof window !== 'undefined') {
+      window.addEventListener('sudoku-new-game', this.handleNewGame.bind(this) as EventListener);
+    }
+
+    // Load pause state from PauseService
+    this.pauseService.loadPauseState();
   }
 
   ngOnDestroy() {
@@ -135,6 +156,31 @@ export class SudokuComponent implements OnInit {
     if (typeof document !== 'undefined') {
       document.removeEventListener('click', this.documentClickHandler);
     }
+
+    // Remove custom event listeners
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('sudoku-game-reset', this.handleGameReset.bind(this) as EventListener);
+      window.removeEventListener('sudoku-new-game', this.handleNewGame.bind(this) as EventListener);
+    }
+  }
+
+  /**
+   * Handle game reset events from GameResetService
+   */
+  private handleGameReset(event: Event): void {
+    const customEvent = event as CustomEvent;
+    console.log('Game reset event received:', customEvent.detail);
+    this.resetGame();
+  }
+
+  /**
+   * Handle new game events from NewGameService
+   */
+  private handleNewGame(event: Event): void {
+    const customEvent = event as CustomEvent;
+    console.log('New game event received:', customEvent.detail);
+    const { difficulty } = customEvent.detail;
+    this.startNewGame(difficulty);
   }
 
   private saveGameState(): void {

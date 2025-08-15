@@ -1,5 +1,6 @@
 import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 
 @Component({
   standalone: true,
@@ -22,18 +23,28 @@ export class ControlsComponent {
     { value: 'expert', label: 'Expert' }
   ];
 
-  selectedDifficulty: string = 'test';
+  selectedDifficulty: GameDifficulty = 'test';
+
+  constructor(private newGameService: NewGameService) {}
 
   onResetClick() {
     this.resetGame.emit();
   }
 
   onNewGameClick() {
+    // Use NewGameService to start a new game
+    this.newGameService.startNewGame({
+      difficulty: this.selectedDifficulty,
+      clearCurrentGame: true,
+      resetTimer: true
+    });
+    
+    // Also emit the event for backward compatibility
     this.newGame.emit(this.selectedDifficulty);
   }
 
   onDifficultyChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    this.selectedDifficulty = target.value as 'test' | 'easy' | 'medium' | 'hard' | 'expert';
+    this.selectedDifficulty = target.value as GameDifficulty;
   }
 }
