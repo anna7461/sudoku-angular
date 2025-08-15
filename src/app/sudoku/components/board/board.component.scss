@@ -44,11 +44,11 @@
   }
 
   &.correct {
-    color: $success;
+    color: $primary;
     background-color: transparent;
 
     .main-number {
-      color: $success !important;
+      // color: $primary !important;
     }
   }
 
