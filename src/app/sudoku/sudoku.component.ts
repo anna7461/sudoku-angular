@@ -9,6 +9,7 @@ import {ControlsComponent} from './components/controls/controls.component';
 import {TimerComponent} from './components/timer/timer.component';
 import {BoardControlsComponent} from './components/board-controls/board-controls.component';
 import {PauseDialogComponent} from './components/pause-dialog/pause-dialog.component';
+import {GameOverDialogComponent, GameOverStats} from './components/game-over-dialog/game-over-dialog.component';
 import {ThemeService} from './services/theme.service';
 import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
@@ -25,7 +26,8 @@ import {NewGameService, GameDifficulty} from './services/new-game.service';
     ControlsComponent,
     TimerComponent,
     BoardControlsComponent,
-    PauseDialogComponent
+    PauseDialogComponent,
+    GameOverDialogComponent
   ],
   styleUrls: ['./sudoku.component.scss'],
   host: {
@@ -77,6 +79,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
   isGamePaused: boolean = false;
   gameStartTime: number | null = null;
   totalGameTime: number = 0;
+
+  // Game Over Dialog
+  showGameOverDialog: boolean = false;
+  gameOverStats: GameOverStats | null = null;
 
   // Cache for isGameActive to prevent ExpressionChangedAfterItHasBeenCheckedError
   private _cachedIsGameActive: boolean = true;
@@ -342,6 +348,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.selectedNumber = null; // Reset the selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
+
+    // Reset game over dialog state
+    this.showGameOverDialog = false;
+    this.gameOverStats = null;
 
     // Clear move history for new game
     this.moveHistory = [];
@@ -900,14 +910,40 @@ export class SudokuComponent implements OnInit, OnDestroy {
   private handleGameOver() {
     console.log('Game Over - mistake limit reached!');
 
-    // Show game over message
-    setTimeout(() => {
-      const message = 'Game Over! You have made 3 mistakes. The game will restart.';
-      alert(message);
+    // Prepare game over statistics
+    this.gameOverStats = {
+      mistakeCount: this.mistakeCount,
+      finalTime: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
+      finalScore: this.score,
+      difficulty: this.getCurrentDifficulty()
+    };
 
-      // Restart the game
-      this.resetGame();
-    }, 100);
+    // Show game over dialog
+    this.showGameOverDialog = true;
+    
+    // Pause the timer
+    if (this.timerComponent) {
+      this.timerComponent.pauseTimer();
+    }
+  }
+
+  // Handle game over dialog actions
+  onGameOverResetGame(): void {
+    this.showGameOverDialog = false;
+    this.gameOverStats = null;
+    this.resetGame();
+  }
+
+  onGameOverNewGame(difficulty: GameDifficulty): void {
+    this.showGameOverDialog = false;
+    this.gameOverStats = null;
+    this.onNewGame(difficulty);
+  }
+
+  onGameOverClose(): void {
+    this.showGameOverDialog = false;
+    this.gameOverStats = null;
+    // Don't restart the game, just close the dialog
   }
 
   // Handle victory when puzzle is completed
@@ -1716,6 +1752,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.selectedNumber = null; // Reset selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
+
+    // Reset game over dialog state
+    this.showGameOverDialog = false;
+    this.gameOverStats = null;
 
     // Clear move history for reset game
     this.moveHistory = [];

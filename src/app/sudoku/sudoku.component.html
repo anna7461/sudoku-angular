@@ -24,10 +24,7 @@
       (pauseStateChange)="onPauseStateChange($event)">
     </app-timer>
   </div>
-  <div class="game-over-message" *ngIf="isGameOverCached">
-    <i class="fas fa-times-circle"></i>
-    <span class="game-over-text">Game Over! Too many mistakes.</span>
-  </div>
+
   <div class="sudoku-container" #sudokuContainer>
     <div class="game-content">
       <app-board
@@ -64,3 +61,12 @@
 
     <!-- Pause Dialog Component -->
     <app-pause-dialog ngSkipHydration></app-pause-dialog>
+
+    <!-- Game Over Dialog Component -->
+    <app-game-over-dialog
+      [isVisible]="showGameOverDialog"
+      [gameStats]="gameOverStats"
+      (resetGame)="onGameOverResetGame()"
+      (newGame)="onGameOverNewGame($event)"
+      (close)="onGameOverClose()">
+    </app-game-over-dialog>
