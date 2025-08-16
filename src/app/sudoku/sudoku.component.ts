@@ -10,6 +10,7 @@ import {TimerComponent} from './components/timer/timer.component';
 import {BoardControlsComponent} from './components/board-controls/board-controls.component';
 import {PauseDialogComponent} from './components/pause-dialog/pause-dialog.component';
 import {GameOverDialogComponent, GameOverStats} from './components/game-over-dialog/game-over-dialog.component';
+import {CongratulationsDialogComponent, CongratulationsStats} from './components/congratulations-dialog/congratulations-dialog.component';
 import {ThemeService} from './services/theme.service';
 import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
@@ -27,7 +28,8 @@ import {NewGameService, GameDifficulty} from './services/new-game.service';
     TimerComponent,
     BoardControlsComponent,
     PauseDialogComponent,
-    GameOverDialogComponent
+    GameOverDialogComponent,
+    CongratulationsDialogComponent
   ],
   styleUrls: ['./sudoku.component.scss'],
   host: {
@@ -83,6 +85,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
   // Game Over Dialog
   showGameOverDialog: boolean = false;
   gameOverStats: GameOverStats | null = null;
+
+  // Congratulations Dialog
+  showCongratulationsDialog: boolean = false;
+  congratulationsStats: CongratulationsStats | null = null;
 
   // Cache for isGameActive to prevent ExpressionChangedAfterItHasBeenCheckedError
   private _cachedIsGameActive: boolean = true;
@@ -352,6 +358,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Reset game over dialog state
     this.showGameOverDialog = false;
     this.gameOverStats = null;
+
+    // Reset congratulations dialog state
+    this.showCongratulationsDialog = false;
+    this.congratulationsStats = null;
 
     // Clear move history for new game
     this.moveHistory = [];
@@ -946,6 +956,25 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Don't restart the game, just close the dialog
   }
 
+  // Handle congratulations dialog actions
+  onCongratulationsResetGame(): void {
+    this.showCongratulationsDialog = false;
+    this.congratulationsStats = null;
+    this.resetGame();
+  }
+
+  onCongratulationsNewGame(difficulty: GameDifficulty): void {
+    this.showCongratulationsDialog = false;
+    this.congratulationsStats = null;
+    this.onNewGame(difficulty);
+  }
+
+  onCongratulationsClose(): void {
+    this.showCongratulationsDialog = false;
+    this.congratulationsStats = null;
+    // Don't restart the game, just close the dialog
+  }
+
   // Handle victory when puzzle is completed
   private handleVictory() {
     console.log('🎉 Victory! Puzzle completed!');
@@ -959,21 +988,18 @@ export class SudokuComponent implements OnInit, OnDestroy {
       console.log('⏱️ Timer paused');
     }
 
-    // Show a simple victory message
-    console.log('🏆 Congratulations! You completed the puzzle!');
-    console.log(`🎯 Difficulty: ${this.getCurrentDifficulty()}`);
-    console.log(`⏱️ Time: ${this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00'}`);
-    console.log(`⭐ Score: ${this.score}`);
-    console.log(`❌ Mistakes: ${this.mistakeCount}`);
+    // Prepare congratulations statistics
+    this.congratulationsStats = {
+      timeTaken: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
+      difficulty: this.getCurrentDifficulty(),
+      mistakeLimit: 3 // All difficulties have the same mistake limit
+    };
+
+    // Show congratulations dialog
+    this.showCongratulationsDialog = true;
     
     // Save the completed game state
     this.saveGameState();
-    
-    // Show a browser alert for now
-    setTimeout(() => {
-      const timeSpent = this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00';
-      alert(`🎉 Congratulations! Puzzle completed!\n\nDifficulty: ${this.getCurrentDifficulty()}\nTime: ${timeSpent}\nScore: ${this.score}\nMistakes: ${this.mistakeCount}`);
-    }, 100);
   }
 
   // Navigate between cells using arrow keys
@@ -1756,6 +1782,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Reset game over dialog state
     this.showGameOverDialog = false;
     this.gameOverStats = null;
+
+    // Reset congratulations dialog state
+    this.showCongratulationsDialog = false;
+    this.congratulationsStats = null;
 
     // Clear move history for reset game
     this.moveHistory = [];

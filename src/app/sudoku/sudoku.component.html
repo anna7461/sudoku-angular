@@ -70,3 +70,12 @@
       (newGame)="onGameOverNewGame($event)"
       (close)="onGameOverClose()">
     </app-game-over-dialog>
+
+    <!-- Congratulations Dialog Component -->
+    <app-congratulations-dialog
+      [isVisible]="showCongratulationsDialog"
+      [puzzleStats]="congratulationsStats"
+      (resetGame)="onCongratulationsResetGame()"
+      (newGame)="onCongratulationsNewGame($event)"
+      (close)="onCongratulationsClose()">
+    </app-congratulations-dialog>

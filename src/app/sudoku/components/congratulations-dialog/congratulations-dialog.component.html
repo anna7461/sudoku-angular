@@ -1,0 +1,61 @@
+<div class="congratulations-overlay" *ngIf="isVisible" (click)="onClose()">
+  <div class="congratulations-dialog" (click)="onDialogClick($event)">
+    <div class="dialog-header">
+      <h2 class="dialog-title">
+        <i class="fas fa-trophy"></i>
+        Congratulations! Puzzle Completed
+      </h2>
+    </div>
+    
+    <div class="dialog-content" *ngIf="puzzleStats">
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-label">Time Taken</div>
+          <div class="stat-value time-value">{{ puzzleStats.timeTaken }}</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-label">Difficulty</div>
+          <div class="stat-value difficulty-value">{{ puzzleStats.difficulty }}</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-label">Mistake Limit</div>
+          <div class="stat-value mistake-limit-value">{{ puzzleStats.mistakeLimit }}</div>
+        </div>
+      </div>
+      
+      <div class="difficulty-selection">
+        <label for="difficulty-select">New Game Difficulty:</label>
+        <select 
+          id="difficulty-select" 
+          [value]="selectedDifficulty"
+          (change)="onDifficultyChange($event)"
+          class="difficulty-dropdown">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="dialog-actions">
+      <button 
+        type="button" 
+        class="btn btn-reset" 
+        (click)="onResetGame()">
+        <i class="fas fa-redo"></i>
+        Reset Game
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn btn-new-game" 
+        (click)="onNewGame()">
+        <i class="fas fa-plus"></i>
+        New Game
+      </button>
+    </div>
+  </div>
+</div>
