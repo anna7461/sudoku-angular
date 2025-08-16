@@ -5,7 +5,7 @@ import { GameDifficulty } from '../../services/new-game.service';
 export interface CongratulationsStats {
   timeTaken: string;
   difficulty: string;
-  mistakeLimit: number;
+  mistakeCount: number;
 }
 
 @Component({

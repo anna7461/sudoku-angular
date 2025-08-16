@@ -992,7 +992,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.congratulationsStats = {
       timeTaken: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
       difficulty: this.getCurrentDifficulty(),
-      mistakeLimit: 3 // All difficulties have the same mistake limit
+      mistakeCount: this.mistakeCount // Display actual mistakes made
     };
 
     // Show congratulations dialog
