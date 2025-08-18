@@ -15,11 +15,15 @@
         <div class="main-number">{{ cell.value }}</div>
       }
       @if (cell.notes.length > 0) {
-        <div class="notes-grid">
+        <div class="notes-grid" role="grid" aria-label="Cell notes">
                           @for (num of [1,2,3,4,5,6,7,8,9]; track num) {
                   <span class="note" 
                         [class.has-note]="cell.notes.includes(num)"
-                        [class.note-error]="cell.notes.includes(num) && isNoteError(boxIndex, cellIndex, num)">
+                        [class.note-error]="cell.notes.includes(num) && isNoteError(boxIndex, cellIndex, num)"
+                        [class.note-highlighted]="cell.notes.includes(num) && isNoteHighlighted(boxIndex, cellIndex, num)"
+                        role="gridcell"
+                        [attr.aria-label]="cell.notes.includes(num) ? 'Note ' + num + (isNoteHighlighted(boxIndex, cellIndex, num) ? ' (highlighted)' : '') : 'Empty note position'"
+                        [attr.aria-selected]="cell.notes.includes(num) && isNoteHighlighted(boxIndex, cellIndex, num)">
                     {{ cell.notes.includes(num) ? num : '' }}
                   </span>
                 }

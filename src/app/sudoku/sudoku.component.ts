@@ -727,7 +727,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     }
 
     // Clear highlights after recording the move
-    this.clearHighlights();
+    this.clearCellHighlights();
 
     // Check if this number is now complete and should be auto-deselected (after clearing highlights)
     if (this.solution[globalRow][globalCol] === this.selectedNumber) {
@@ -1249,11 +1249,38 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Clear cell selection and current number to remove all highlights
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
+    this.currentNumber = null;
 
-    // Only clear currentNumber if not in number-first mode, preserve selectedNumber
-    if (!this.numberFirstMode) {
-      this.currentNumber = null;
-    }
+    // Force change detection to update the UI
+    this.changeDetectorRef.detectChanges();
+  }
+
+  /**
+   * Clear all highlights including number-first mode selection
+   * This method is used when clicking outside the board or when explicitly clearing all highlights
+   */
+  clearAllHighlights() {
+    // Clear cell selection and current number
+    this.selectedBoxIndex = null;
+    this.selectedCellIndex = null;
+    this.currentNumber = null;
+    
+    // Clear selected number in number-first mode to remove all highlighting
+    this.selectedNumber = null;
+
+    // Force change detection to update the UI
+    this.changeDetectorRef.detectChanges();
+  }
+
+  /**
+   * Clear highlights while preserving number-first mode selection
+   * This method is used for internal game logic where we want to keep the selected number
+   */
+  clearCellHighlights() {
+    // Clear cell selection and current number to remove cell-level highlights
+    this.selectedBoxIndex = null;
+    this.selectedCellIndex = null;
+    this.currentNumber = null;
 
     // Force change detection to update the UI
     this.changeDetectorRef.detectChanges();
@@ -1264,7 +1291,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     console.log('Document click detected, sudokuContainer:', this.sudokuContainer);
     if (this.sudokuContainer && !this.sudokuContainer.nativeElement.contains(event.target as Node)) {
       console.log('Click outside detected, clearing highlights');
-      this.clearHighlights();
+      this.clearAllHighlights();
     }
   };
 
@@ -1298,7 +1325,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     }
     // Escape key clears highlights
     else if (event.key === 'Escape') {
-      this.clearHighlights();
+      this.clearAllHighlights();
     }
     // Space key toggles notes mode
     else if (event.key === ' ') {
@@ -1979,7 +2006,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.currentNumber = null;
 
     // Clear all highlights after providing hint
-    this.clearHighlights();
+    this.clearCellHighlights();
 
     // Update score (hints give fewer points)
     this.score += 5;

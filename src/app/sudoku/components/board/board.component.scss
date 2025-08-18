@@ -48,10 +48,6 @@
   &.correct {
     color: var(--color-cell-correct);
     background-color: transparent;
-
-    .main-number {
-      // color: var(--color-cell-correct) !important;
-    }
   }
 
   &.error {
@@ -77,10 +73,6 @@
   &.number-highlighted {
     background-color: var(--color-cell-number-highlighted);
     color: var(--color-cell-selected-text);
-
-    .main-number {
-      // Additional styling if needed
-    }
 
     .note {
       color: var(--color-warning);
@@ -144,6 +136,7 @@
       justify-content: center;
       font-weight: normal;
       border-radius: 2px;
+      transition: all 0.2s ease;
 
       &.has-note {
         color: var(--color-cell-notes);
@@ -157,6 +150,21 @@
       &.note-selected {
         background-color: var(--color-primary);
         color: var(--color-cell-selected-text);
+      }
+
+      &.note-highlighted {
+        background-color: var(--color-primary);
+        color: var(--color-cell-selected-text);
+        font-weight: bold;
+        transform: scale(1.1);
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--color-primary);
+        
+        // Ensure sufficient contrast for accessibility
+        &:focus {
+          outline: 2px solid var(--color-primary);
+          outline-offset: 1px;
+        }
       }
     }
   }

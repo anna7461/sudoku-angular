@@ -14,6 +14,7 @@ export class BoardComponent {
   @Input() selectedBoxIndex: number | null = null;
   @Input() selectedCellIndex: number | null = null;
   @Input() currentNumber: number | null = null;
+  @Input() selectedNumber: number | null = null; // For number-first mode highlighting
   @Input() disabled: boolean = false;
   @Output() cellSelected = new EventEmitter<{ boxIndex: number, cellIndex: number, isEditable: boolean }>();
 
@@ -56,9 +57,9 @@ export class BoardComponent {
 
     const currentCell = this.boxes[boxIndex].cells[cellIndex];
 
-    // Highlight if the cell contains the same number (either as main value or in notes)
-    return (currentCell.value === selectedCell.value) ||
-      (currentCell.notes && currentCell.notes.includes(selectedCell.value));
+    // Only highlight if the cell contains the same number as a main value
+    // Notes are handled separately with note-level highlighting
+    return currentCell.value === selectedCell.value;
   }
 
   // Check if cell should be highlighted because it contains the current number being entered
@@ -67,9 +68,32 @@ export class BoardComponent {
 
     const currentCell = this.boxes[boxIndex].cells[cellIndex];
 
-    // Highlight if the cell contains the current number being entered
-    return (currentCell.value === this.currentNumber) ||
-      (currentCell.notes && currentCell.notes.includes(this.currentNumber));
+    // Only highlight if the cell contains the current number as a main value
+    // Notes are handled separately with note-level highlighting
+    return currentCell.value === this.currentNumber;
+  }
+
+  // Check if a specific note should be highlighted
+  isNoteHighlighted(boxIndex: number, cellIndex: number, noteNumber: number): boolean {
+    // Check if this note matches the selected number from number-first mode
+    if (this.selectedNumber !== null) {
+      return noteNumber === this.selectedNumber;
+    }
+
+    // Check if this note matches the current number being entered
+    if (this.currentNumber !== null) {
+      return noteNumber === this.currentNumber;
+    }
+
+    // Check if this note matches the selected cell's value (for highlighting related notes)
+    if (this.selectedBoxIndex !== null && this.selectedCellIndex !== null) {
+      const selectedCell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
+      if (selectedCell.value) {
+        return noteNumber === selectedCell.value;
+      }
+    }
+
+    return false;
   }
 
   // Check if cell should be highlighted because it's in the same row, column, or box as selected cell
