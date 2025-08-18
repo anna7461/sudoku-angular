@@ -1,5 +1,6 @@
 import {Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {Router, NavigationStart} from '@angular/router';
 import {Box} from './models/box.model';
 import {Cell} from './models/cell.model';
 import {Move} from './models/move.model';
@@ -47,7 +48,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private themeService: ThemeService,
     private pauseService: PauseService,
     private gameResetService: GameResetService,
-    private newGameService: NewGameService
+    private newGameService: NewGameService,
+    private router: Router
   ) {}
 
   /**
@@ -140,9 +142,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
     }
 
     // Use setTimeout to prevent immediate state changes that cause blinking
+    // Also give NewGameService time to process any pending requests
     setTimeout(() => {
       this.loadGameState();
-    }, 100);
+    }, 200);
 
     // Add document click listener for detecting clicks outside the board (browser only)
     if (typeof document !== 'undefined') {
@@ -159,11 +162,38 @@ export class SudokuComponent implements OnInit, OnDestroy {
       window.addEventListener('sudoku-new-game', this.handleNewGame.bind(this) as EventListener);
     }
 
+    // Listen for pause state changes
+    if (typeof window !== 'undefined') {
+      window.addEventListener('sudoku-pause-state-changed', this.handlePauseStateChange.bind(this) as EventListener);
+    }
+
+    // Add beforeunload event listener to save game state when user leaves
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', this.handleBeforeUnload.bind(this) as EventListener);
+    }
+
+    // Listen for router navigation to save game state before leaving
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        // Save game state before navigation starts
+        if (this.boxes && this.boxes.length > 0) {
+          this.saveGameState();
+          console.log('Game state saved before navigation');
+        }
+      }
+    });
+
     // Load pause state from PauseService
     this.pauseService.loadPauseState();
   }
 
   ngOnDestroy() {
+    // Save game state before destroying component
+    if (this.boxes && this.boxes.length > 0) {
+      this.saveGameState();
+      console.log('Game state saved before component destruction');
+    }
+
     // Remove document click listener to prevent memory leaks (browser only)
     if (typeof document !== 'undefined') {
       document.removeEventListener('click', this.documentClickHandler);
@@ -173,6 +203,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
     if (typeof window !== 'undefined') {
       window.removeEventListener('sudoku-game-reset', this.handleGameReset.bind(this) as EventListener);
       window.removeEventListener('sudoku-new-game', this.handleNewGame.bind(this) as EventListener);
+      window.removeEventListener('sudoku-pause-state-changed', this.handlePauseStateChange.bind(this) as EventListener);
+      window.removeEventListener('beforeunload', this.handleBeforeUnload.bind(this) as EventListener);
     }
   }
 
@@ -192,7 +224,39 @@ export class SudokuComponent implements OnInit, OnDestroy {
     const customEvent = event as CustomEvent;
     console.log('New game event received:', customEvent.detail);
     const { difficulty } = customEvent.detail;
+    console.log('Difficulty from event:', difficulty, 'Type:', typeof difficulty);
+    
+    // Clear any existing game state immediately
+    this.clearGameState();
+    
+    // Start new game with selected difficulty
     this.startNewGame(difficulty);
+  }
+
+  /**
+   * Handle beforeunload event to save game state when user leaves
+   */
+  private handleBeforeUnload(event: BeforeUnloadEvent): void {
+    // Save current game state before user leaves
+    this.saveGameState();
+    console.log('Game state saved before unload');
+  }
+
+  /**
+   * Handle pause state change events
+   */
+  private handlePauseStateChange(event: Event): void {
+    const customEvent = event as CustomEvent;
+    const { isPaused } = customEvent.detail;
+    
+    // Update local pause state
+    this.isGamePaused = isPaused;
+    
+    // Save game state when pause state changes
+    if (this.boxes && this.boxes.length > 0) {
+      this.saveGameState();
+      console.log(`Game state saved after pause state change: ${isPaused ? 'paused' : 'resumed'}`);
+    }
   }
 
   private saveGameState(): void {
@@ -314,6 +378,15 @@ export class SudokuComponent implements OnInit, OnDestroy {
       console.error('Failed to load game state:', error);
     }
 
+    // Check if there's a pending new game request from NewGameService
+    const pendingNewGame = this.newGameService.getLastNewGameRequest();
+    if (pendingNewGame && pendingNewGame.difficulty) {
+      console.log(`Found pending new game request with difficulty: ${pendingNewGame.difficulty}`);
+      this.initializeBoard(pendingNewGame.difficulty);
+      this.finishLoading(startTime, minLoadingTime);
+      return;
+    }
+
     console.log('No valid saved state found, starting new game');
     this.initializeBoard(); // Default puzzle
     this.finishLoading(startTime, minLoadingTime);
@@ -343,9 +416,16 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.startNewGame(validDifficulty);
   }
 
+  // Method to navigate back to dashboard
+  goToDashboard(): void {
+    // Save current game state before navigating
+    this.saveGameState();
+    this.router.navigate(['/']);
+  }
+
   // Method to start a new game with a specific difficulty
   startNewGame(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert') {
-    console.log(`Starting new game with difficulty: ${difficulty || ''}`);
+    console.log(`Starting new game with difficulty: ${difficulty || ''}, Type: ${typeof difficulty}`);
     this.isLoading = true;
     this.clearGameState();
     this.selectedBoxIndex = null;
@@ -439,6 +519,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
   // Timer event handlers
   onTimerUpdate(elapsedSeconds: number) {
     this.totalGameTime = elapsedSeconds;
+    
+    // Save game state periodically to keep elapsed time updated
+    if (this.boxes && this.boxes.length > 0 && elapsedSeconds % 10 === 0) {
+      // Save every 10 seconds to avoid too frequent saves
+      this.saveGameState();
+    }
   }
 
   onPauseStateChange(isPaused: boolean) {
@@ -1341,6 +1427,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
 
   initializeBoard(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert') {
+    console.log(`initializeBoard called with difficulty: ${difficulty}, Type: ${typeof difficulty}`);
+    
     // Clear current number and selection when initializing new board
     this.currentNumber = null;
     this.selectedNumber = null;
@@ -1515,18 +1603,24 @@ export class SudokuComponent implements OnInit, OnDestroy {
     solvedBoard: number[][],
     difficulty: 'test' | 'easy' | 'medium' | 'hard' | 'expert' = 'test'
   ): number[][] {
+    console.log(`createPuzzleFromSolved called with difficulty: ${difficulty}, Type: ${typeof difficulty}`);
+    
     // Copy the solved board
     const puzzle = solvedBoard.map(row => [...row]);
 
-          // Number of cells to remove based on difficulty
-      const difficultyMap: Record<string, number> = {
-        test: 1,
-        easy: 30,
-        medium: 40,
-        hard: 50,
-        expert: 60
-      };
-    const cellsToRemove = difficultyMap[difficulty] ?? 45;
+    // Number of cells to remove based on difficulty
+    const difficultyMap: Record<string, number> = {
+      'test': 1,
+      'easy': 30,
+      'medium': 40,
+      'hard': 50,
+      'expert': 60
+    };
+    
+    // Ensure difficulty is a valid string key
+    const validDifficulty = difficulty && typeof difficulty === 'string' ? difficulty : 'test';
+    const cellsToRemove = difficultyMap[validDifficulty] ?? 45;
+    console.log(`Cells to remove: ${cellsToRemove} (difficulty: ${validDifficulty}, original: ${difficulty})`);
 
     // Generate list of positions (0–80)
     const positions = Array.from({ length: 81 }, (_, i) => i);

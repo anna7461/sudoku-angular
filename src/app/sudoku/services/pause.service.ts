@@ -42,6 +42,14 @@ export class PauseService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.PAUSE_KEY, 'true');
     }
+
+    // Emit custom event for pause state change
+    if (isPlatformBrowser(this.platformId)) {
+      const pauseEvent = new CustomEvent('sudoku-pause-state-changed', {
+        detail: { isPaused: true, timestamp: Date.now() }
+      });
+      window.dispatchEvent(pauseEvent);
+    }
   }
 
   /**
@@ -59,6 +67,14 @@ export class PauseService {
     // Clear pause state from localStorage
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.PAUSE_KEY);
+    }
+
+    // Emit custom event for pause state change
+    if (isPlatformBrowser(this.platformId)) {
+      const resumeEvent = new CustomEvent('sudoku-pause-state-changed', {
+        detail: { isPaused: false, timestamp: Date.now() }
+      });
+      window.dispatchEvent(resumeEvent);
     }
   }
 
