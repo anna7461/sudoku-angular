@@ -25,11 +25,15 @@ export class NewGameService {
    * Start a new game with specified difficulty
    */
   startNewGame(options: NewGameOptions): void {
+    console.log('NewGameService: startNewGame called with options:', options);
+    
     const {
       difficulty,
       clearCurrentGame = true,
       resetTimer = true
     } = options;
+
+    console.log('NewGameService: Extracted difficulty:', difficulty, 'Type:', typeof difficulty);
 
     // Clear current game state if requested
     if (clearCurrentGame && isPlatformBrowser(this.platformId)) {
@@ -110,10 +114,12 @@ export class NewGameService {
    */
   private emitNewGameEvent(options: NewGameOptions): void {
     if (isPlatformBrowser(this.platformId)) {
+      console.log('NewGameService: Emitting event with options:', options);
       const newGameEvent = new CustomEvent('sudoku-new-game', {
         detail: { ...options, timestamp: Date.now() }
       });
       window.dispatchEvent(newGameEvent);
+      console.log('NewGameService: Event dispatched');
     }
   }
 
