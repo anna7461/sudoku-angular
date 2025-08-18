@@ -1,3 +1,49 @@
+// Back to Home Button
+.back-to-home-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+}
+
+.back-to-home-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-primary, #3d55cc);
+  border: 2px solid var(--color-primary, #3d55cc);
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    background: var(--color-primary, #3d55cc);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(61, 85, 204, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.back-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.back-text {
+  font-weight: 600;
+}
+
 .margin-right-4 {
   margin-right: 4px;
 }

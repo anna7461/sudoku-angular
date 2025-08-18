@@ -1,9 +1,11 @@
 import { Component, signal } from '@angular/core';
-import {SudokuComponent} from './sudoku/sudoku.component';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [SudokuComponent],
+  standalone: true,
+  imports: [CommonModule, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
