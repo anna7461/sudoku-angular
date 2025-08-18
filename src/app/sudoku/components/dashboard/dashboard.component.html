@@ -1,0 +1,78 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <h1 class="dashboard-title">Sudoku</h1>
+  </header>
+
+  <!-- Game Mode Cards -->
+  <section class="game-modes">
+    <div class="game-modes-grid">
+      <div 
+        *ngFor="let mode of gameModes" 
+        class="game-mode-card"
+        [class.coming-soon]="mode.isComingSoon"
+        (click)="onGameModeClick(mode)"
+      >
+        <div class="mode-icon">{{ mode.icon }}</div>
+        <div class="mode-content">
+          <h3 class="mode-label">{{ mode.label }}</h3>
+          <p class="mode-description">{{ mode.description }}</p>
+          <button 
+            class="mode-button"
+            [class.disabled]="mode.isComingSoon"
+            [disabled]="mode.isComingSoon"
+          >
+            {{ mode.buttonText }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Continue Game Button (only visible if saved game exists) -->
+  <section *ngIf="savedGameInfo.exists" class="continue-section">
+    <button class="continue-button primary-button" (click)="onContinueGame()">
+      <div class="continue-content">
+        <span class="continue-label">Continue</span>
+        <span class="continue-details">
+          {{ savedGameInfo.timeElapsed }} · {{ savedGameInfo.difficulty }}
+        </span>
+      </div>
+    </button>
+  </section>
+
+  <!-- New Game Button -->
+  <section class="new-game-section">
+    <button class="new-game-button secondary-button" (click)="onNewGame()">
+      New Game
+    </button>
+  </section>
+
+  <!-- Difficulty Selection Overlay -->
+  <div 
+    *ngIf="showDifficultyOverlay" 
+    class="difficulty-overlay"
+    (click)="onOverlayClick($event)"
+  >
+    <div class="difficulty-modal">
+      <div class="modal-header">
+        <h2>Select Difficulty</h2>
+        <button class="close-button" (click)="closeDifficultyOverlay()">
+          ✕
+        </button>
+      </div>
+      <div class="difficulty-options">
+        <button 
+          *ngFor="let difficulty of ['test', 'easy', 'medium', 'hard', 'expert']"
+          class="difficulty-option"
+          [class.selected]="selectedDifficulty === difficulty"
+          (click)="onDifficultySelect(difficulty)"
+        >
+          <span class="difficulty-icon">{{ getDifficultyIcon(difficulty) }}</span>
+          <span class="difficulty-label">{{ getDifficultyLabel(difficulty) }}</span>
+          <span class="difficulty-description">{{ getDifficultyDescription(difficulty) }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

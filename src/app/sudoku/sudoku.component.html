@@ -1,3 +1,11 @@
+<!-- Back to Home Button -->
+<div class="back-to-home-container">
+  <button class="back-to-home-button" (click)="goToDashboard()">
+    <span class="back-icon">←</span>
+    <span class="back-text">Back to Home</span>
+  </button>
+</div>
+
 <app-controls
   [disabled]="!areControlsAvailableCached"
   [resetDisabled]="isResetDisabledCached"
