@@ -1,11 +1,14 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
+import { GameMode } from '../models/game-modes';
+import { GameStateService } from './game-state.service';
 
 export type GameDifficulty = 'test' | 'easy' | 'medium' | 'hard' | 'expert';
 
 export interface NewGameOptions {
   difficulty: GameDifficulty;
+  mode: GameMode;
   clearCurrentGame?: boolean;
   resetTimer?: boolean;
 }
@@ -14,32 +17,32 @@ export interface NewGameOptions {
   providedIn: 'root'
 })
 export class NewGameService {
-  private readonly GAME_STATE_KEY = 'sudoku-game-state';
-  
   private newGameSubject = new BehaviorSubject<NewGameOptions | null>(null);
   public newGame$ = this.newGameSubject.asObservable();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private gameStateService: GameStateService
+  ) {}
 
   /**
-   * Start a new game with specified difficulty
+   * Start a new game with specified difficulty and mode
    */
   startNewGame(options: NewGameOptions): void {
     console.log('NewGameService: startNewGame called with options:', options);
     
     const {
       difficulty,
+      mode,
       clearCurrentGame = true,
       resetTimer = true
     } = options;
 
-    console.log('NewGameService: Extracted difficulty:', difficulty, 'Type:', typeof difficulty);
+    console.log('NewGameService: Starting new game:', { difficulty, mode, clearCurrentGame, resetTimer });
 
-    // Clear current game state if requested
-    if (clearCurrentGame && isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(this.GAME_STATE_KEY);
-    }
-
+    // Use the new GameStateService to manage game states
+    this.gameStateService.startNewGame(mode, difficulty);
+    
     // Emit new game event that components can listen to
     this.newGameSubject.next(options);
     
@@ -48,55 +51,96 @@ export class NewGameService {
   }
 
   /**
-   * Start a new game with default difficulty (test)
+   * Start a new daily challenge game
+   */
+  startDailyChallenge(difficulty: GameDifficulty): void {
+    this.startNewGame({
+      difficulty,
+      mode: GameMode.DAILY_CHALLENGE,
+      clearCurrentGame: true,
+      resetTimer: true
+    });
+  }
+
+  /**
+   * Start a new single player game
+   */
+  startSingleGame(difficulty: GameDifficulty): void {
+    this.startNewGame({
+      difficulty,
+      mode: GameMode.SINGLE_GAME,
+      clearCurrentGame: true,
+      resetTimer: true
+    });
+  }
+
+  /**
+   * Start a new arcade mode game
+   */
+  startArcadeGame(difficulty: GameDifficulty): void {
+    this.startNewGame({
+      difficulty,
+      mode: GameMode.ARCADE_MODE,
+      clearCurrentGame: true,
+      resetTimer: true
+    });
+  }
+
+  /**
+   * Start a new game with default difficulty (test) and single game mode
    */
   startNewGameDefault(): void {
     this.startNewGame({
       difficulty: 'test',
+      mode: GameMode.SINGLE_GAME,
       clearCurrentGame: true,
       resetTimer: true
     });
   }
 
   /**
-   * Start a new game with easy difficulty
+   * Start a new game with easy difficulty and single game mode
    */
   startNewGameEasy(): void {
     this.startNewGame({
       difficulty: 'easy',
+      mode: GameMode.SINGLE_GAME,
       clearCurrentGame: true,
       resetTimer: true
     });
   }
 
   /**
-   * Start a new game with medium difficulty
+   * Start a new game with medium difficulty and single game mode
    */
   startNewGameMedium(): void {
     this.startNewGame({
       difficulty: 'medium',
+      mode: GameMode.SINGLE_GAME,
       clearCurrentGame: true,
       resetTimer: true
     });
   }
 
   /**
-   * Start a new game with hard difficulty
+   * Start a new game with hard difficulty and single game mode
    */
   startNewGameHard(): void {
     this.startNewGame({
       difficulty: 'hard',
+      mode: GameMode.SINGLE_GAME,
       clearCurrentGame: true,
       resetTimer: true
     });
   }
 
   /**
-   * Start a new game with expert difficulty
+   * Start a new game with expert difficulty and single game mode
    */
   startNewGameExpert(): void {
     this.startNewGame({
       difficulty: 'expert',
+      mode: GameMode.SINGLE_GAME,
       clearCurrentGame: true,
       resetTimer: true
     });
@@ -124,14 +168,17 @@ export class NewGameService {
   }
 
   /**
-   * Check if there's a saved game state
+   * Check if there's a saved game state for a specific mode
    */
-  hasSavedGame(): boolean {
-    if (isPlatformBrowser(this.platformId)) {
-      const savedState = localStorage.getItem(this.GAME_STATE_KEY);
-      return savedState !== null;
-    }
-    return false;
+  hasSavedGame(mode: GameMode): boolean {
+    return this.gameStateService.hasGameState(mode);
+  }
+
+  /**
+   * Check if there's a saved game state for any mode
+   */
+  hasAnySavedGame(): boolean {
+    return Object.values(GameMode).some(mode => this.gameStateService.hasGameState(mode));
   }
 
   /**

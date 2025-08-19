@@ -20,6 +20,8 @@ import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
 import {NewGameService, GameDifficulty} from './services/new-game.service';
 import {DailyChallengeService} from './services/daily-challenge.service';
+import {GameStateService} from './services/game-state.service';
+import {GameMode} from './models/game-modes';
 
 @Component({
   standalone: true,
@@ -57,6 +59,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private gameResetService: GameResetService,
     private newGameService: NewGameService,
     private dailyChallengeService: DailyChallengeService,
+    private gameStateService: GameStateService,
     private router: Router
   ) {}
 
@@ -68,7 +71,6 @@ export class SudokuComponent implements OnInit, OnDestroy {
   }
 
   boxes: Box[] = [];
-  private readonly STORAGE_KEY = 'sudoku-game-state';
   private solution: number[][] = [];
   private fixedCells: boolean[][] = [];
   currentDifficulty: string = '';
@@ -289,11 +291,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
         moveHistory: this.moveHistory,
         gameStartTime: this.gameStartTime,
         totalGameTime: this.totalGameTime,
-        isGamePaused: this.isGamePaused,
-        timestamp: Date.now()
+        isGamePaused: this.isGamePaused
       };
 
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(gameState));
+      this.gameStateService.saveGameState(gameState);
       console.log('Game state saved:', gameState);
 
     } catch (error) {
@@ -306,88 +307,84 @@ export class SudokuComponent implements OnInit, OnDestroy {
     const minLoadingTime = 300; // ms
 
     try {
-      const savedState = localStorage.getItem(this.STORAGE_KEY);
+      const gameState = this.gameStateService.getCurrentGameState();
 
-      if (savedState) {
-        const gameState = JSON.parse(savedState);
+      if (gameState && Array.isArray(gameState.boxes) && gameState.boxes.length > 0) {
+        this.boxes = gameState.boxes;
+        this.currentDifficulty = gameState.difficulty ?? '';
+        this.mistakeCount = gameState.mistakeCount ?? 0;
+        this.score = gameState.score ?? 0;
+        this.notesMode = gameState.notesMode ?? false;
+        this.numberFirstMode = gameState.numberFirstMode ?? false;
+        this.selectedNumber = gameState.selectedNumber ?? null;
 
-        if (Array.isArray(gameState.boxes) && gameState.boxes.length > 0) {
-          this.boxes = gameState.boxes;
-          this.currentDifficulty = gameState.difficulty ?? '';
-          this.mistakeCount = gameState.mistakeCount ?? 0;
-          this.score = gameState.score ?? 0;
-          this.notesMode = gameState.notesMode ?? false;
-          this.numberFirstMode = gameState.numberFirstMode ?? false;
-          this.selectedNumber = gameState.selectedNumber ?? null;
+        console.log('Loaded game state:', {
+          difficulty: this.currentDifficulty,
+          mistakeCount: this.mistakeCount,
+          score: this.score,
+          notesMode: this.notesMode
+        });
 
-          console.log('Loaded game state:', {
-            difficulty: this.currentDifficulty,
-            mistakeCount: this.mistakeCount,
-            score: this.score,
-            notesMode: this.notesMode
-          });
+        // Clear current number and selection when loading saved game
+        this.currentNumber = null;
+        this.selectedBoxIndex = null;
+        this.selectedCellIndex = null;
 
-          // Clear current number and selection when loading saved game
-          this.currentNumber = null;
-          this.selectedBoxIndex = null;
-          this.selectedCellIndex = null;
-
-          // Load solution and fixed cells if available
-          if (gameState.solution && Array.isArray(gameState.solution)) {
-            this.solution = gameState.solution;
-          }
-          if (gameState.fixedCells && Array.isArray(gameState.fixedCells)) {
-            this.fixedCells = gameState.fixedCells;
-          }
-
-          // Load move history if available
-          if (gameState.moveHistory && Array.isArray(gameState.moveHistory)) {
-            this.moveHistory = gameState.moveHistory;
-          }
-
-          // Load timer information if available
-          if (gameState.gameStartTime !== undefined) {
-            this.gameStartTime = gameState.gameStartTime;
-          }
-          if (gameState.totalGameTime !== undefined) {
-            this.totalGameTime = gameState.totalGameTime;
-          }
-          if (gameState.isGamePaused !== undefined) {
-            this.isGamePaused = gameState.isGamePaused;
-          }
-
-          // Timer component will automatically restore from localStorage
-          // No need to manually call restoration here
-
-          // Check if the loaded game state has too many mistakes and auto-reset if needed
-          if (this.mistakeCount >= 3) {
-            console.log('Loaded game has too many mistakes, auto-resetting...');
-            this.mistakeCount = 0;
-            this.score = 0;
-            this.moveHistory = [];
-            this.gameStartTime = null;
-            this.totalGameTime = 0;
-            this.isGamePaused = false;
-            this.invalidateGameActiveCache();
-          }
-
-          // Check if the loaded game is already completed
-          if (this.boxes && this.boxes.length > 0 && this.hasWonGame()) {
-            console.log('Loaded game is already completed');
-            console.log('🏆 Game was completed previously!');
-          }
-
-          // If we have a saved game but no solution, we need to regenerate the puzzle
-          // This ensures we can still validate moves
-          if (!this.solution || this.solution.length === 0) {
-            console.log('Regenerating solution for saved game...');
-            this.initializeBoard(this.currentDifficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert');
-          }
-
-          console.log('Game state loaded:', gameState);
-          this.finishLoading(startTime, minLoadingTime);
-          return;
+        // Load solution and fixed cells if available
+        if (gameState.solution && Array.isArray(gameState.solution)) {
+          this.solution = gameState.solution;
         }
+        if (gameState.fixedCells && Array.isArray(gameState.fixedCells)) {
+          this.fixedCells = gameState.fixedCells;
+        }
+
+        // Load move history if available
+        if (gameState.moveHistory && Array.isArray(gameState.moveHistory)) {
+          this.moveHistory = gameState.moveHistory;
+        }
+
+        // Load timer information if available
+        if (gameState.gameStartTime !== undefined) {
+          this.gameStartTime = gameState.gameStartTime;
+        }
+        if (gameState.totalGameTime !== undefined) {
+          this.totalGameTime = gameState.totalGameTime;
+        }
+        if (gameState.isGamePaused !== undefined) {
+          this.isGamePaused = gameState.isGamePaused;
+        }
+
+        // Timer component will automatically restore from localStorage
+        // No need to manually call restoration here
+
+        // Check if the loaded game state has too many mistakes and auto-reset if needed
+        if (this.mistakeCount >= 3) {
+          console.log('Loaded game has too many mistakes, auto-resetting...');
+          this.mistakeCount = 0;
+          this.score = 0;
+          this.moveHistory = [];
+          this.gameStartTime = null;
+          this.totalGameTime = 0;
+          this.isGamePaused = false;
+          this.invalidateGameActiveCache();
+        }
+
+        // Check if the loaded game is already completed
+        if (this.boxes && this.boxes.length > 0 && this.hasWonGame()) {
+          console.log('Loaded game is already completed');
+          console.log('🏆 Game was completed previously!');
+        }
+
+        // If we have a saved game but no solution, we need to regenerate the puzzle
+        // This ensures we can still validate moves
+        if (!this.solution || this.solution.length === 0) {
+          console.log('Regenerating solution for saved game...');
+          this.initializeBoard(this.currentDifficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert');
+        }
+
+        console.log('Game state loaded:', gameState);
+        this.finishLoading(startTime, minLoadingTime);
+        return;
       }
     } catch (error) {
       console.error('Failed to load game state:', error);
@@ -418,8 +415,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
   private clearGameState() {
     try {
-      localStorage.removeItem(this.STORAGE_KEY);
-      console.log('Game state cleared from localStorage');
+      // Clear the current game state using the GameStateService
+      const currentMode = this.gameStateService.getCurrentMode();
+      this.gameStateService.clearGameState(currentMode);
+      console.log('Game state cleared for mode:', currentMode);
     } catch (error) {
       console.error('Failed to clear game state:', error);
     }
@@ -2428,7 +2427,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
   // Get current storage key
   getStorageKey(): string {
-    return this.STORAGE_KEY;
+    // Return a storage key based on the current game mode
+    const currentMode = this.gameStateService.getCurrentMode();
+    return `sudoku-${currentMode}-state`;
   }
 
   // Get current board component

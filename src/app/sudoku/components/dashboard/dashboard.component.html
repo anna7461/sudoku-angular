@@ -12,19 +12,19 @@
         *ngFor="let mode of gameModes" 
         class="game-mode-card"
         [class.coming-soon]="mode.isComingSoon"
-        [class.completed]="mode.id === 'daily-challenge' && !mode.isActive"
+        [class.completed]="mode.id === 'daily-challenge' && isDailyChallengeCompleted()"
         (click)="onGameModeClick(mode)"
       >
         <div class="mode-icon">{{ mode.icon }}</div>
         <div class="mode-content">
-          <h3 class="mode-label">{{ mode.label }}</h3>
+          <h3 class="mode-label">{{ mode.name }}</h3>
           <p class="mode-description">{{ mode.description }}</p>
           <button 
             class="mode-button"
             [class.disabled]="mode.isComingSoon"
-            [class.completed]="mode.id === 'daily-challenge' && !mode.isActive"
+            [class.completed]="mode.id === 'daily-challenge' && isDailyChallengeCompleted()"
             [disabled]="mode.isComingSoon">
-            {{ mode.buttonText }}
+            {{ getModeButtonText(mode) }}
           </button>
         </div>
       </div>

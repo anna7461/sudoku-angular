@@ -5,21 +5,13 @@ import { NewGameService, GameDifficulty } from '../../services/new-game.service'
 import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
 import { DailyChallengeService } from '../../services/daily-challenge.service';
+import { GameStateService } from '../../services/game-state.service';
+import { GameMode, GameModeConfig } from '../../models/game-modes';
 import { HeaderComponent } from '../header/header.component';
 import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.component';
 import { HelpOverlayComponent } from '../help-overlay/help-overlay.component';
 import { DailyChallengeCalendarComponent } from '../daily-challenge-calendar/daily-challenge-calendar.component';
 import { DailyChallengeResultsComponent } from '../daily-challenge-results/daily-challenge-results.component';
-
-interface GameMode {
-  id: string;
-  icon: string;
-  label: string;
-  description: string;
-  buttonText: string;
-  isActive: boolean;
-  isComingSoon: boolean;
-}
 
 interface SavedGameInfo {
   exists: boolean;
@@ -45,22 +37,28 @@ interface SavedGameInfo {
   }
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  gameModes: GameMode[] = [
+  gameModes: GameModeConfig[] = [
     {
-      id: 'daily-challenge',
-      icon: '🏆',
-      label: 'Daily Challenge',
+      id: GameMode.DAILY_CHALLENGE,
+      name: 'Daily Challenge',
       description: 'New puzzle every day',
-      buttonText: 'Play',
+      icon: '🏆',
       isActive: true,
       isComingSoon: false
     },
     {
-      id: 'arcade-mode',
-      icon: '🛣️',
-      label: 'Arcade Mode',
+      id: GameMode.SINGLE_GAME,
+      name: 'Single Game',
+      description: 'Classic sudoku puzzle',
+      icon: '🎯',
+      isActive: true,
+      isComingSoon: false
+    },
+    {
+      id: GameMode.ARCADE_MODE,
+      name: 'Arcade Mode',
       description: 'Endless challenges',
-      buttonText: 'Coming Soon',
+      icon: '🛣️',
       isActive: false,
       isComingSoon: true
     }
@@ -79,12 +77,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private newGameService: NewGameService,
     private themeService: ThemeService,
     private storageService: StorageService,
-    private dailyChallengeService: DailyChallengeService
+    private dailyChallengeService: DailyChallengeService,
+    private gameStateService: GameStateService
   ) {}
 
   ngOnInit(): void {
-    this.checkForSavedGame();
-    this.updateDailyChallengeButton();
+    this.checkForSavedGames();
+    this.updateGameModeButtons();
     
     // Ensure daily challenge service is initialized
     this.dailyChallengeService.initialize();
@@ -92,8 +91,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Listen for route changes to refresh saved game info when returning to dashboard
     this.router.events.subscribe((event) => {
       if (event.type === 1) { // NavigationEnd event
-        this.checkForSavedGame();
-        this.updateDailyChallengeButton();
+        this.checkForSavedGames();
+        this.updateGameModeButtons();
       }
     });
   }
@@ -107,93 +106,46 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Update the daily challenge button text and state
+   * Update game mode button states and text
    */
-  private updateDailyChallengeButton(): void {
-    const dailyChallengeMode = this.gameModes.find(mode => mode.id === 'daily-challenge');
+  private updateGameModeButtons(): void {
+    // Update daily challenge button
+    const dailyChallengeMode = this.gameModes.find(mode => mode.id === GameMode.DAILY_CHALLENGE);
     if (dailyChallengeMode) {
       if (this.dailyChallengeService.isTodayCompleted()) {
-        dailyChallengeMode.buttonText = 'View Results';
         dailyChallengeMode.isActive = true; // Keep active to show results
       } else {
-        dailyChallengeMode.buttonText = 'Play';
         dailyChallengeMode.isActive = true;
       }
     }
+
+    // Update single game button
+    const singleGameMode = this.gameModes.find(mode => mode.id === GameMode.SINGLE_GAME);
+    if (singleGameMode) {
+      singleGameMode.isActive = this.gameStateService.hasGameState(GameMode.SINGLE_GAME);
+    }
   }
 
-  checkForSavedGame(): void {
-    // Check if there's a saved game in localStorage
-    const savedGame = localStorage.getItem('sudoku-game-state');
-    if (savedGame) {
-      try {
-        const gameData = JSON.parse(savedGame);
-        if (gameData && gameData.boxes && gameData.boxes.length > 0) {
-          // Prefer timer's saved state for exact parity with in-game timer
-          let currentElapsedTime = 0;
-          const savedTimer = localStorage.getItem('sudoku-timer-state');
-          if (savedTimer) {
-            try {
-              const timerState = JSON.parse(savedTimer);
-              const startTime: number = timerState.startTime || 0; // ms
-              const totalPausedTime: number = timerState.totalPausedTime || 0; // ms
-              const elapsedSeconds: number = timerState.elapsedSeconds || 0; // s
-              const hasStarted: boolean = !!timerState.hasStarted;
-
-              if (hasStarted && startTime > 0) {
-                const now = Date.now();
-                currentElapsedTime = Math.max(
-                  0,
-                  Math.floor((now - startTime - totalPausedTime) / 1000)
-                );
-              } else {
-                currentElapsedTime = elapsedSeconds;
-              }
-            } catch {
-              // Fallback to game state if timer state parsing fails
-              currentElapsedTime = gameData.totalGameTime || 0;
-              if (!gameData.isGamePaused && gameData.gameStartTime) {
-                const now = Date.now();
-                const startTime = gameData.gameStartTime;
-                const additionalTime = Math.floor((now - startTime) / 1000);
-                currentElapsedTime += additionalTime;
-              }
-            }
-          } else {
-            // Fallback to game state if no timer state exists
-            currentElapsedTime = gameData.totalGameTime || 0;
-            if (!gameData.isGamePaused && gameData.gameStartTime) {
-              const now = Date.now();
-              const startTime = gameData.gameStartTime;
-              const additionalTime = Math.floor((now - startTime) / 1000);
-              currentElapsedTime += additionalTime;
-            }
-          }
-
-          // Get difficulty from the correct field
-          const difficulty = gameData.difficulty || 'Unknown';
-
-          this.savedGameInfo = {
-            exists: true,
-            timeElapsed: this.formatTime(currentElapsedTime),
-            difficulty: this.getDifficultyLabel(difficulty)
-          };
-        } else {
-          this.savedGameInfo = { exists: false };
-        }
-      } catch (error) {
-        console.warn('Error parsing saved game data:', error);
-        this.savedGameInfo = { exists: false };
+  /**
+   * Check for saved games across all modes
+   */
+  checkForSavedGames(): void {
+    // Check for any saved game state
+    const hasAnySavedGame = this.gameStateService.hasAnySavedGame();
+    
+    if (hasAnySavedGame) {
+      // For now, show info for the first available saved game
+      // In the future, this could show a list of saved games by mode
+      if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
+        this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.SINGLE_GAME);
+      } else if (this.gameStateService.hasGameState(GameMode.DAILY_CHALLENGE)) {
+        this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.DAILY_CHALLENGE);
+      } else if (this.gameStateService.hasGameState(GameMode.ARCADE_MODE)) {
+        this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.ARCADE_MODE);
       }
     } else {
       this.savedGameInfo = { exists: false };
     }
-  }
-
-  formatTime(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
   onContinueGame(): void {
@@ -210,13 +162,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.selectedDifficulty = difficulty as GameDifficulty;
     this.showDifficultyOverlay = false;
     
-    // Start new game with selected difficulty
-    console.log(`Dashboard: Starting new game with difficulty: ${difficulty}`);
-    this.newGameService.startNewGame({
-      difficulty: difficulty as GameDifficulty,
-      clearCurrentGame: true,
-      resetTimer: true
-    });
+    // Start new single game with selected difficulty
+    console.log(`Dashboard: Starting new single game with difficulty: ${difficulty}`);
+    this.newGameService.startSingleGame(difficulty as GameDifficulty);
 
     // Navigate to the game
     this.router.navigate(['/sudoku']);
@@ -251,13 +199,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.showHelpOverlay = false;
   }
 
-  onGameModeClick(mode: GameMode): void {
+  onGameModeClick(mode: GameModeConfig): void {
     if (mode.isComingSoon) {
       // Show coming soon message or handle future development
-      console.log(`${mode.label} is coming soon!`);
+      console.log(`${mode.name} is coming soon!`);
     } else if (mode.isActive) {
       // Handle active game mode
-      if (mode.id === 'daily-challenge') {
+      if (mode.id === GameMode.DAILY_CHALLENGE) {
         if (this.dailyChallengeService.isTodayCompleted()) {
           // Show results view if completed
           this.showDailyChallengeResults = true;
@@ -265,8 +213,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
           // Show calendar to start challenge
           this.showDailyChallengeCalendar = true;
         }
+      } else if (mode.id === GameMode.SINGLE_GAME) {
+        if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
+          // Continue existing game
+          this.router.navigate(['/sudoku']);
+        } else {
+          // Start new single game
+          this.onNewGame();
+        }
       } else {
-        console.log(`Starting ${mode.label}`);
+        console.log(`Starting ${mode.name}`);
       }
     }
   }
@@ -291,12 +247,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onStartDailyChallenge(difficulty: string): void {
     this.showDailyChallengeCalendar = false;
     
-    // Start new game with the daily challenge difficulty
-    this.newGameService.startNewGame({
-      difficulty: difficulty as GameDifficulty,
-      clearCurrentGame: true,
-      resetTimer: true
-    });
+    // Start new daily challenge game
+    this.newGameService.startDailyChallenge(difficulty as GameDifficulty);
 
     // Navigate to the game
     this.router.navigate(['/sudoku']);
@@ -341,5 +293,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'expert': 'Ultimate challenge'
     };
     return descriptions[difficulty] || 'Select difficulty';
+  }
+
+  /**
+   * Check if daily challenge is completed
+   */
+  isDailyChallengeCompleted(): boolean {
+    return this.dailyChallengeService.isTodayCompleted();
+  }
+
+  /**
+   * Get button text for a game mode
+   */
+  getModeButtonText(mode: GameModeConfig): string {
+    if (mode.isComingSoon) {
+      return 'Coming Soon';
+    }
+    
+    if (mode.id === GameMode.DAILY_CHALLENGE) {
+      if (this.dailyChallengeService.isTodayCompleted()) {
+        return 'View Results';
+      } else {
+        return 'Play';
+      }
+    }
+    
+    if (mode.id === GameMode.SINGLE_GAME) {
+      if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
+        return 'Continue';
+      } else {
+        return 'Play';
+      }
+    }
+    
+    return 'Play';
   }
 }

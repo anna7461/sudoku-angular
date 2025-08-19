@@ -2,6 +2,8 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
+import { GameMode } from '../models/game-modes';
+import { GameStateService } from './game-state.service';
 
 export interface DailyChallengeState {
   date: string; // YYYY-MM-DD format
@@ -34,7 +36,10 @@ export class DailyChallengeService {
   private countdownInterval?: any;
   private isInitialized = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private gameStateService: GameStateService
+  ) {
     // Defer initialization to avoid issues during service construction
     if (isPlatformBrowser(this.platformId) && !this.isInitialized) {
       // Use setTimeout to defer initialization
@@ -228,6 +233,9 @@ export class DailyChallengeService {
       
       this.saveChallenges(challenges);
       this.challengesSubject.next(challenges);
+      
+      // Also update the game state service to mark the daily challenge as completed
+      this.gameStateService.completeGame(completionTime, score, mistakes);
     }
   }
 

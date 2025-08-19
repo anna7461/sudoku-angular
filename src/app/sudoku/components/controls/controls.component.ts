@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
+import { GameMode } from '../../models/game-modes';
 
 @Component({
   standalone: true,
@@ -32,12 +33,8 @@ export class ControlsComponent {
   }
 
   onNewGameClick() {
-    // Use NewGameService to start a new game
-    this.newGameService.startNewGame({
-      difficulty: this.selectedDifficulty,
-      clearCurrentGame: true,
-      resetTimer: true
-    });
+    // Use NewGameService to start a new single game
+    this.newGameService.startSingleGame(this.selectedDifficulty);
     
     // Also emit the event for backward compatibility
     this.newGame.emit(this.selectedDifficulty);

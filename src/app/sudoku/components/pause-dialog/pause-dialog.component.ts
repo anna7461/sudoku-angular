@@ -58,11 +58,7 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
    * Start a new game with selected difficulty
    */
   onStartNewGame(): void {
-    this.newGameService.startNewGame({
-      difficulty: this.selectedDifficulty,
-      clearCurrentGame: true,
-      resetTimer: true
-    });
+    this.newGameService.startSingleGame(this.selectedDifficulty);
     this.pauseService.resumeGame(); // Close the dialog
   }
 
