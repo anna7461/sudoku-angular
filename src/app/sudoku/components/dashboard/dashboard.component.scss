@@ -607,3 +607,11 @@
 .overlay-content {
   animation: slideInUp 0.3s ease-out;
 }
+
+// CSS Variables for Daily Challenge
+:root {
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-accent: #fef3c7;
+  --color-primary-dark: #2a3f8f;
+}

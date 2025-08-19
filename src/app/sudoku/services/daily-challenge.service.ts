@@ -101,6 +101,13 @@ export class DailyChallengeService {
   }
 
   /**
+   * Check if today's challenge should show puzzle or results view
+   */
+  shouldShowPuzzleView(): boolean {
+    return !this.isTodayCompleted();
+  }
+
+  /**
    * Get today's challenge state
    */
   getTodayChallenge(): DailyChallengeState | null {
@@ -118,8 +125,57 @@ export class DailyChallengeService {
    * Get challenge state for a specific date
    */
   getChallengeForDate(date: string): DailyChallengeState | null {
-    const challenges = this.challengesSubject.value;
-    return challenges.get(date) || null;
+    try {
+      const challenges = this.challengesSubject.value;
+      return challenges.get(date) || null;
+    } catch (error) {
+      console.warn('Error getting challenge for date:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get all completed challenges for display
+   */
+  getCompletedChallenges(): DailyChallengeState[] {
+    try {
+      const challenges = this.challengesSubject.value;
+      return Array.from(challenges.values())
+        .filter(challenge => challenge.isCompleted)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    } catch (error) {
+      console.warn('Error getting completed challenges:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get current streak count
+   */
+  getCurrentStreak(): number {
+    try {
+      const challenges = this.challengesSubject.value;
+      const today = this.getTodayDate();
+      let streak = 0;
+      let currentDate = new Date(today);
+      
+      while (true) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const challenge = challenges.get(dateStr);
+        
+        if (challenge && challenge.isCompleted) {
+          streak++;
+          currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+      
+      return streak;
+    } catch (error) {
+      console.warn('Error calculating streak:', error);
+      return 0;
+    }
   }
 
   /**

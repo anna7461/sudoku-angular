@@ -103,3 +103,16 @@
     </app-daily-challenge-calendar>
   </div>
 </div>
+
+<!-- Daily Challenge Results Overlay -->
+<div 
+  *ngIf="showDailyChallengeResults" 
+  class="daily-challenge-overlay"
+  (click)="onCloseDailyChallengeResults()">
+  <div class="overlay-content" (click)="$event.stopPropagation()">
+    <app-daily-challenge-results
+      (closeResults)="onCloseDailyChallengeResults()"
+      (viewCalendar)="onViewCalendarFromResults()">
+    </app-daily-challenge-results>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="daily-challenge-results">
+  <!-- Header -->
+  <div class="results-header">
+    <h2 class="results-title">Daily Challenge Results</h2>
+    <button class="close-button" (click)="onClose()" aria-label="Close results">
+      ✕
+    </button>
+  </div>
+
+  <!-- Today's Completion Status -->
+  <div class="today-completion" *ngIf="todayChallenge">
+    <div class="completion-badge">
+      <div class="badge-icon">🏆</div>
+      <div class="badge-content">
+        <h3 class="badge-title">Challenge Completed!</h3>
+        <p class="badge-subtitle">{{ getDateDisplay(todayChallenge.date) }} • {{ getDifficultyText(todayChallenge.difficulty) }}</p>
+      </div>
+    </div>
+    
+    <div class="completion-stats">
+      <div class="stat-item">
+        <span class="stat-label">Time</span>
+        <span class="stat-value">{{ formatCompletionTime(todayChallenge.completionTime || 0) }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Score</span>
+        <span class="stat-value">{{ todayChallenge.score || 0 }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Mistakes</span>
+        <span class="stat-value">{{ todayChallenge.mistakes || 0 }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Countdown Timer -->
+  <div class="countdown-section">
+    <div class="countdown-icon">⏰</div>
+    <div class="countdown-content">
+      <h4 class="countdown-title">Next Challenge</h4>
+      <p class="countdown-text">{{ getCountdownText() }}</p>
+    </div>
+  </div>
+
+  <!-- Current Streak -->
+  <div class="streak-section" *ngIf="currentStreak > 0">
+    <div class="streak-icon">{{ getStreakEmoji(currentStreak) }}</div>
+    <div class="streak-content">
+      <h4 class="streak-title">Current Streak</h4>
+      <p class="streak-text">{{ currentStreak }} day{{ currentStreak !== 1 ? 's' : '' }}</p>
+    </div>
+  </div>
+
+  <!-- Previous Challenges -->
+  <div class="previous-challenges" *ngIf="completedChallenges.length > 1">
+    <h4 class="section-title">Previous Challenges</h4>
+    <div class="challenges-list">
+      <div 
+        *ngFor="let challenge of completedChallenges.slice(1, 6)" 
+        class="challenge-item"
+        [class.today]="challenge.date === todayChallenge?.date">
+        <div class="challenge-date">{{ getDateDisplay(challenge.date) }}</div>
+        <div class="challenge-difficulty">{{ getDifficultyText(challenge.difficulty) }}</div>
+        <div class="challenge-time">{{ formatCompletionTime(challenge.completionTime || 0) }}</div>
+        <div class="challenge-award">🏆</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button class="calendar-button secondary-button" (click)="onViewCalendar()">
+      📅 View Calendar
+    </button>
+    <button class="close-button primary-button" (click)="onClose()">
+      Close
+    </button>
+  </div>
+</div>

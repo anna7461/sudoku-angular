@@ -7,8 +7,9 @@
     </button>
   </div>
 
-  <!-- Month Navigation -->
-  <div class="month-navigation">
+ <div class="calendar-content">
+   <!-- Month Navigation -->
+   <div class="month-navigation">
     <button class="nav-button" (click)="previousMonth()" aria-label="Previous month">
       ‹
     </button>
@@ -60,39 +61,44 @@
     <!-- Calendar Days -->
     <div 
       *ngFor="let day of calendarDays" 
-      class="calendar-day"
+      class="calendar-day" 
       [class.today]="day.isToday"
       [class.current-month]="day.isCurrentMonth"
-      [class.other-month]="!day.isCurrentMonth"
       [class.available]="day.isAvailable"
-      [class.completed]="day.challenge?.isCompleted"
+      [class.completed]="isDayCompleted(day)"
       [class.unavailable]="!day.isAvailable"
       (click)="onDayClick(day)"
-      [attr.aria-label]="getDayAriaLabel(day)">
+      [attr.aria-label]="getDayAriaLabel(day)"
+      [attr.aria-disabled]="!day.isAvailable || day.challenge?.isCompleted">
       
       <div class="day-number">{{ day.date.getDate() }}</div>
       
-      <!-- Challenge Status Indicators -->
       <div class="day-indicators">
-        <!-- Completed Challenge -->
-        <div *ngIf="day.challenge?.isCompleted" class="indicator completed">
+        <!-- Completed indicator -->
+        <div *ngIf="isDayCompleted(day)" class="indicator completed" title="Completed">
           🏆
         </div>
         
-        <!-- Available Challenge -->
-        <div *ngIf="day.isAvailable && !day.challenge?.isCompleted && day.isCurrentMonth" class="indicator available">
+        <!-- Play button for available days -->
+        <div *ngIf="shouldShowPlayButton(day)" class="indicator available" title="Click to play">
           ▶️
         </div>
         
-        <!-- Past Available Challenge -->
-        <div *ngIf="day.isAvailable && !day.challenge?.isCompleted && !day.isCurrentMonth" class="indicator past-available">
+        <!-- Available past day indicator -->
+        <div *ngIf="day.isAvailable && !day.challenge?.isCompleted && !day.isCurrentMonth" 
+             class="indicator past-available" title="Available to play">
           📅
         </div>
         
-        <!-- Difficulty Badge -->
+        <!-- Difficulty badge -->
         <div *ngIf="day.challenge?.difficulty; let difficulty" class="difficulty-badge">
           {{ getDifficultyFirstChar(difficulty) }}
         </div>
+      </div>
+      
+      <!-- Day status text -->
+      <div class="day-status" *ngIf="day.isAvailable">
+        {{ getDayStatusText(day) }}
       </div>
     </div>
   </div>
@@ -112,4 +118,5 @@
       <span class="legend-text">Play Now</span>
     </div>
   </div>
+ </div>
 </div>

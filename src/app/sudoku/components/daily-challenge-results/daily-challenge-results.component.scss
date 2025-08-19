@@ -1,0 +1,309 @@
+.daily-challenge-results {
+  background: var(--color-bg-white);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    max-height: 90vh;
+  }
+}
+
+// Header
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--color-border-light);
+
+  .results-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-darkest);
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--color-text-medium);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--color-button-hover-bg);
+      color: var(--color-text-darkest);
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Today's Completion
+.today-completion {
+  background: var(--color-success-light, #d1fae5);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 2px solid var(--color-success, #10b981);
+
+  .completion-badge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .badge-icon {
+      font-size: 48px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .badge-content {
+      .badge-title {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--color-success, #10b981);
+      }
+
+      .badge-subtitle {
+        margin: 0;
+        color: var(--color-text-medium);
+        font-size: 14px;
+      }
+    }
+  }
+
+  .completion-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    .stat-item {
+      text-align: center;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+
+      .stat-label {
+        display: block;
+        font-size: 12px;
+        color: var(--color-text-medium);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .stat-value {
+        display: block;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--color-text-darkest);
+      }
+    }
+  }
+}
+
+// Countdown Section
+.countdown-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-bg-lightest);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 2px solid var(--color-border-light);
+
+  .countdown-icon {
+    font-size: 32px;
+    color: var(--color-primary);
+  }
+
+  .countdown-content {
+    .countdown-title {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-darkest);
+    }
+
+    .countdown-text {
+      margin: 0;
+      color: var(--color-text-medium);
+      font-size: 14px;
+    }
+  }
+}
+
+// Streak Section
+.streak-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-accent);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+
+  .streak-icon {
+    font-size: 32px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .streak-content {
+    .streak-title {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-darkest);
+    }
+
+    .streak-text {
+      margin: 0;
+      color: var(--color-text-medium);
+      font-size: 14px;
+    }
+  }
+}
+
+// Previous Challenges
+.previous-challenges {
+  margin-bottom: 24px;
+
+  .section-title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-darkest);
+  }
+
+  .challenges-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .challenge-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: var(--color-bg-lightest);
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+
+      &.today {
+        border-color: var(--color-success, #10b981);
+        background: var(--color-success-light, #d1fae5);
+      }
+
+      .challenge-date {
+        font-weight: 600;
+        color: var(--color-text-darkest);
+      }
+
+      .challenge-difficulty {
+        font-size: 12px;
+        color: var(--color-text-medium);
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .challenge-time {
+        font-size: 14px;
+        color: var(--color-text-medium);
+        font-family: monospace;
+      }
+
+      .challenge-award {
+        font-size: 16px;
+        color: var(--color-success, #10b981);
+      }
+    }
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
+  .calendar-button,
+  .close-button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  .calendar-button {
+    background: var(--color-bg-lightest);
+    color: var(--color-text-darkest);
+    border: 2px solid var(--color-border-light);
+
+    &:hover {
+      background: var(--color-border-light);
+      transform: translateY(-1px);
+    }
+  }
+
+  .close-button {
+    background: var(--color-primary);
+    color: white;
+
+    &:hover {
+      background: var(--color-primary-dark, #2a3f8f);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .daily-challenge-results {
+    margin: 16px;
+  }
+
+  .completion-stats {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .challenge-item {
+    grid-template-columns: 1fr auto !important;
+    gap: 8px !important;
+
+    .challenge-difficulty,
+    .challenge-time {
+      display: none;
+    }
+  }
+}

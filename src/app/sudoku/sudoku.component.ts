@@ -431,12 +431,44 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.startNewGame(validDifficulty);
   }
 
-  // Method to navigate back to dashboard
+  /**
+   * Complete today's daily challenge if applicable
+   */
+  private completeDailyChallengeIfApplicable(): void {
+    try {
+      const todayChallenge = this.dailyChallengeService.getTodayChallenge();
+      if (todayChallenge && !todayChallenge.isCompleted) {
+        const completionTime = this.timerComponent ? 
+          Math.floor(this.timerComponent.getCurrentElapsedTime() / 1000) : 0;
+        
+        this.dailyChallengeService.completeTodayChallenge(
+          completionTime,
+          this.score,
+          this.mistakeCount
+        );
+        
+        console.log('🎉 Daily challenge completed!', { 
+          time: completionTime, 
+          score: this.score, 
+          mistakes: this.mistakeCount 
+        });
+        
+        // Update the dashboard to reflect completion
+        this.dailyChallengeService.initialize();
+      }
+    } catch (error) {
+      console.warn('Failed to complete daily challenge:', error);
+    }
+  }
+
+  /**
+   * Navigate to dashboard with proper state saving
+   */
   goToDashboard(): void {
-    // Save current game state before navigating
-    // Note: Theme, settings, timer, and pause state are automatically 
-    // persisted by their respective services
+    // Save current game state before navigation
     this.saveGameState();
+    
+    // Navigate to dashboard
     this.router.navigate(['/']);
   }
 
@@ -2506,35 +2538,6 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
     const cell = this.boxes[this.selectedBoxIndex].cells[this.selectedCellIndex];
     return cell.state;
-  }
-
-  // Complete daily challenge if this is today's challenge
-  private completeDailyChallengeIfApplicable(): void {
-    try {
-      // Check if this is today's challenge
-      const todayChallenge = this.dailyChallengeService.getTodayChallenge();
-      
-      if (todayChallenge && !todayChallenge.isCompleted) {
-        // Get completion time in seconds
-        const completionTime = this.timerComponent ? 
-          Math.floor(this.timerComponent.getCurrentElapsedTime() / 1000) : 0;
-        
-        // Complete the daily challenge
-        this.dailyChallengeService.completeTodayChallenge(
-          completionTime,
-          this.score,
-          this.mistakeCount
-        );
-        
-        console.log('🎉 Daily challenge completed!', {
-          time: completionTime,
-          score: this.score,
-          mistakes: this.mistakeCount
-        });
-      }
-    } catch (error) {
-      console.warn('Failed to complete daily challenge:', error);
-    }
   }
 
 }

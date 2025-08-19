@@ -162,20 +162,47 @@ export class DailyChallengeCalendarComponent implements OnInit, OnDestroy {
    * Handle day click
    */
   onDayClick(day: CalendarDay): void {
-    if (!day.isAvailable) return;
-    
-    if (day.challenge?.isCompleted) {
-      // Show completion details
-      return;
+    if (!day.isAvailable || day.challenge?.isCompleted) {
+      return; // Do nothing for unavailable or completed days
     }
-    
-    if (day.isToday && !this.todayChallenge?.isCompleted) {
+
+    if (day.isCurrentMonth) {
       // Start today's challenge
-      this.startTodayChallenge();
-    } else if (day.isAvailable && !day.challenge?.isCompleted) {
-      // Start challenge for past date
-      this.startPastChallenge(day.dateString);
+      this.startChallenge.emit(day.challenge?.difficulty || 'easy');
+    } else {
+      // Handle past available days (could show a message or allow replay)
+      console.log(`Past challenge available for ${day.date.toDateString()}`);
     }
+  }
+
+  /**
+   * Check if a day should show play button
+   */
+  shouldShowPlayButton(day: CalendarDay): boolean {
+    return day.isAvailable && !day.challenge?.isCompleted && day.isCurrentMonth;
+  }
+
+  /**
+   * Check if a day should show completed state
+   */
+  isDayCompleted(day: CalendarDay): boolean {
+    return day.challenge?.isCompleted || false;
+  }
+
+  /**
+   * Get day status text
+   */
+  getDayStatusText(day: CalendarDay): string {
+    if (day.challenge?.isCompleted) {
+      return 'Completed';
+    }
+    if (day.isAvailable && day.isCurrentMonth) {
+      return 'Play';
+    }
+    if (day.isAvailable && !day.isCurrentMonth) {
+      return 'Available';
+    }
+    return 'Unavailable';
   }
 
   /**

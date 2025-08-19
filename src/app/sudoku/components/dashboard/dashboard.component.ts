@@ -9,6 +9,7 @@ import { HeaderComponent } from '../header/header.component';
 import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.component';
 import { HelpOverlayComponent } from '../help-overlay/help-overlay.component';
 import { DailyChallengeCalendarComponent } from '../daily-challenge-calendar/daily-challenge-calendar.component';
+import { DailyChallengeResultsComponent } from '../daily-challenge-results/daily-challenge-results.component';
 
 interface GameMode {
   id: string;
@@ -36,7 +37,8 @@ interface SavedGameInfo {
     HeaderComponent, 
     SettingsOverlayComponent, 
     HelpOverlayComponent,
-    DailyChallengeCalendarComponent
+    DailyChallengeCalendarComponent,
+    DailyChallengeResultsComponent
   ],
   host: {
     '[class]': 'getThemeClass()'
@@ -70,6 +72,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showSettingsOverlay = false;
   showHelpOverlay = false;
   showDailyChallengeCalendar = false;
+  showDailyChallengeResults = false;
 
   constructor(
     private router: Router,
@@ -110,8 +113,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const dailyChallengeMode = this.gameModes.find(mode => mode.id === 'daily-challenge');
     if (dailyChallengeMode) {
       if (this.dailyChallengeService.isTodayCompleted()) {
-        dailyChallengeMode.buttonText = 'Completed';
-        dailyChallengeMode.isActive = false;
+        dailyChallengeMode.buttonText = 'View Results';
+        dailyChallengeMode.isActive = true; // Keep active to show results
       } else {
         dailyChallengeMode.buttonText = 'Play';
         dailyChallengeMode.isActive = true;
@@ -255,7 +258,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else if (mode.isActive) {
       // Handle active game mode
       if (mode.id === 'daily-challenge') {
-        this.showDailyChallengeCalendar = true;
+        if (this.dailyChallengeService.isTodayCompleted()) {
+          // Show results view if completed
+          this.showDailyChallengeResults = true;
+        } else {
+          // Show calendar to start challenge
+          this.showDailyChallengeCalendar = true;
+        }
       } else {
         console.log(`Starting ${mode.label}`);
       }
@@ -267,6 +276,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
    */
   onCloseDailyChallengeCalendar(): void {
     this.showDailyChallengeCalendar = false;
+  }
+
+  /**
+   * Handle daily challenge results close
+   */
+  onCloseDailyChallengeResults(): void {
+    this.showDailyChallengeResults = false;
   }
 
   /**
@@ -284,6 +300,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Navigate to the game
     this.router.navigate(['/sudoku']);
+  }
+
+  /**
+   * Handle viewing calendar from results
+   */
+  onViewCalendarFromResults(): void {
+    this.showDailyChallengeResults = false;
+    this.showDailyChallengeCalendar = true;
   }
 
   getDifficultyLabel(difficulty: string): string {
