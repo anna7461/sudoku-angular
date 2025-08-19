@@ -1,10 +1,17 @@
+<!-- Header Component -->
+<app-header 
+  (openSettings)="onOpenSettings()" 
+  (openHelp)="onOpenHelp()"
+  (titleClick)="goToDashboard()">
+</app-header>
+
 <!-- Back to Home Button -->
-<div class="back-to-home-container">
+<!-- <div class="back-to-home-container">
   <button class="back-to-home-button" (click)="goToDashboard()">
     <span class="back-icon">←</span>
     <span class="back-text">Back to Home</span>
   </button>
-</div>
+</div> -->
 
 <app-controls
   [disabled]="!areControlsAvailableCached"
@@ -88,3 +95,15 @@
       (newGame)="onCongratulationsNewGame($event)"
       (close)="onCongratulationsClose()">
     </app-congratulations-dialog>
+
+<!-- Settings Overlay -->
+<app-settings-overlay 
+  *ngIf="showSettingsOverlay" 
+  (close)="onCloseSettings()">
+</app-settings-overlay>
+
+<!-- Help Overlay -->
+<app-help-overlay 
+  *ngIf="showHelpOverlay" 
+  (close)="onCloseHelp()">
+</app-help-overlay>

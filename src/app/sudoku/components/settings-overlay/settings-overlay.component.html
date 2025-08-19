@@ -1,0 +1,139 @@
+<div class="settings-overlay">
+  <div class="settings-header">
+    <h2>Settings</h2>
+    <button class="close-button" (click)="onClose()" aria-label="Close settings">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="settings-content">
+    <div class="setting-group">
+      <h3>Game Preferences</h3>
+      
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Sound Effects</span>
+          <span class="coming-soon">Coming soon</span>
+        </div>
+        <label class="toggle-switch disabled">
+          <input type="checkbox" [checked]="settings.soundEffects" disabled>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item" *ngIf="isMobile()">
+        <div class="setting-label">
+          <span>Vibration</span>
+          <span class="coming-soon">Coming soon</span>
+        </div>
+        <label class="toggle-switch disabled">
+          <input type="checkbox" [checked]="settings.vibration" disabled>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Theme Mode</span>
+        </div>
+        <div class="theme-toggle">
+          <button 
+            class="theme-btn" 
+            [class.active]="settings.themeMode === 'light'"
+            (click)="setThemeMode('light')">
+            Light
+          </button>
+          <button 
+            class="theme-btn" 
+            [class.active]="settings.themeMode === 'dark'"
+            (click)="setThemeMode('dark')">
+            Dark
+          </button>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Timer</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="settings.timer" (change)="toggleSetting('timer')">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Mistakes Limit</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="settings.mistakesLimit" (change)="toggleSetting('mistakesLimit')">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item" *ngIf="settings.mistakesLimit">
+        <div class="setting-label">
+          <span>Mistakes Limit Number</span>
+        </div>
+        <select 
+          class="mistakes-select" 
+          [value]="settings.mistakesLimitNumber"
+          (change)="onMistakesLimitChange($event)">
+          <option *ngFor="let option of mistakesLimitOptions" [value]="option">{{ option }}</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Number-First Input</span>
+          <span class="setting-description">Lock number on tap-and-hold</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="settings.numberFirstInput" (change)="toggleSetting('numberFirstInput')">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <h3>Advanced Features</h3>
+      
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Auto-Complete</span>
+          <span class="coming-soon">Coming soon</span>
+        </div>
+        <label class="toggle-switch disabled">
+          <input type="checkbox" [checked]="settings.autoComplete" disabled>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Auto-Remove Notes</span>
+          <span class="coming-soon">Coming soon</span>
+        </div>
+        <label class="toggle-switch disabled">
+          <input type="checkbox" [checked]="settings.autoRemoveNotes" disabled>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-label">
+          <span>Number Completion Animations</span>
+          <span class="coming-soon">Coming soon</span>
+        </div>
+        <label class="toggle-switch disabled">
+          <input type="checkbox" [checked]="settings.numberCompletionAnimations" disabled>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

@@ -12,6 +12,9 @@ import {BoardControlsComponent} from './components/board-controls/board-controls
 import {PauseDialogComponent} from './components/pause-dialog/pause-dialog.component';
 import {GameOverDialogComponent, GameOverStats} from './components/game-over-dialog/game-over-dialog.component';
 import {CongratulationsDialogComponent, CongratulationsStats} from './components/congratulations-dialog/congratulations-dialog.component';
+import {HeaderComponent} from './components/header/header.component';
+import {SettingsOverlayComponent} from './components/settings-overlay/settings-overlay.component';
+import {HelpOverlayComponent} from './components/help-overlay/help-overlay.component';
 import {ThemeService} from './services/theme.service';
 import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
@@ -30,7 +33,10 @@ import {NewGameService, GameDifficulty} from './services/new-game.service';
     BoardControlsComponent,
     PauseDialogComponent,
     GameOverDialogComponent,
-    CongratulationsDialogComponent
+    CongratulationsDialogComponent,
+    HeaderComponent,
+    SettingsOverlayComponent,
+    HelpOverlayComponent
   ],
   styleUrls: ['./sudoku.component.scss'],
   host: {
@@ -91,6 +97,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
   // Congratulations Dialog
   showCongratulationsDialog: boolean = false;
   congratulationsStats: CongratulationsStats | null = null;
+
+  // Header Overlays
+  showSettingsOverlay: boolean = false;
+  showHelpOverlay: boolean = false;
 
   // Cache for isGameActive to prevent ExpressionChangedAfterItHasBeenCheckedError
   private _cachedIsGameActive: boolean = true;
@@ -419,6 +429,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
   // Method to navigate back to dashboard
   goToDashboard(): void {
     // Save current game state before navigating
+    // Note: Theme, settings, timer, and pause state are automatically 
+    // persisted by their respective services
     this.saveGameState();
     this.router.navigate(['/']);
   }
@@ -1059,6 +1071,25 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.showCongratulationsDialog = false;
     this.congratulationsStats = null;
     // Don't restart the game, just close the dialog
+  }
+
+  // Header Overlay Event Handlers
+  onOpenSettings(): void {
+    this.showSettingsOverlay = true;
+    this.showHelpOverlay = false;
+  }
+
+  onOpenHelp(): void {
+    this.showHelpOverlay = true;
+    this.showSettingsOverlay = false;
+  }
+
+  onCloseSettings(): void {
+    this.showSettingsOverlay = false;
+  }
+
+  onCloseHelp(): void {
+    this.showHelpOverlay = false;
   }
 
   // Handle victory when puzzle is completed

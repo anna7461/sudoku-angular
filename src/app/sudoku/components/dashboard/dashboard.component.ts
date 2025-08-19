@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
+import { HeaderComponent } from '../header/header.component';
+import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.component';
+import { HelpOverlayComponent } from '../help-overlay/help-overlay.component';
 
 interface GameMode {
   id: string;
@@ -26,7 +29,7 @@ interface SavedGameInfo {
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [CommonModule],
+  imports: [CommonModule, HeaderComponent, SettingsOverlayComponent, HelpOverlayComponent],
   host: {
     '[class]': 'getThemeClass()'
   }
@@ -56,6 +59,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   savedGameInfo: SavedGameInfo = { exists: false };
   showDifficultyOverlay = false;
   selectedDifficulty: GameDifficulty = 'medium';
+  showSettingsOverlay = false;
+  showHelpOverlay = false;
 
   constructor(
     private router: Router,
@@ -192,6 +197,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (event.target === event.currentTarget) {
       this.closeDifficultyOverlay();
     }
+  }
+
+  onOpenSettings(): void {
+    this.showSettingsOverlay = true;
+    this.showHelpOverlay = false;
+  }
+
+  onOpenHelp(): void {
+    this.showHelpOverlay = true;
+    this.showSettingsOverlay = false;
+  }
+
+  onCloseSettings(): void {
+    this.showSettingsOverlay = false;
+  }
+
+  onCloseHelp(): void {
+    this.showHelpOverlay = false;
   }
 
   onGameModeClick(mode: GameMode): void {

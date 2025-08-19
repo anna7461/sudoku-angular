@@ -1,6 +1,6 @@
 // Dashboard Container
 .dashboard-container {
-  min-height: 100vh;
+ height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8,29 +8,9 @@
   background: linear-gradient(135deg, var(--theme-bg-start, #f5f6fa) 0%, var(--theme-bg-end, #e8eaf6) 100%);
   position: relative;
   overflow-x: hidden;
-}
 
-// Header
-.dashboard-header {
-  text-align: center;
-  margin-bottom: 3rem;
-  animation: fadeInDown 0.8s ease-out;
-}
-
-.dashboard-title {
-  font-size: 4rem;
-  font-weight: 700;
-  color: var(--theme-primary, #3d55cc);
-  margin: 0;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  letter-spacing: -0.02em;
-  
   @media (max-width: 768px) {
-    font-size: 3rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 2.5rem;
+    min-height: calc(100vh - 56px); // Mobile header height
   }
 }
 
@@ -39,6 +19,7 @@
   width: 100%;
   max-width: 800px;
   margin-bottom: 3rem;
+  margin-top: 66px;
   animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 

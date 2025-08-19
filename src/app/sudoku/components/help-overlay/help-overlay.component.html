@@ -1,0 +1,42 @@
+<div class="help-overlay">
+  <div class="help-header">
+    <h2>Help</h2>
+    <button class="close-button" (click)="onClose()" aria-label="Close help">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="help-content">
+    <div class="help-intro">
+      <p>Welcome to Sudoku! Here you can find help and information about the game.</p>
+    </div>
+
+    <div class="help-items">
+      <div class="help-item" *ngFor="let item of helpItems">
+        <div class="help-item-content">
+          <div class="help-item-header">
+            <h3>{{ item.title }}</h3>
+            <span class="coming-soon" *ngIf="item.comingSoon">Coming soon</span>
+          </div>
+          <p class="help-description">{{ item.description }}</p>
+        </div>
+        <div class="help-item-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-footer">
+      <p class="help-note">
+        <strong>Note:</strong> Most help features are coming soon. Stay tuned for updates!
+      </p>
+    </div>
+  </div>
+</div>
