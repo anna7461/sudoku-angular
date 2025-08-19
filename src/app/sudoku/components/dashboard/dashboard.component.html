@@ -12,6 +12,7 @@
         *ngFor="let mode of gameModes" 
         class="game-mode-card"
         [class.coming-soon]="mode.isComingSoon"
+        [class.completed]="mode.id === 'daily-challenge' && !mode.isActive"
         (click)="onGameModeClick(mode)"
       >
         <div class="mode-icon">{{ mode.icon }}</div>
@@ -21,8 +22,8 @@
           <button 
             class="mode-button"
             [class.disabled]="mode.isComingSoon"
-            [disabled]="mode.isComingSoon"
-          >
+            [class.completed]="mode.id === 'daily-challenge' && !mode.isActive"
+            [disabled]="mode.isComingSoon">
             {{ mode.buttonText }}
           </button>
         </div>
@@ -89,3 +90,16 @@
   *ngIf="showHelpOverlay" 
   (close)="onCloseHelp()">
 </app-help-overlay>
+
+<!-- Daily Challenge Calendar Overlay -->
+<div 
+  *ngIf="showDailyChallengeCalendar" 
+  class="daily-challenge-overlay"
+  (click)="onCloseDailyChallengeCalendar()">
+  <div class="overlay-content" (click)="$event.stopPropagation()">
+    <app-daily-challenge-calendar
+      (closeCalendar)="onCloseDailyChallengeCalendar()"
+      (startChallenge)="onStartDailyChallenge($event)">
+    </app-daily-challenge-calendar>
+  </div>
+</div>

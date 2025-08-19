@@ -1,0 +1,115 @@
+<div class="daily-challenge-calendar">
+  <!-- Header -->
+  <div class="calendar-header">
+    <h2 class="calendar-title">Daily Challenge Calendar</h2>
+    <button class="close-button" (click)="onClose()" aria-label="Close calendar">
+      ✕
+    </button>
+  </div>
+
+  <!-- Month Navigation -->
+  <div class="month-navigation">
+    <button class="nav-button" (click)="previousMonth()" aria-label="Previous month">
+      ‹
+    </button>
+    <h3 class="month-title" (click)="goToCurrentMonth()">
+      {{ getMonthName() }}
+    </h3>
+    <button class="nav-button" (click)="nextMonth()" aria-label="Next month">
+      ›
+    </button>
+  </div>
+
+  <!-- Today's Challenge Status -->
+  <div class="today-status" *ngIf="todayChallenge">
+    <div class="status-content">
+      <div class="status-icon" [class.completed]="isTodayCompleted()">
+        <span *ngIf="isTodayCompleted()">🏆</span>
+        <span *ngIf="!isTodayCompleted()">📅</span>
+      </div>
+      <div class="status-details">
+        <h4 class="status-title">
+          {{ isTodayCompleted() ? 'Today\'s Challenge Completed!' : 'Today\'s Challenge' }}
+        </h4>
+        <p class="status-description">
+          <span *ngIf="!isTodayCompleted()">
+            Difficulty: {{ getDifficultyText(todayChallenge.difficulty) }}
+          </span>
+          <span *ngIf="isTodayCompleted()">
+            {{ getCountdownText() }}
+          </span>
+        </p>
+      </div>
+      <button 
+        *ngIf="!isTodayCompleted()"
+        class="play-button primary-button" 
+        (click)="startTodayChallenge()"
+        [disabled]="!todayChallenge">
+        Play
+      </button>
+    </div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="calendar-grid">
+    <!-- Day Headers -->
+    <div class="day-header" *ngFor="let dayName of getDayNames()">
+      {{ dayName }}
+    </div>
+
+    <!-- Calendar Days -->
+    <div 
+      *ngFor="let day of calendarDays" 
+      class="calendar-day"
+      [class.today]="day.isToday"
+      [class.current-month]="day.isCurrentMonth"
+      [class.other-month]="!day.isCurrentMonth"
+      [class.available]="day.isAvailable"
+      [class.completed]="day.challenge?.isCompleted"
+      [class.unavailable]="!day.isAvailable"
+      (click)="onDayClick(day)"
+      [attr.aria-label]="getDayAriaLabel(day)">
+      
+      <div class="day-number">{{ day.date.getDate() }}</div>
+      
+      <!-- Challenge Status Indicators -->
+      <div class="day-indicators">
+        <!-- Completed Challenge -->
+        <div *ngIf="day.challenge?.isCompleted" class="indicator completed">
+          🏆
+        </div>
+        
+        <!-- Available Challenge -->
+        <div *ngIf="day.isAvailable && !day.challenge?.isCompleted && day.isCurrentMonth" class="indicator available">
+          ▶️
+        </div>
+        
+        <!-- Past Available Challenge -->
+        <div *ngIf="day.isAvailable && !day.challenge?.isCompleted && !day.isCurrentMonth" class="indicator past-available">
+          📅
+        </div>
+        
+        <!-- Difficulty Badge -->
+        <div *ngIf="day.challenge?.difficulty; let difficulty" class="difficulty-badge">
+          {{ getDifficultyFirstChar(difficulty) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="calendar-legend">
+    <div class="legend-item">
+      <span class="legend-icon">📅</span>
+      <span class="legend-text">Available</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon">🏆</span>
+      <span class="legend-text">Completed</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon">▶️</span>
+      <span class="legend-text">Play Now</span>
+    </div>
+  </div>
+</div>

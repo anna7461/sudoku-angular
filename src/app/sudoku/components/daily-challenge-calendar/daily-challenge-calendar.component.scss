@@ -1,0 +1,364 @@
+.daily-challenge-calendar {
+  background: var(--color-bg-white);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    max-height: 90vh;
+  }
+}
+
+// Header
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--color-border-light);
+
+  .calendar-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-darkest);
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--color-text-medium);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--color-button-hover-bg);
+      color: var(--color-text-darkest);
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Month Navigation
+.month-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .nav-button {
+    background: var(--color-primary);
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--color-primary-dark, #2a3f8f);
+      transform: translateY(-1px);
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  .month-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text-darkest);
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--color-button-hover-bg);
+    }
+  }
+}
+
+// Today's Status
+.today-status {
+  background: var(--color-bg-lightest);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 2px solid var(--color-border-light);
+
+  .status-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+
+  .status-icon {
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-accent);
+
+    &.completed {
+      background: var(--color-success, #10b981);
+      color: white;
+    }
+  }
+
+  .status-details {
+    flex: 1;
+
+    .status-title {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-text-darkest);
+    }
+
+    .status-description {
+      margin: 0;
+      color: var(--color-text-medium);
+      font-size: 14px;
+    }
+  }
+
+  .play-button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--color-primary);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: var(--color-primary-dark, #2a3f8f);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Calendar Grid
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+// Day Headers
+.day-header {
+  text-align: center;
+  padding: 12px 8px;
+  font-weight: 600;
+  color: var(--color-text-medium);
+  font-size: 14px;
+  background: var(--color-bg-lightest);
+  border-radius: 8px;
+}
+
+// Calendar Days
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  border: 2px solid transparent;
+
+  // Base styles
+  &.current-month {
+    background: var(--color-bg-white);
+    border-color: var(--color-border-light);
+  }
+
+  &.other-month {
+    background: var(--color-bg-lightest);
+    border-color: var(--color-border-lighter);
+    opacity: 0.6;
+  }
+
+  // Today highlighting
+  &.today {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light, #e0e7ff);
+    font-weight: 700;
+  }
+
+  // Available challenges
+  &.available {
+    &:hover {
+      background: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  // Completed challenges
+  &.completed {
+    background: var(--color-success-light, #d1fae5);
+    border-color: var(--color-success, #10b981);
+  }
+
+  // Unavailable dates
+  &.unavailable {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .day-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-darkest);
+    margin-bottom: 4px;
+  }
+
+  .day-indicators {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .indicator {
+      font-size: 12px;
+      line-height: 1;
+
+      &.completed {
+        color: var(--color-success, #10b981);
+      }
+
+      &.available {
+        color: var(--color-primary);
+      }
+
+      &.past-available {
+        color: var(--color-text-medium);
+      }
+    }
+
+    .difficulty-badge {
+      background: var(--color-primary);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 4px;
+      border-radius: 4px;
+      line-height: 1;
+    }
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// Legend
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding-top: 16px;
+  border-top: 2px solid var(--color-border-light);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .legend-icon {
+      font-size: 16px;
+    }
+
+    .legend-text {
+      font-size: 14px;
+      color: var(--color-text-medium);
+      font-weight: 500;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .daily-challenge-calendar {
+    margin: 16px;
+  }
+
+  .calendar-grid {
+    gap: 2px;
+  }
+
+  .calendar-day {
+    padding: 4px;
+
+    .day-number {
+      font-size: 14px;
+    }
+
+    .day-indicators {
+      .indicator {
+        font-size: 10px;
+      }
+
+      .difficulty-badge {
+        font-size: 8px;
+        padding: 1px 3px;
+      }
+    }
+  }
+
+  .day-header {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}

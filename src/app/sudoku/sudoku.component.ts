@@ -19,6 +19,7 @@ import {ThemeService} from './services/theme.service';
 import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
 import {NewGameService, GameDifficulty} from './services/new-game.service';
+import {DailyChallengeService} from './services/daily-challenge.service';
 
 @Component({
   standalone: true,
@@ -55,6 +56,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private pauseService: PauseService,
     private gameResetService: GameResetService,
     private newGameService: NewGameService,
+    private dailyChallengeService: DailyChallengeService,
     private router: Router
   ) {}
 
@@ -143,6 +145,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
       mistakeCount: this.mistakeCount,
       boxesLength: this.boxes.length
     });
+
+    // Ensure daily challenge service is initialized
+    this.dailyChallengeService.initialize();
 
     // Make component accessible from browser console for testing (browser only)
     if (typeof window !== 'undefined') {
@@ -1111,6 +1116,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
       difficulty: this.getCurrentDifficulty(),
       mistakeCount: this.mistakeCount // Display actual mistakes made
     };
+
+    // Complete daily challenge if this is today's challenge
+    this.completeDailyChallengeIfApplicable();
 
     // Show congratulations dialog
     this.showCongratulationsDialog = true;
@@ -2500,5 +2508,33 @@ export class SudokuComponent implements OnInit, OnDestroy {
     return cell.state;
   }
 
+  // Complete daily challenge if this is today's challenge
+  private completeDailyChallengeIfApplicable(): void {
+    try {
+      // Check if this is today's challenge
+      const todayChallenge = this.dailyChallengeService.getTodayChallenge();
+      
+      if (todayChallenge && !todayChallenge.isCompleted) {
+        // Get completion time in seconds
+        const completionTime = this.timerComponent ? 
+          Math.floor(this.timerComponent.getCurrentElapsedTime() / 1000) : 0;
+        
+        // Complete the daily challenge
+        this.dailyChallengeService.completeTodayChallenge(
+          completionTime,
+          this.score,
+          this.mistakeCount
+        );
+        
+        console.log('🎉 Daily challenge completed!', {
+          time: completionTime,
+          score: this.score,
+          mistakes: this.mistakeCount
+        });
+      }
+    } catch (error) {
+      console.warn('Failed to complete daily challenge:', error);
+    }
+  }
 
 }

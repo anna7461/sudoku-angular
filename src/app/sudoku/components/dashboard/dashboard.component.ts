@@ -4,9 +4,11 @@ import { Router } from '@angular/router';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
+import { DailyChallengeService } from '../../services/daily-challenge.service';
 import { HeaderComponent } from '../header/header.component';
 import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.component';
 import { HelpOverlayComponent } from '../help-overlay/help-overlay.component';
+import { DailyChallengeCalendarComponent } from '../daily-challenge-calendar/daily-challenge-calendar.component';
 
 interface GameMode {
   id: string;
@@ -29,7 +31,13 @@ interface SavedGameInfo {
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [CommonModule, HeaderComponent, SettingsOverlayComponent, HelpOverlayComponent],
+  imports: [
+    CommonModule, 
+    HeaderComponent, 
+    SettingsOverlayComponent, 
+    HelpOverlayComponent,
+    DailyChallengeCalendarComponent
+  ],
   host: {
     '[class]': 'getThemeClass()'
   }
@@ -41,9 +49,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       icon: '🏆',
       label: 'Daily Challenge',
       description: 'New puzzle every day',
-      buttonText: 'Coming Soon',
-      isActive: false,
-      isComingSoon: true
+      buttonText: 'Play',
+      isActive: true,
+      isComingSoon: false
     },
     {
       id: 'arcade-mode',
@@ -61,21 +69,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedDifficulty: GameDifficulty = 'medium';
   showSettingsOverlay = false;
   showHelpOverlay = false;
+  showDailyChallengeCalendar = false;
 
   constructor(
     private router: Router,
     private newGameService: NewGameService,
     private themeService: ThemeService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private dailyChallengeService: DailyChallengeService
   ) {}
 
   ngOnInit(): void {
     this.checkForSavedGame();
+    this.updateDailyChallengeButton();
+    
+    // Ensure daily challenge service is initialized
+    this.dailyChallengeService.initialize();
     
     // Listen for route changes to refresh saved game info when returning to dashboard
     this.router.events.subscribe((event) => {
       if (event.type === 1) { // NavigationEnd event
         this.checkForSavedGame();
+        this.updateDailyChallengeButton();
       }
     });
   }
@@ -86,6 +101,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getThemeClass(): string {
     return this.themeService.getCurrentTheme().className;
+  }
+
+  /**
+   * Update the daily challenge button text and state
+   */
+  private updateDailyChallengeButton(): void {
+    const dailyChallengeMode = this.gameModes.find(mode => mode.id === 'daily-challenge');
+    if (dailyChallengeMode) {
+      if (this.dailyChallengeService.isTodayCompleted()) {
+        dailyChallengeMode.buttonText = 'Completed';
+        dailyChallengeMode.isActive = false;
+      } else {
+        dailyChallengeMode.buttonText = 'Play';
+        dailyChallengeMode.isActive = true;
+      }
+    }
   }
 
   checkForSavedGame(): void {
@@ -223,8 +254,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
       console.log(`${mode.label} is coming soon!`);
     } else if (mode.isActive) {
       // Handle active game mode
-      console.log(`Starting ${mode.label}`);
+      if (mode.id === 'daily-challenge') {
+        this.showDailyChallengeCalendar = true;
+      } else {
+        console.log(`Starting ${mode.label}`);
+      }
     }
+  }
+
+  /**
+   * Handle daily challenge calendar close
+   */
+  onCloseDailyChallengeCalendar(): void {
+    this.showDailyChallengeCalendar = false;
+  }
+
+  /**
+   * Handle starting a daily challenge
+   */
+  onStartDailyChallenge(difficulty: string): void {
+    this.showDailyChallengeCalendar = false;
+    
+    // Start new game with the daily challenge difficulty
+    this.newGameService.startNewGame({
+      difficulty: difficulty as GameDifficulty,
+      clearCurrentGame: true,
+      resetTimer: true
+    });
+
+    // Navigate to the game
+    this.router.navigate(['/sudoku']);
   }
 
   getDifficultyLabel(difficulty: string): string {
