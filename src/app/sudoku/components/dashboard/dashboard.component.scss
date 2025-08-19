@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  justify-content: center;
   background: linear-gradient(135deg, var(--theme-bg-start, #f5f6fa) 0%, var(--theme-bg-end, #e8eaf6) 100%);
   position: relative;
   overflow-x: hidden;
@@ -19,7 +19,7 @@
 
 .dashboard-title {
   font-size: 4rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--theme-primary, #3d55cc);
   margin: 0;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
