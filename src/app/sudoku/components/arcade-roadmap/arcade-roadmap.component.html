@@ -1,0 +1,94 @@
+<div class="arcade-roadmap-container">
+  <!-- Header -->
+  <div class="roadmap-header">
+    <button class="close-button" (click)="onCloseRoadmap()">
+      ✕
+    </button>
+    <h1 class="roadmap-title">Arcade Mode</h1>
+    <p class="roadmap-subtitle">Complete levels to unlock new challenges</p>
+  </div>
+
+  <!-- Progress Stats -->
+  <div class="progress-stats">
+    <div class="stat-item">
+      <span class="stat-label">Levels Completed</span>
+      <span class="stat-value">{{ completedLevels }}/{{ levels.length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Total Stars</span>
+      <span class="stat-value">⭐ {{ totalStars }}</span>
+    </div>
+  </div>
+
+  <!-- Levels Grid -->
+  <div class="levels-container">
+    <div class="levels-grid">
+      <div 
+        *ngFor="let level of levels; trackBy: trackByLevelId"
+        class="level-card"
+        [class]="getLevelStatusClass(level)"
+        [class.clickable]="canPlayLevel(level)"
+        (click)="startLevel(level)"
+      >
+        <!-- Level Header -->
+        <div class="level-header">
+          <h3 class="level-name">{{ level.name }}</h3>
+          <div class="level-difficulty" [class]="getDifficultyColor(level.difficulty)">
+            {{ getDifficultyIcon(level.difficulty) }} {{ level.difficulty }}
+          </div>
+        </div>
+
+        <!-- Level Status -->
+        <div class="level-status">
+          <div *ngIf="level.isCompleted" class="completion-info">
+            <div class="stars">{{ getStarDisplay(level) }}</div>
+            <div *ngIf="level.bestTime" class="best-time">
+              Best: {{ getBestTimeDisplay(level) }}
+            </div>
+          </div>
+          
+          <div *ngIf="!level.isUnlocked" class="locked-info">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-text">Complete previous level</div>
+          </div>
+          
+          <div *ngIf="level.isUnlocked && !level.isCompleted" class="play-info">
+            <div class="play-icon">▶️</div>
+            <div class="play-text">Click to play</div>
+          </div>
+        </div>
+
+        <!-- Level Progress Bar -->
+        <div *ngIf="level.isCompleted" class="level-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="(level.stars || 0) / 3 * 100"></div>
+          </div>
+          <span class="progress-text">{{ level.stars }}/3 stars</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Difficulty Legend -->
+  <div class="difficulty-legend">
+    <h3>Difficulty Levels</h3>
+    <div class="legend-items">
+      <div class="legend-item difficulty-easy">
+        <span class="legend-icon">😊</span>
+        <span class="legend-text">Easy (Levels 1-5)</span>
+      </div>
+      <div class="legend-item difficulty-medium">
+        <span class="legend-icon">🤔</span>
+        <span class="legend-text">Medium (Levels 6-10)</span>
+      </div>
+      <div class="legend-item difficulty-hard">
+        <span class="legend-icon">😰</span>
+        <span class="legend-text">Hard (Levels 11-15)</span>
+      </div>
+      <div class="legend-item difficulty-expert">
+        <span class="legend-icon">😱</span>
+        <span class="legend-text">Expert (Levels 16-20)</span>
+      </div>
+    </div>
+  </div>
+</div>

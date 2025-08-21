@@ -1,0 +1,379 @@
+.arcade-roadmap-container {
+  width: 90vw;
+  height: 90vh;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--background-color, #ffffff);
+  color: var(--text-color, #333333);
+  overflow: auto;
+}
+
+// CSS Variables for the component
+:host {
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --primary-color: #3d55cc;
+  --secondary-text-color: #666666;
+  --card-background: #ffffff;
+  --border-color: #e5e7eb;
+  --hover-color: #f3f4f6;
+  --success-color: #10b981;
+  --disabled-background: #f9fafb;
+}
+
+.roadmap-header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+
+  .close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--hover-color);
+    }
+  }
+
+  .roadmap-title {
+    font-size: 2.5rem;
+    margin: 0 0 10px 0;
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+
+  .roadmap-subtitle {
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--secondary-text-color);
+  }
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+
+  .stat-item {
+    text-align: center;
+    padding: 20px;
+    background: var(--card-background);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+
+    .stat-label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--secondary-text-color);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+  }
+}
+
+.levels-container {
+  margin-bottom: 40px;
+
+  .levels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+}
+
+.level-card {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+
+  &.completed {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, var(--card-background) 0%, rgba(76, 175, 80, 0.1) 100%);
+
+    &::before {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--success-color);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
+  }
+
+  &.unlocked {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--card-background) 0%, rgba(33, 150, 243, 0.1) 100%);
+  }
+
+  &.locked {
+    opacity: 0.6;
+    background: var(--disabled-background);
+    border-color: var(--border-color);
+  }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .level-header {
+    margin-bottom: 15px;
+
+    .level-name {
+      font-size: 1.4rem;
+      margin: 0 0 8px 0;
+      color: var(--text-color);
+      font-weight: bold;
+    }
+
+    .level-difficulty {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-transform: capitalize;
+
+      &.difficulty-easy {
+        background: rgba(76, 175, 80, 0.2);
+        color: #2e7d32;
+      }
+
+      &.difficulty-medium {
+        background: rgba(255, 152, 0, 0.2);
+        color: #f57c00;
+      }
+
+      &.difficulty-hard {
+        background: rgba(244, 67, 54, 0.2);
+        color: #d32f2f;
+      }
+
+      &.difficulty-expert {
+        background: rgba(156, 39, 176, 0.2);
+        color: #7b1fa2;
+      }
+    }
+  }
+
+  .level-status {
+    margin-bottom: 15px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .completion-info {
+      text-align: center;
+
+      .stars {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+      }
+
+      .best-time {
+        font-size: 0.9rem;
+        color: var(--secondary-text-color);
+        font-family: monospace;
+      }
+    }
+
+    .locked-info {
+      text-align: center;
+      color: var(--secondary-text-color);
+
+      .lock-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+        opacity: 0.7;
+      }
+
+      .lock-text {
+        font-size: 0.9rem;
+      }
+    }
+
+    .play-info {
+      text-align: center;
+      color: var(--primary-color);
+
+      .play-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+      }
+
+      .play-text {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .level-progress {
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffd700, #ffed4e);
+        transition: width 0.3s ease;
+      }
+    }
+
+    .progress-text {
+      font-size: 0.8rem;
+      color: var(--secondary-text-color);
+      text-align: center;
+      display: block;
+    }
+  }
+}
+
+.difficulty-legend {
+  background: var(--card-background);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 20px 0;
+    text-align: center;
+    color: var(--text-color);
+    font-size: 1.3rem;
+  }
+
+  .legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+
+    &.difficulty-easy {
+      background: rgba(76, 175, 80, 0.1);
+      color: #2e7d32;
+    }
+
+    &.difficulty-medium {
+      background: rgba(255, 152, 0, 0.1);
+      color: #f57c00;
+    }
+
+    &.difficulty-hard {
+      background: rgba(244, 67, 54, 0.1);
+      color: #d32f2f;
+    }
+
+    &.difficulty-expert {
+      background: rgba(156, 39, 176, 0.1);
+      color: #7b1fa2;
+    }
+
+    .legend-icon {
+      font-size: 1.5rem;
+    }
+
+    .legend-text {
+      font-size: 0.95rem;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .arcade-roadmap-container {
+    padding: 15px;
+  }
+
+  .roadmap-header {
+    .roadmap-title {
+      font-size: 2rem;
+    }
+
+    .roadmap-subtitle {
+      font-size: 1rem;
+    }
+  }
+
+  .progress-stats {
+    flex-direction: column;
+    gap: 20px;
+
+    .stat-item {
+      min-width: auto;
+    }
+  }
+
+  .levels-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .difficulty-legend {
+    .legend-items {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .roadmap-header {
+    .roadmap-title {
+      font-size: 1.8rem;
+    }
+  }
+
+  .level-card {
+    padding: 15px;
+  }
+}
