@@ -127,28 +127,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Check for saved games across all modes
+   * Check for saved games across all modes (excluding daily challenge)
    */
   checkForSavedGames(): void {
-    // Check for any saved game state
-    const hasAnySavedGame = this.gameStateService.hasAnySavedGame();
-    
-    if (hasAnySavedGame) {
-      // For now, show info for the first available saved game
-      // In the future, this could show a list of saved games by mode
-      if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
-        this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.SINGLE_GAME);
-      } else if (this.gameStateService.hasGameState(GameMode.DAILY_CHALLENGE)) {
-        this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.DAILY_CHALLENGE);
-      } else if (this.gameStateService.hasGameState(GameMode.ARCADE_MODE)) {
-        this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.ARCADE_MODE);
-      }
+    // Check for saved game states excluding daily challenge mode
+    // Daily challenge should only be continued via the "View Results" button
+    if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
+      this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.SINGLE_GAME);
+    } else if (this.gameStateService.hasGameState(GameMode.ARCADE_MODE)) {
+      this.savedGameInfo = this.gameStateService.getSavedGameInfo(GameMode.ARCADE_MODE);
     } else {
       this.savedGameInfo = { exists: false };
     }
   }
 
   onContinueGame(): void {
+    // Set the appropriate game mode before navigating
+    // Priority: Single Game > Arcade Mode (excluding Daily Challenge)
+    if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
+      this.gameStateService.setCurrentMode(GameMode.SINGLE_GAME);
+    } else if (this.gameStateService.hasGameState(GameMode.ARCADE_MODE)) {
+      this.gameStateService.setCurrentMode(GameMode.ARCADE_MODE);
+    }
+    
     // Navigate to the main game component
     this.router.navigate(['/sudoku']);
   }
@@ -206,16 +207,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else if (mode.isActive) {
       // Handle active game mode
       if (mode.id === GameMode.DAILY_CHALLENGE) {
-        if (this.dailyChallengeService.isTodayCompleted()) {
-          // Show results view if completed
+        if (this.dailyChallengeService.isTodayCompleted() || this.gameStateService.hasGameState(GameMode.DAILY_CHALLENGE)) {
+          // Show results view for both completed and incomplete challenges
           this.showDailyChallengeResults = true;
         } else {
-          // Show calendar to start challenge
+          // Show calendar to start new challenge
           this.showDailyChallengeCalendar = true;
         }
       } else if (mode.id === GameMode.SINGLE_GAME) {
         if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
-          // Continue existing game
+          // Set mode and continue existing game
+          this.gameStateService.setCurrentMode(GameMode.SINGLE_GAME);
           this.router.navigate(['/sudoku']);
         } else {
           // Start new single game
@@ -260,6 +262,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onViewCalendarFromResults(): void {
     this.showDailyChallengeResults = false;
     this.showDailyChallengeCalendar = true;
+  }
+
+  /**
+   * Handle continuing daily challenge from results view
+   */
+  onContinueDailyChallenge(): void {
+    this.showDailyChallengeResults = false;
+    
+    // Set daily challenge mode and navigate to continue the puzzle
+    this.gameStateService.setCurrentMode(GameMode.DAILY_CHALLENGE);
+    this.router.navigate(['/sudoku']);
   }
 
   getDifficultyLabel(difficulty: string): string {
@@ -311,7 +324,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     
     if (mode.id === GameMode.DAILY_CHALLENGE) {
-      if (this.dailyChallengeService.isTodayCompleted()) {
+      if (this.dailyChallengeService.isTodayCompleted() || this.gameStateService.hasGameState(GameMode.DAILY_CHALLENGE)) {
         return 'View Results';
       } else {
         return 'Play';

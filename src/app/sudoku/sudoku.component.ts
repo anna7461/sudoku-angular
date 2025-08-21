@@ -64,6 +64,14 @@ export class SudokuComponent implements OnInit, OnDestroy {
   ) {}
 
   /**
+   * Check if controls should be visible (hide for daily challenge mode)
+   */
+  shouldShowControls(): boolean {
+    const currentMode = this.gameStateService.getCurrentMode();
+    return currentMode !== GameMode.DAILY_CHALLENGE;
+  }
+
+  /**
    * Get the current theme class for the host element
    */
   getThemeClass(): string {

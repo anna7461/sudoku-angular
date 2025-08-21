@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DailyChallengeService, DailyChallengeState, CountdownTimer } from '../../services/daily-challenge.service';
+import { GameStateService } from '../../services/game-state.service';
+import { GameMode } from '../../models/game-modes';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -13,6 +15,7 @@ import { Subscription } from 'rxjs';
 export class DailyChallengeResultsComponent implements OnInit, OnDestroy {
   @Output() closeResults = new EventEmitter<void>();
   @Output() viewCalendar = new EventEmitter<void>();
+  @Output() continueChallenge = new EventEmitter<void>();
 
   todayChallenge?: DailyChallengeState;
   countdown: CountdownTimer = { hours: 0, minutes: 0, seconds: 0 };
@@ -21,7 +24,10 @@ export class DailyChallengeResultsComponent implements OnInit, OnDestroy {
   
   private countdownSubscription?: Subscription;
 
-  constructor(private dailyChallengeService: DailyChallengeService) {}
+  constructor(
+    private dailyChallengeService: DailyChallengeService,
+    private gameStateService: GameStateService
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -62,6 +68,23 @@ export class DailyChallengeResultsComponent implements OnInit, OnDestroy {
    */
   onViewCalendar(): void {
     this.viewCalendar.emit();
+  }
+
+  /**
+   * Continue incomplete daily challenge
+   */
+  onContinueChallenge(): void {
+    this.continueChallenge.emit();
+  }
+
+  /**
+   * Check if today's challenge is incomplete
+   */
+  isTodayChallengeIncomplete(): boolean {
+    // Check if there's an incomplete daily challenge (has game state but not completed)
+    const hasGameState = this.gameStateService.hasGameState(GameMode.DAILY_CHALLENGE);
+    const isCompleted = this.dailyChallengeService.isTodayCompleted();
+    return hasGameState && !isCompleted;
   }
 
   /**

@@ -8,7 +8,7 @@
   </div>
 
   <!-- Today's Completion Status -->
-  <div class="today-completion" *ngIf="todayChallenge">
+  <div class="today-completion" *ngIf="todayChallenge && todayChallenge.isCompleted">
     <div class="completion-badge">
       <div class="badge-icon">🏆</div>
       <div class="badge-content">
@@ -29,6 +29,17 @@
       <div class="stat-item">
         <span class="stat-label">Mistakes</span>
         <span class="stat-value">{{ todayChallenge.mistakes || 0 }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Incomplete Challenge -->
+  <div class="today-incomplete" *ngIf="isTodayChallengeIncomplete()">
+    <div class="incomplete-badge">
+      <div class="badge-icon">🎯</div>
+      <div class="badge-content">
+        <h3 class="badge-title">Challenge In Progress</h3>
+        <p class="badge-subtitle">{{ getDifficultyText(todayChallenge?.difficulty || 'Medium') }} • Continue where you left off</p>
       </div>
     </div>
   </div>
@@ -69,10 +80,16 @@
 
   <!-- Action Buttons -->
   <div class="action-buttons">
+    <button 
+      *ngIf="isTodayChallengeIncomplete()" 
+      class="continue-button primary-button" 
+      (click)="onContinueChallenge()">
+      🎯 Continue Challenge
+    </button>
     <button class="calendar-button secondary-button" (click)="onViewCalendar()">
       📅 View Calendar
     </button>
-    <button class="close-button primary-button" (click)="onClose()">
+    <button class="close-button secondary-button" (click)="onClose()">
       Close
     </button>
   </div>

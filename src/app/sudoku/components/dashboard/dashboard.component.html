@@ -112,7 +112,8 @@
   <div class="overlay-content" (click)="$event.stopPropagation()">
     <app-daily-challenge-results
       (closeResults)="onCloseDailyChallengeResults()"
-      (viewCalendar)="onViewCalendarFromResults()">
+      (viewCalendar)="onViewCalendarFromResults()"
+      (continueChallenge)="onContinueDailyChallenge()">
     </app-daily-challenge-results>
   </div>
 </div>

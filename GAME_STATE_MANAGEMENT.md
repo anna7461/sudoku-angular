@@ -36,6 +36,12 @@ The Angular Sudoku app now implements a robust state management system that ensu
 - Each mode remembers its puzzle state, progress, and settings
 - Seamless navigation between dashboard and game modes
 
+### Daily Challenge Flow Isolation
+- Daily challenges are completely separated from general "Continue" functionality
+- Daily challenges can only be continued through the "View Results" button
+- Dashboard "Continue" button exclusively handles Single Game and Arcade modes
+- Prevents confusion between different game types
+
 ## Implementation Details
 
 ### GameStateService Methods

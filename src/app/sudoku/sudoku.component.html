@@ -14,6 +14,7 @@
 </div> -->
 
 <app-controls
+  *ngIf="shouldShowControls()"
   [disabled]="!areControlsAvailableCached"
   [resetDisabled]="isResetDisabledCached"
   (resetGame)="resetGame()"
