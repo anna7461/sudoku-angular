@@ -119,6 +119,10 @@
   &.mistake-count-value {
     color: var(--color-warning);
   }
+  
+  &.arcade-level-value {
+    color: var(--color-primary);
+  }
 }
 
 .difficulty-selection {
@@ -200,6 +204,16 @@
       
       &:hover {
         background: var(--color-success);
+        filter: brightness(1.1);
+      }
+    }
+    
+    &.btn-continue-arcade {
+      background: var(--color-primary);
+      color: white;
+      
+      &:hover {
+        background: var(--color-primary);
         filter: brightness(1.1);
       }
     }

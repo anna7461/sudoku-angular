@@ -12,6 +12,7 @@ import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.c
 import { HelpOverlayComponent } from '../help-overlay/help-overlay.component';
 import { DailyChallengeCalendarComponent } from '../daily-challenge-calendar/daily-challenge-calendar.component';
 import { DailyChallengeResultsComponent } from '../daily-challenge-results/daily-challenge-results.component';
+import { ArcadeRoadmapComponent } from '../arcade-roadmap/arcade-roadmap.component';
 
 interface SavedGameInfo {
   exists: boolean;
@@ -30,7 +31,8 @@ interface SavedGameInfo {
     SettingsOverlayComponent, 
     HelpOverlayComponent,
     DailyChallengeCalendarComponent,
-    DailyChallengeResultsComponent
+    DailyChallengeResultsComponent,
+    ArcadeRoadmapComponent
   ],
   host: {
     '[class]': 'getThemeClass()'
@@ -57,10 +59,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {
       id: GameMode.ARCADE_MODE,
       name: 'Arcade Mode',
-      description: 'Endless challenges',
+      description: 'Progressive challenges',
       icon: '🛣️',
-      isActive: false,
-      isComingSoon: true
+      isActive: true,
+      isComingSoon: false
     }
   ];
 
@@ -71,6 +73,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showHelpOverlay = false;
   showDailyChallengeCalendar = false;
   showDailyChallengeResults = false;
+  showArcadeRoadmap = false;
 
   constructor(
     private router: Router,
@@ -223,6 +226,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           // Start new single game
           this.onNewGame();
         }
+      } else if (mode.id === GameMode.ARCADE_MODE) {
+        // Show arcade roadmap
+        this.showArcadeRoadmap = true;
       } else {
         console.log(`Starting ${mode.name}`);
       }
@@ -273,6 +279,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Set daily challenge mode and navigate to continue the puzzle
     this.gameStateService.setCurrentMode(GameMode.DAILY_CHALLENGE);
     this.router.navigate(['/sudoku']);
+  }
+
+  /**
+   * Handle closing arcade roadmap
+   */
+  onCloseArcadeRoadmap(): void {
+    this.showArcadeRoadmap = false;
   }
 
   getDifficultyLabel(difficulty: string): string {
@@ -333,6 +346,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     
     if (mode.id === GameMode.SINGLE_GAME) {
       if (this.gameStateService.hasGameState(GameMode.SINGLE_GAME)) {
+        return 'Continue';
+      } else {
+        return 'Play';
+      }
+    }
+    
+    if (mode.id === GameMode.ARCADE_MODE) {
+      if (this.gameStateService.hasGameState(GameMode.ARCADE_MODE)) {
         return 'Continue';
       } else {
         return 'Play';

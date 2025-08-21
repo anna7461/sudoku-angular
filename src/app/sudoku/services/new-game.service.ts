@@ -77,13 +77,18 @@ export class NewGameService {
   /**
    * Start a new arcade mode game
    */
-  startArcadeGame(difficulty: GameDifficulty): void {
+  startArcadeGame(difficulty: GameDifficulty, level?: number): void {
     this.startNewGame({
       difficulty,
       mode: GameMode.ARCADE_MODE,
       clearCurrentGame: true,
       resetTimer: true
     });
+    
+    // Set arcade level in game state if provided
+    if (level) {
+      this.gameStateService.startNewGame(GameMode.ARCADE_MODE, difficulty, level);
+    }
   }
 
   /**

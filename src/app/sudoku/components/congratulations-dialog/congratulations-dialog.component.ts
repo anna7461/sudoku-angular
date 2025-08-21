@@ -1,11 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameDifficulty } from '../../services/new-game.service';
+import { GameMode } from '../../models/game-modes';
 
 export interface CongratulationsStats {
   timeTaken: string;
   difficulty: string;
   mistakeCount: number;
+  gameMode?: GameMode;
+  arcadeLevel?: number;
 }
 
 @Component({
@@ -21,6 +24,7 @@ export class CongratulationsDialogComponent implements OnChanges {
   @Output() resetGame = new EventEmitter<void>();
   @Output() newGame = new EventEmitter<GameDifficulty>();
   @Output() close = new EventEmitter<void>();
+  @Output() continueArcade = new EventEmitter<void>();
 
   selectedDifficulty: GameDifficulty = 'easy';
 
@@ -44,6 +48,10 @@ export class CongratulationsDialogComponent implements OnChanges {
 
   onClose(): void {
     this.close.emit();
+  }
+
+  onContinueArcade(): void {
+    this.continueArcade.emit();
   }
 
   onDifficultyChange(event: Event): void {

@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { GameMode, GameState, GameModeState } from '../models/game-modes';
+import { ArcadeService } from './arcade.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,10 @@ export class GameStateService {
   private currentModeSubject = new BehaviorSubject<GameMode>(GameMode.SINGLE_GAME);
   public currentMode$: Observable<GameMode> = this.currentModeSubject.asObservable();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private arcadeService: ArcadeService
+  ) {
     if (isPlatformBrowser(this.platformId)) {
       this.loadGameModeStates();
     }
@@ -176,13 +180,18 @@ export class GameStateService {
         score,
         mistakeCount: mistakes
       });
+
+      // Handle arcade mode completion
+      if (currentMode === GameMode.ARCADE_MODE && currentState.arcadeLevel) {
+        this.arcadeService.completeLevel(currentState.arcadeLevel, completionTime);
+      }
     }
   }
 
   /**
    * Start a new game for a specific mode
    */
-  startNewGame(mode: GameMode, difficulty: string): void {
+  startNewGame(mode: GameMode, difficulty: string, arcadeLevel?: number): void {
     // Clear existing state for this mode
     this.clearGameState(mode);
     
@@ -206,11 +215,12 @@ export class GameStateService {
       totalGameTime: 0,
       isGamePaused: false,
       isCompleted: false,
+      arcadeLevel,
       timestamp: Date.now()
     };
     
     this.saveGameStateForMode(mode, newState);
-    console.log(`New game started for ${mode} with difficulty ${difficulty}`);
+    console.log(`New game started for ${mode} with difficulty ${difficulty}${arcadeLevel ? ` at level ${arcadeLevel}` : ''}`);
   }
 
   /**

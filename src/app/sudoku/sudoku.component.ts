@@ -1111,6 +1111,14 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.onNewGame(difficulty);
   }
 
+  onCongratulationsContinueArcade(): void {
+    this.showCongratulationsDialog = false;
+    this.congratulationsStats = null;
+    
+    // Navigate back to dashboard to show arcade roadmap
+    this.router.navigate(['/']);
+  }
+
   onCongratulationsClose(): void {
     this.showCongratulationsDialog = false;
     this.congratulationsStats = null;
@@ -1153,7 +1161,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.congratulationsStats = {
       timeTaken: this.timerComponent ? this.timerComponent.getCurrentFormattedTime() : '00:00',
       difficulty: this.getCurrentDifficulty(),
-      mistakeCount: this.mistakeCount // Display actual mistakes made
+      mistakeCount: this.mistakeCount, // Display actual mistakes made
+      gameMode: this.gameStateService.getCurrentMode(),
+      arcadeLevel: this.gameStateService.getCurrentGameState()?.arcadeLevel
     };
 
     // Complete daily challenge if this is today's challenge

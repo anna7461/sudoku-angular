@@ -23,6 +23,12 @@
           <div class="stat-label">Mistakes Made</div>
           <div class="stat-value mistake-count-value">{{ puzzleStats.mistakeCount }}</div>
         </div>
+
+        <!-- Arcade Level Info -->
+        <div class="stat-item" *ngIf="puzzleStats.gameMode === 'arcade-mode' && puzzleStats.arcadeLevel">
+          <div class="stat-label">Arcade Level</div>
+          <div class="stat-value arcade-level-value">Level {{ puzzleStats.arcadeLevel }}</div>
+        </div>
       </div>
       
       <div class="difficulty-selection">
@@ -41,6 +47,16 @@
     </div>
     
     <div class="dialog-actions">
+      <!-- Arcade Continue Button -->
+      <button 
+        *ngIf="puzzleStats?.gameMode === 'arcade-mode'"
+        type="button" 
+        class="btn btn-continue-arcade" 
+        (click)="onContinueArcade()">
+        <i class="fas fa-arrow-right"></i>
+        Continue Arcade
+      </button>
+      
       <button 
         type="button" 
         class="btn btn-reset" 

@@ -13,6 +13,16 @@ export interface GameModeConfig {
   isComingSoon: boolean;
 }
 
+export interface ArcadeLevel {
+  id: number;
+  name: string;
+  difficulty: string;
+  isUnlocked: boolean;
+  isCompleted: boolean;
+  bestTime?: number;
+  stars?: number;
+}
+
 export interface GameState {
   mode: GameMode;
   difficulty: string;
@@ -31,6 +41,7 @@ export interface GameState {
   isCompleted: boolean;
   completionTime?: number;
   timestamp: number;
+  arcadeLevel?: number; // Add arcade level tracking
 }
 
 export interface GameModeState {
