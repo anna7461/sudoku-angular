@@ -8,11 +8,13 @@ import { DailyChallengeService } from '../../services/daily-challenge.service';
 import { GameStateService } from '../../services/game-state.service';
 import { HeartsService } from '../../services/hearts.service';
 import { GameMode, GameModeConfig } from '../../models/game-modes';
-import { HeaderComponent } from '../header/header.component';
+
 import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.component';
 import { HelpOverlayComponent } from '../help-overlay/help-overlay.component';
 import { DailyChallengeCalendarComponent } from '../daily-challenge-calendar/daily-challenge-calendar.component';
 import { DailyChallengeResultsComponent } from '../daily-challenge-results/daily-challenge-results.component';
+import { HeaderService } from '../../services/header.service';
+import { Subject, takeUntil } from 'rxjs';
 
 interface SavedGameInfo {
   exists: boolean;
@@ -27,7 +29,6 @@ interface SavedGameInfo {
   styleUrls: ['./dashboard.component.scss'],
   imports: [
     CommonModule, 
-    HeaderComponent, 
     SettingsOverlayComponent, 
     HelpOverlayComponent,
     DailyChallengeCalendarComponent,
@@ -78,6 +79,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentStreak = 0;
   bestStreak = 0;
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private router: Router,
     private newGameService: NewGameService,
@@ -85,7 +88,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private storageService: StorageService,
     private dailyChallengeService: DailyChallengeService,
     private gameStateService: GameStateService,
-    private heartsService: HeartsService
+    private heartsService: HeartsService,
+    private headerService: HeaderService
   ) {}
 
   ngOnInit(): void {
@@ -109,9 +113,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.updateGameModeButtons();
       }
     });
+
+    // Listen for header actions
+    this.headerService.action$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(action => {
+      if (action.source === 'dashboard') {
+        if (action.type === 'settings') {
+          this.onOpenSettings();
+        } else if (action.type === 'help') {
+          this.onOpenHelp();
+        }
+      }
+    });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     // Cleanup if needed
   }
 

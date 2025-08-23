@@ -1,4 +1,4 @@
-import {Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, ChangeDetectorRef} from '@angular/core';
+import {Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, AfterViewInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, NavigationStart} from '@angular/router';
 import {Box} from './models/box.model';
@@ -12,7 +12,6 @@ import {BoardControlsComponent} from './components/board-controls/board-controls
 import {PauseDialogComponent} from './components/pause-dialog/pause-dialog.component';
 import {GameOverDialogComponent, GameOverStats} from './components/game-over-dialog/game-over-dialog.component';
 import {CongratulationsDialogComponent, CongratulationsStats} from './components/congratulations-dialog/congratulations-dialog.component';
-import {HeaderComponent} from './components/header/header.component';
 import {SettingsOverlayComponent} from './components/settings-overlay/settings-overlay.component';
 import {HelpOverlayComponent} from './components/help-overlay/help-overlay.component';
 import {ThemeService} from './services/theme.service';
@@ -23,6 +22,9 @@ import {DailyChallengeService} from './services/daily-challenge.service';
 import {GameStateService} from './services/game-state.service';
 import {HeartsService} from './services/hearts.service';
 import {GameMode} from './models/game-modes';
+import { HeaderService } from './services/header.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   standalone: true,
@@ -38,7 +40,7 @@ import {GameMode} from './models/game-modes';
     PauseDialogComponent,
     GameOverDialogComponent,
     CongratulationsDialogComponent,
-    HeaderComponent,
+
     SettingsOverlayComponent,
     HelpOverlayComponent
   ],
@@ -47,11 +49,13 @@ import {GameMode} from './models/game-modes';
     '[class]': 'getThemeClass()'
   }
 })
-export class SudokuComponent implements OnInit, OnDestroy {
+export class SudokuComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild(BoardComponent) boardComponent!: BoardComponent;
   @ViewChild('sudokuContainer', { read: ElementRef }) sudokuContainer!: ElementRef;
   @ViewChild(TimerComponent) timerComponent!: TimerComponent;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -62,7 +66,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private dailyChallengeService: DailyChallengeService,
     private gameStateService: GameStateService,
     private heartsService: HeartsService,
-    private router: Router
+    private router: Router,
+    private headerService: HeaderService
   ) {}
 
   /**
@@ -212,9 +217,28 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
     // Load pause state from PauseService
     this.pauseService.loadPauseState();
+
+    // Listen for header actions
+    this.headerService.action$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(action => {
+      if (action.source === 'sudoku') {
+        if (action.type === 'settings') {
+          this.onOpenSettings();
+        } else if (action.type === 'help') {
+          this.onOpenHelp();
+        }
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // AfterViewInit implementation
   }
 
   ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
     // Save game state before destroying component
     if (this.boxes && this.boxes.length > 0) {
       this.saveGameState();

@@ -9,3 +9,10 @@ body {
   overflow-x: hidden;
   font-size: 14px;
 }
+
+:host {
+  display: grid;
+  grid-template-rows: 66px auto 1fr;
+  height: 100vh;
+  // overflow: hidden;
+}

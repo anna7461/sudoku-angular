@@ -1,10 +1,3 @@
-<!-- Header Component -->
-<app-header 
-  (openSettings)="onOpenSettings()" 
-  (openHelp)="onOpenHelp()"
-  (titleClick)="goToDashboard()">
-</app-header>
-
 <!-- Back to Arcade Button (only visible in arcade mode) -->
 <div *ngIf="isArcadeMode()" class="back-to-arcade-container">
   <button class="back-to-arcade-button" (click)="goToArcadeDashboard()">
