@@ -131,6 +131,9 @@ export class ArcadeService {
     const levels = this.generateLevels();
     this.levelsSubject.next(levels);
     this.updateProgress(levels);
+    
+    // Clear any saved game state for arcade mode
+    console.log('Arcade progress reset to Level 1');
   }
 
   /**

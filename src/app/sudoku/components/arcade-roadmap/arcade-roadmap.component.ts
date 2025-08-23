@@ -6,6 +6,7 @@ import { ArcadeLevel } from '../../models/game-modes';
 import { ArcadeService } from '../../services/arcade.service';
 import { NewGameService } from '../../services/new-game.service';
 import { GameStateService } from '../../services/game-state.service';
+import { HeartsService } from '../../services/hearts.service';
 import { GameMode } from '../../models/game-modes';
 
 @Component({
@@ -20,12 +21,18 @@ export class ArcadeRoadmapComponent implements OnInit, OnDestroy {
   totalStars = 0;
   completedLevels = 0;
   
+  // Hearts and streaks
+  heartsRemaining = 3;
+  currentStreak = 0;
+  bestStreak = 0;
+  
   private destroy$ = new Subject<void>();
 
   constructor(
     private arcadeService: ArcadeService,
     private newGameService: NewGameService,
     private gameStateService: GameStateService,
+    private heartsService: HeartsService,
     private router: Router
   ) {}
 
@@ -43,6 +50,15 @@ export class ArcadeRoadmapComponent implements OnInit, OnDestroy {
       .subscribe(progress => {
         this.totalStars = progress.totalStars;
         this.completedLevels = progress.completedLevels.length;
+      });
+
+    // Subscribe to hearts service
+    this.heartsService.heartsState$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(state => {
+        this.heartsRemaining = state.heartsRemaining;
+        this.currentStreak = state.streak;
+        this.bestStreak = state.bestStreak;
       });
   }
 
@@ -98,8 +114,18 @@ export class ArcadeRoadmapComponent implements OnInit, OnDestroy {
   getStarDisplay(level: ArcadeLevel): string {
     if (!level.isCompleted || !level.stars) return '';
     
-    const stars = '⭐'.repeat(level.stars);
-    return stars;
+    return '⭐'.repeat(level.stars);
+  }
+
+  /**
+   * Get hearts array for display (filled vs empty)
+   */
+  getHeartsArray(): boolean[] {
+    const hearts: boolean[] = [];
+    for (let i = 0; i < 3; i++) {
+      hearts.push(i < this.heartsRemaining);
+    }
+    return hearts;
   }
 
   /**

@@ -615,3 +615,111 @@
   --color-accent: #fef3c7;
   --color-primary-dark: #2a3f8f;
 }
+
+/* Hearts and Streaks Section */
+.hearts-streaks-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+}
+
+.hearts-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hearts-display {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.heart {
+  font-size: 1.5rem;
+  transition: transform 0.2s ease;
+  
+  &.filled {
+    animation: heartbeat 1.5s ease-in-out infinite;
+  }
+  
+  &.empty {
+    opacity: 0.6;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.streaks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  
+  &.full-width {
+    width: 100%;
+    align-items: center;
+  }
+}
+
+.streak-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.streak-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.streak-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hearts-streaks-section {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
+  .hearts-container {
+    order: 1;
+  }
+  
+  .streaks-container {
+    order: 2;
+    flex-direction: row;
+    gap: 2rem;
+  }
+}

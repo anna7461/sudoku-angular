@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { GameMode, GameState, GameModeState } from '../models/game-modes';
 import { ArcadeService } from './arcade.service';
+import { HeartsService } from './hearts.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,8 @@ export class GameStateService {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private arcadeService: ArcadeService
+    private arcadeService: ArcadeService,
+    private heartsService: HeartsService
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.loadGameModeStates();
@@ -185,6 +187,54 @@ export class GameStateService {
       if (currentMode === GameMode.ARCADE_MODE && currentState.arcadeLevel) {
         this.arcadeService.completeLevel(currentState.arcadeLevel, completionTime);
       }
+
+      // Handle streak increment based on game mode
+      if (currentMode === GameMode.ARCADE_MODE) {
+        // For arcade mode, use hearts system
+        this.heartsService.winGame();
+      } else {
+        // For single game mode, increment streak directly
+        const currentHeartsState = this.heartsService.getHeartsState();
+        const newStreak = currentHeartsState.streak + 1;
+        const newBestStreak = Math.max(currentHeartsState.bestStreak, newStreak);
+        
+        // Update the hearts state with new streak
+        this.heartsService.updateStreak(newStreak, newBestStreak);
+      }
+    }
+  }
+
+  /**
+   * Handle game failure (when mistake limit is reached)
+   */
+  failGame(): void {
+    const currentMode = this.getCurrentMode();
+    
+    // Only apply hearts system for arcade mode
+    if (currentMode === GameMode.ARCADE_MODE) {
+      // Lose a heart
+      this.heartsService.loseHeart();
+      
+      // Check if all hearts are lost
+      if (this.heartsService.areAllHeartsLost()) {
+        // Reset arcade progress if in arcade mode
+        this.arcadeService.resetProgress();
+        
+        // Reset hearts to full
+        this.heartsService.resetHearts();
+      }
+    } else {
+      // For single game mode, just reset the streak immediately
+      this.heartsService.resetStreak();
+    }
+    
+    // Clear the failed game state
+    this.clearGameState(currentMode);
+    
+    if (currentMode === GameMode.ARCADE_MODE) {
+      console.log(`Game failed! Hearts remaining: ${this.heartsService.getHeartsRemaining()}`);
+    } else {
+      console.log(`Game failed! Mode: ${currentMode}, Streak reset to 0`);
     }
   }
 

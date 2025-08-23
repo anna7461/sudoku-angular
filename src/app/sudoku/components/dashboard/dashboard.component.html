@@ -5,6 +5,36 @@
 </app-header>
 
 <div class="dashboard-container">
+  <!-- Hearts and Streaks Section -->
+  <section class="hearts-streaks-section">
+    <!-- Hearts Container - Only show for Arcade Mode -->
+    <div class="hearts-container" *ngIf="isArcadeMode()">
+      <h3 class="section-title">Lives</h3>
+      <div class="hearts-display">
+        <div 
+          *ngFor="let isFilled of getHeartsArray(); let i = index"
+          class="heart"
+          [class.filled]="isFilled"
+          [class.empty]="!isFilled"
+        >
+          {{ isFilled ? '❤️' : '🖤' }}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Streaks Container - Always show -->
+    <div class="streaks-container" [class.full-width]="!isArcadeMode()">
+      <div class="streak-item">
+        <span class="streak-label">Current Streak</span>
+        <span class="streak-value">{{ currentStreak }}</span>
+      </div>
+      <div class="streak-item">
+        <span class="streak-label">Best Streak</span>
+        <span class="streak-value">{{ bestStreak }}</span>
+      </div>
+    </div>
+  </section>
+
   <!-- Game Mode Cards -->
   <section class="game-modes">
     <div class="game-modes-grid">

@@ -6,6 +6,7 @@ import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
 import { DailyChallengeService } from '../../services/daily-challenge.service';
 import { GameStateService } from '../../services/game-state.service';
+import { HeartsService } from '../../services/hearts.service';
 import { GameMode, GameModeConfig } from '../../models/game-modes';
 import { HeaderComponent } from '../header/header.component';
 import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.component';
@@ -72,13 +73,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showDailyChallengeCalendar = false;
   showDailyChallengeResults = false;
 
+  // Hearts and streaks
+  heartsRemaining = 3;
+  currentStreak = 0;
+  bestStreak = 0;
+
   constructor(
     private router: Router,
     private newGameService: NewGameService,
     private themeService: ThemeService,
     private storageService: StorageService,
     private dailyChallengeService: DailyChallengeService,
-    private gameStateService: GameStateService
+    private gameStateService: GameStateService,
+    private heartsService: HeartsService
   ) {}
 
   ngOnInit(): void {
@@ -87,6 +94,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     
     // Ensure daily challenge service is initialized
     this.dailyChallengeService.initialize();
+    
+    // Subscribe to hearts service
+    this.heartsService.heartsState$.subscribe(state => {
+      this.heartsRemaining = state.heartsRemaining;
+      this.currentStreak = state.streak;
+      this.bestStreak = state.bestStreak;
+    });
     
     // Listen for route changes to refresh saved game info when returning to dashboard
     this.router.events.subscribe((event) => {
@@ -350,5 +364,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     
     return 'Play';
+  }
+
+  /**
+   * Get hearts array for display (filled vs empty)
+   */
+  getHeartsArray(): boolean[] {
+    const hearts: boolean[] = [];
+    for (let i = 0; i < 3; i++) {
+      hearts.push(i < this.heartsRemaining);
+    }
+    return hearts;
+  }
+
+  /**
+   * Check if current mode is arcade mode
+   */
+  isArcadeMode(): boolean {
+    return this.gameStateService.getCurrentMode() === GameMode.ARCADE_MODE;
   }
 }

@@ -8,6 +8,34 @@
     <p class="page-subtitle">Complete levels to unlock new challenges</p>
   </div>
 
+  <!-- Hearts and Streaks Section -->
+  <div class="hearts-streaks-section">
+    <div class="hearts-container">
+      <h3 class="section-title">Lives</h3>
+      <div class="hearts-display">
+        <div 
+          *ngFor="let isFilled of getHeartsArray(); let i = index"
+          class="heart"
+          [class.filled]="isFilled"
+          [class.empty]="!isFilled"
+        >
+          {{ isFilled ? '❤️' : '🖤' }}
+        </div>
+      </div>
+    </div>
+    
+    <div class="streaks-container">
+      <div class="streak-item">
+        <span class="streak-label">Current Streak</span>
+        <span class="streak-value">{{ currentStreak }}</span>
+      </div>
+      <div class="streak-item">
+        <span class="streak-label">Best Streak</span>
+        <span class="streak-value">{{ bestStreak }}</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Progress Stats -->
   <div class="progress-stats">
     <div class="stat-item">

@@ -21,6 +21,7 @@ import {GameResetService} from './services/game-reset.service';
 import {NewGameService, GameDifficulty} from './services/new-game.service';
 import {DailyChallengeService} from './services/daily-challenge.service';
 import {GameStateService} from './services/game-state.service';
+import {HeartsService} from './services/hearts.service';
 import {GameMode} from './models/game-modes';
 
 @Component({
@@ -60,6 +61,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private newGameService: NewGameService,
     private dailyChallengeService: DailyChallengeService,
     private gameStateService: GameStateService,
+    private heartsService: HeartsService,
     private router: Router
   ) {}
 
@@ -1083,6 +1085,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
   private handleGameOver() {
     console.log('Game Over - mistake limit reached!');
 
+    // Handle game failure with hearts system
+    this.gameStateService.failGame();
+
     // Prepare game over statistics
     this.gameOverStats = {
       mistakeCount: this.mistakeCount,
@@ -1177,6 +1182,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
       this.timerComponent.pauseTimer();
       console.log('⏱️ Timer paused');
     }
+
+    // Complete the game with hearts system
+    const completionTime = this.timerComponent ? this.timerComponent.getCurrentElapsedTime() * 1000 : 0;
+    this.gameStateService.completeGame(completionTime, this.score, this.mistakeCount);
 
     // Prepare congratulations statistics
     this.congratulationsStats = {
