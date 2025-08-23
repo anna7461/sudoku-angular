@@ -5,6 +5,14 @@
   (titleClick)="goToDashboard()">
 </app-header>
 
+<!-- Back to Arcade Button (only visible in arcade mode) -->
+<div *ngIf="isArcadeMode()" class="back-to-arcade-container">
+  <button class="back-to-arcade-button" (click)="goToArcadeDashboard()">
+    <span class="back-icon">←</span>
+    <span class="back-text">Back to Arcade</span>
+  </button>
+</div>
+
 <!-- Back to Home Button -->
 <!-- <div class="back-to-home-container">
   <button class="back-to-home-button" (click)="goToDashboard()">

@@ -117,15 +117,3 @@
     </app-daily-challenge-results>
   </div>
 </div>
-
-<!-- Arcade Roadmap Overlay -->
-<div 
-  *ngIf="showArcadeRoadmap" 
-  class="arcade-roadmap-overlay"
-  (click)="onCloseArcadeRoadmap()">
-  <div class="overlay-content" (click)="$event.stopPropagation()">
-    <app-arcade-roadmap
-      (closeRoadmap)="onCloseArcadeRoadmap()">
-    </app-arcade-roadmap>
-  </div>
-</div>

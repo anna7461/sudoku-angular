@@ -1,11 +1,11 @@
-<div class="arcade-roadmap-container">
+<div class="arcade-page">
   <!-- Header -->
-  <div class="roadmap-header">
-    <button class="close-button" (click)="onCloseRoadmap()">
-      ✕
+  <div class="page-header">
+    <button class="back-button" (click)="onBackToDashboard()">
+      ← Back to Dashboard
     </button>
-    <h1 class="roadmap-title">Arcade Mode</h1>
-    <p class="roadmap-subtitle">Complete levels to unlock new challenges</p>
+    <h1 class="page-title">Arcade Mode</h1>
+    <p class="page-subtitle">Complete levels to unlock new challenges</p>
   </div>
 
   <!-- Progress Stats -->
@@ -20,51 +20,56 @@
     </div>
   </div>
 
-  <!-- Levels Grid -->
-  <div class="levels-container">
-    <div class="levels-grid">
+  <!-- Linear Roadmap -->
+  <div class="roadmap-container">
+    <div class="roadmap-track">
       <div 
-        *ngFor="let level of levels; trackBy: trackByLevelId"
-        class="level-card"
+        *ngFor="let level of levels; trackBy: trackByLevelId; let i = index"
+        class="roadmap-item"
         [class]="getLevelStatusClass(level)"
         [class.clickable]="canPlayLevel(level)"
         (click)="startLevel(level)"
       >
-        <!-- Level Header -->
-        <div class="level-header">
-          <h3 class="level-name">{{ level.name }}</h3>
+        <!-- Difficulty Section Header -->
+        <div *ngIf="isFirstInDifficultySection(level)" class="difficulty-header">
+          <h3 class="difficulty-title" [class]="getDifficultySectionClass(level)">
+            {{ getDifficultySectionTitle(level) }}
+          </h3>
+        </div>
+
+        <!-- Level Circle -->
+        <div class="level-circle" [class]="getDifficultySectionClass(level)">
+          <span class="level-number">{{ level.id }}</span>
+          
+          <!-- Status Indicators -->
+          <div *ngIf="level.isCompleted" class="completion-indicator">
+            <div class="stars">{{ getStarDisplay(level) }}</div>
+          </div>
+          
+          <div *ngIf="!level.isUnlocked" class="lock-indicator">
+            <span class="lock-icon">🔒</span>
+          </div>
+          
+          <div *ngIf="level.isUnlocked && !level.isCompleted" class="play-indicator">
+            <span class="play-icon">▶️</span>
+          </div>
+        </div>
+
+        <!-- Level Info -->
+        <div class="level-info">
+          <h4 class="level-name">{{ level.name }}</h4>
           <div class="level-difficulty" [class]="getDifficultyColor(level.difficulty)">
             {{ getDifficultyIcon(level.difficulty) }} {{ level.difficulty }}
           </div>
-        </div>
-
-        <!-- Level Status -->
-        <div class="level-status">
-          <div *ngIf="level.isCompleted" class="completion-info">
-            <div class="stars">{{ getStarDisplay(level) }}</div>
-            <div *ngIf="level.bestTime" class="best-time">
-              Best: {{ getBestTimeDisplay(level) }}
-            </div>
-          </div>
           
-          <div *ngIf="!level.isUnlocked" class="locked-info">
-            <div class="lock-icon">🔒</div>
-            <div class="lock-text">Complete previous level</div>
-          </div>
-          
-          <div *ngIf="level.isUnlocked && !level.isCompleted" class="play-info">
-            <div class="play-icon">▶️</div>
-            <div class="play-text">Click to play</div>
+          <!-- Best Time for Completed Levels -->
+          <div *ngIf="level.isCompleted && level.bestTime" class="best-time">
+            Best: {{ getBestTimeDisplay(level) }}
           </div>
         </div>
 
-        <!-- Level Progress Bar -->
-        <div *ngIf="level.isCompleted" class="level-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="(level.stars || 0) / 3 * 100"></div>
-          </div>
-          <span class="progress-text">{{ level.stars }}/3 stars</span>
-        </div>
+        <!-- Connection Line (except for last level) -->
+        <div *ngIf="i < levels.length - 1" class="connection-line"></div>
       </div>
     </div>
   </div>
@@ -92,3 +97,4 @@
     </div>
   </div>
 </div>
+

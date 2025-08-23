@@ -111,6 +111,20 @@ export class ArcadeService {
   }
 
   /**
+   * Get the current level being played
+   */
+  getCurrentLevel(): ArcadeLevel | null {
+    return this.levelsSubject.value.find(level => level.isUnlocked && !level.isCompleted) || null;
+  }
+
+  /**
+   * Check if there are more levels to complete
+   */
+  hasMoreLevels(): boolean {
+    return this.levelsSubject.value.some(level => !level.isCompleted);
+  }
+
+  /**
    * Reset arcade progress
    */
   resetProgress(): void {

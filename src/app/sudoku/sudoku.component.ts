@@ -469,14 +469,35 @@ export class SudokuComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navigate to dashboard with proper state saving
+   * Navigate to main dashboard (global home)
    */
   goToDashboard(): void {
     // Save current game state before navigation
     this.saveGameState();
     
-    // Navigate to dashboard
+    // Always navigate to main dashboard (global home)
     this.router.navigate(['/']);
+  }
+
+  /**
+   * Navigate back to arcade dashboard (only for arcade mode)
+   */
+  goToArcadeDashboard(): void {
+    // Save current game state before navigation
+    this.saveGameState();
+    
+    // Navigate to arcade dashboard
+    this.router.navigate(['/arcade']);
+  }
+
+  /**
+   * Check if the current game mode is arcade mode
+   */
+  isArcadeMode(): boolean {
+    // Check both game state and current route for robustness
+    const isArcadeModeInState = this.gameStateService.getCurrentMode() === GameMode.ARCADE_MODE;
+    const isArcadeRoute = this.router.url.startsWith('/arcade/play');
+    return isArcadeModeInState || isArcadeRoute;
   }
 
   // Method to start a new game with a specific difficulty
@@ -1115,8 +1136,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.showCongratulationsDialog = false;
     this.congratulationsStats = null;
     
-    // Navigate back to dashboard to show arcade roadmap
-    this.router.navigate(['/']);
+    // Navigate back to arcade roadmap page
+    this.router.navigate(['/arcade']);
   }
 
   onCongratulationsClose(): void {

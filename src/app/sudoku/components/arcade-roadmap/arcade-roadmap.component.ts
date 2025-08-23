@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -16,8 +16,6 @@ import { GameMode } from '../../models/game-modes';
   imports: [CommonModule]
 })
 export class ArcadeRoadmapComponent implements OnInit, OnDestroy {
-  @Output() closeRoadmap = new EventEmitter<void>();
-  
   levels: ArcadeLevel[] = [];
   totalStars = 0;
   completedLevels = 0;
@@ -63,8 +61,15 @@ export class ArcadeRoadmapComponent implements OnInit, OnDestroy {
     this.gameStateService.setCurrentMode(GameMode.ARCADE_MODE);
     this.newGameService.startArcadeGame(level.difficulty as any, level.id);
     
-    // Navigate to the game
-    this.router.navigate(['/sudoku']);
+    // Navigate to the arcade game
+    this.router.navigate(['/arcade/play']);
+  }
+
+  /**
+   * Navigate back to dashboard
+   */
+  onBackToDashboard(): void {
+    this.router.navigate(['/']);
   }
 
   /**
@@ -125,6 +130,33 @@ export class ArcadeRoadmapComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Get difficulty section class for grouping levels
+   */
+  getDifficultySectionClass(level: ArcadeLevel): string {
+    if (level.id <= 5) return 'difficulty-easy';
+    if (level.id <= 10) return 'difficulty-medium';
+    if (level.id <= 15) return 'difficulty-hard';
+    return 'difficulty-expert';
+  }
+
+  /**
+   * Check if level is the first in its difficulty section
+   */
+  isFirstInDifficultySection(level: ArcadeLevel): boolean {
+    return level.id === 1 || level.id === 6 || level.id === 11 || level.id === 16;
+  }
+
+  /**
+   * Get difficulty section title
+   */
+  getDifficultySectionTitle(level: ArcadeLevel): string {
+    if (level.id <= 5) return 'Easy Mode';
+    if (level.id <= 10) return 'Medium Mode';
+    if (level.id <= 15) return 'Hard Mode';
+    return 'Expert Mode';
+  }
+
+  /**
    * Update statistics
    */
   private updateStats(): void {
@@ -137,12 +169,5 @@ export class ArcadeRoadmapComponent implements OnInit, OnDestroy {
    */
   trackByLevelId(index: number, level: ArcadeLevel): number {
     return level.id;
-  }
-
-  /**
-   * Close the roadmap and return to dashboard
-   */
-  onCloseRoadmap(): void {
-    this.closeRoadmap.emit();
   }
 }
