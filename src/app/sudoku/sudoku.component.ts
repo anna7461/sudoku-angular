@@ -14,7 +14,6 @@ import {GameOverDialogComponent, GameOverStats} from './components/game-over-dia
 import {CongratulationsDialogComponent, CongratulationsStats} from './components/congratulations-dialog/congratulations-dialog.component';
 import {SettingsOverlayComponent} from './components/settings-overlay/settings-overlay.component';
 import {HelpOverlayComponent} from './components/help-overlay/help-overlay.component';
-import {ThemeService} from './services/theme.service';
 import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
 import {NewGameService, GameDifficulty} from './services/new-game.service';
@@ -45,9 +44,7 @@ import { takeUntil } from 'rxjs/operators';
     HelpOverlayComponent
   ],
   styleUrls: ['./sudoku.component.scss'],
-  host: {
-    '[class]': 'getThemeClass()'
-  }
+
 })
 export class SudokuComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -59,7 +56,6 @@ export class SudokuComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    private themeService: ThemeService,
     private pauseService: PauseService,
     private gameResetService: GameResetService,
     private newGameService: NewGameService,
@@ -76,13 +72,6 @@ export class SudokuComponent implements OnInit, OnDestroy, AfterViewInit {
   shouldShowControls(): boolean {
     const currentMode = this.gameStateService.getCurrentMode();
     return currentMode !== GameMode.DAILY_CHALLENGE;
-  }
-
-  /**
-   * Get the current theme class for the host element
-   */
-  getThemeClass(): string {
-    return this.themeService.getCurrentTheme().className;
   }
 
   boxes: Box[] = [];

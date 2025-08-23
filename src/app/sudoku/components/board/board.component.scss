@@ -32,10 +32,6 @@
   user-select: none;
   font-weight: bold;
 
-  :host-context(.theme-dark-mode) {
-    background-color: var(--color-bg-white);
-  }
-
   &.fixed {
     color: var(--color-cell-fixed);
   }

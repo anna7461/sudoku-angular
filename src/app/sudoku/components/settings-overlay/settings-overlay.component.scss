@@ -196,35 +196,6 @@
   }
 }
 
-// Theme Toggle Buttons
-.theme-toggle {
-  display: flex;
-  gap: 8px;
-
-  .theme-btn {
-    padding: 8px 16px;
-    border: 2px solid var(--color-border-medium);
-    background: var(--color-bg-lightest);
-    color: var(--color-text-medium);
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    min-width: 60px;
-
-    &:hover {
-      border-color: var(--color-primary);
-      color: var(--color-primary);
-    }
-
-    &.active {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
-      color: white;
-    }
-  }
-}
-
 // Mistakes Limit Select
 .mistakes-select {
   padding: 8px 12px;
@@ -282,14 +253,5 @@
 
   .setting-item {
     padding: 20px 0;
-  }
-
-  .theme-toggle {
-    width: 100%;
-    
-    .theme-btn {
-      flex: 1;
-      min-width: unset;
-    }
   }
 }

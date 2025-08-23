@@ -4,10 +4,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--theme-bg-start, #f5f6fa) 0%, var(--theme-bg-end, #e8eaf6) 100%);
+  background: linear-gradient(135deg, #f5f6fa 0%, #e8eaf6 100%);
   position: relative;
-height: 100%;
-row-gap: 1em;
+  height: 100%;
+  row-gap: 1em;
 
   @media (max-width: 768px) {
     min-height: calc(100vh - 56px); // Mobile header height
@@ -47,7 +47,7 @@ row-gap: 1em;
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--theme-primary, #3d55cc), var(--theme-accent, #dadef2));
+    background: linear-gradient(90deg, #3d55cc, #dadef2);
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
@@ -106,19 +106,19 @@ row-gap: 1em;
 .mode-label {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--theme-primary, #3d55cc);
+  color: #3d55cc;
   margin: 0 0 0.5rem 0;
 }
 
 .mode-description {
-  color: var(--theme-text-secondary, #666);
+  color: #666;
   margin: 0 0 1.5rem 0;
   font-size: 0.95rem;
   line-height: 1.4;
 }
 
 .mode-button {
-  background: var(--theme-primary, #3d55cc);
+  background: #3d55cc;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -155,7 +155,7 @@ row-gap: 1em;
   }
 
   &.disabled {
-    background: var(--theme-text-secondary, #666);
+    background: #666;
     cursor: not-allowed;
     opacity: 0.6;
 
@@ -183,7 +183,7 @@ row-gap: 1em;
 }
 
 .continue-button {
-  background: linear-gradient(135deg, var(--theme-primary, #3d55cc), var(--theme-accent, #dadef2));
+  background: linear-gradient(135deg, #3d55cc, #dadef2);
   color: white;
   border: none;
   padding: 1rem 3rem;
@@ -225,8 +225,8 @@ row-gap: 1em;
 
 .new-game-button {
   background: rgba(255, 255, 255, 0.9);
-  color: var(--theme-primary, #3d55cc);
-  border: 2px solid var(--theme-primary, #3d55cc);
+  color: #3d55cc;
+  border: 2px solid #3d55cc;
   padding: 1rem 3rem;
   border-radius: 30px;
   font-weight: 700;
@@ -237,7 +237,7 @@ row-gap: 1em;
   min-width: 280px;
 
   &:hover {
-    background: var(--theme-primary, #3d55cc);
+    background: #3d55cc;
     color: white;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(61, 85, 204, 0.3);
@@ -277,7 +277,7 @@ row-gap: 1em;
   align-items: center;
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #e5e7eb;
-  background: var(--theme-primary, #3d55cc);
+  background: #3d55cc;
   color: white;
 
   h2 {
@@ -323,7 +323,7 @@ row-gap: 1em;
   padding: 1rem 1.5rem;
   text-align: left;
   font-size: 1rem;
-  color: var(--theme-text, #333);
+  color: #333;
   cursor: pointer;
   border-radius: 15px;
   transition: all 0.2s ease;
@@ -334,15 +334,15 @@ row-gap: 1em;
   }
 
   &:hover {
-    background: var(--theme-accent, #dadef2);
-    border-color: var(--theme-primary, #3d55cc);
+    background: #dadef2;
+    border-color: #3d55cc;
     transform: translateX(8px);
   }
 
   &.selected {
-    background: var(--theme-primary, #3d55cc);
+    background: #3d55cc;
     color: white;
-    border-color: var(--theme-primary, #3d55cc);
+    border-color: #3d55cc;
 
     .difficulty-description {
       color: rgba(255, 255, 255, 0.8);
@@ -364,14 +364,14 @@ row-gap: 1em;
 }
 
 .difficulty-description {
-  color: var(--theme-text-secondary, #666);
+  color: #666;
   font-size: 0.9rem;
   flex: 1;
 }
 
 // Button Base Classes
 .primary-button {
-  background: linear-gradient(135deg, var(--theme-primary, #3d55cc), var(--theme-accent, #dadef2));
+  background: linear-gradient(135deg, #3d55cc, #dadef2);
   color: white;
   border: none;
   cursor: pointer;
@@ -380,8 +380,8 @@ row-gap: 1em;
 
 .secondary-button {
   background: rgba(255, 255, 255, 0.9);
-  color: var(--theme-primary, #3d55cc);
-  border: 2px solid var(--theme-primary, #3d55cc);
+  color: #3d55cc;
+  border: 2px solid #3d55cc;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
@@ -514,51 +514,7 @@ row-gap: 1em;
   }
 }
 
-// Theme Variables (fallbacks)
-:host {
-  --theme-primary: #3d55cc;
-  --theme-accent: #dadef2;
-  --theme-bg-start: #f5f6fa;
-  --theme-bg-end: #e8eaf6;
-  --theme-text: #333;
-  --theme-text-secondary: #666;
-}
 
-// Theme-specific overrides
-:host.theme-dark-mode {
-  --theme-bg-start: #111827;
-  --theme-bg-end: #1f2937;
-  --theme-text: #f9fafb;
-  --theme-text-secondary: #d1d5db;
-}
-
-:host.theme-forest-green {
-  --theme-primary: #2d8a3f;
-  --theme-accent: #c8e6d0;
-  --theme-bg-start: #f0f8f2;
-  --theme-bg-end: #e0f0e0;
-}
-
-:host.theme-sunset-orange {
-  --theme-primary: #d47500;
-  --theme-accent: #e6d0a8;
-  --theme-bg-start: #faf6f0;
-  --theme-bg-end: #f5e6d0;
-}
-
-:host.theme-purple-royale {
-  --theme-primary: #7c3aed;
-  --theme-accent: #d4c7e6;
-  --theme-bg-start: #f5f2fa;
-  --theme-bg-end: #ede9fe;
-}
-
-:host.theme-warm-sand {
-  --theme-primary: #b8860b;
-  --theme-accent: #f4e4bc;
-  --theme-bg-start: #fdfbf5;
-  --theme-bg-end: #faf5e6;
-}
 
 // Help Overlay
 .help-overlay {

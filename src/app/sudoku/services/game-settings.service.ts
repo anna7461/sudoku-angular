@@ -5,7 +5,6 @@ import { isPlatformBrowser } from '@angular/common';
 export interface GameSettings {
   soundEffects: boolean;
   vibration: boolean;
-  themeMode: 'light' | 'dark';
   timer: boolean;
   mistakesLimit: boolean;
   mistakesLimitNumber: number;
@@ -24,7 +23,6 @@ export class GameSettingsService {
   private defaultSettings: GameSettings = {
     soundEffects: false,
     vibration: false,
-    themeMode: 'light',
     timer: true,
     mistakesLimit: true,
     mistakesLimitNumber: 3,
@@ -50,11 +48,6 @@ export class GameSettingsService {
     const newSettings = { ...currentSettings, ...updates };
     this.settingsSubject.next(newSettings);
     this.saveSettings(newSettings);
-    
-    // Apply theme changes immediately
-    if (updates.themeMode) {
-      this.applyThemeMode(updates.themeMode);
-    }
   }
 
   toggleSetting(setting: keyof GameSettings): void {
@@ -70,27 +63,6 @@ export class GameSettingsService {
     this.updateSettings({ mistakesLimitNumber: value });
   }
 
-  setThemeMode(mode: 'light' | 'dark'): void {
-    this.updateSettings({ themeMode: mode });
-  }
-
-  private applyThemeMode(mode: 'light' | 'dark'): void {
-    if (isPlatformBrowser(this.platformId)) {
-      const sudokuElement = document.querySelector('app-sudoku');
-      if (sudokuElement) {
-        // Remove existing theme classes
-        sudokuElement.classList.remove('theme-classic-blue', 'theme-forest-green', 'theme-sunset-orange', 'theme-purple-royale', 'theme-warm-sand', 'theme-dark-mode');
-        
-        // Apply appropriate theme based on mode
-        if (mode === 'dark') {
-          sudokuElement.classList.add('theme-dark-mode');
-        } else {
-          sudokuElement.classList.add('theme-classic-blue');
-        }
-      }
-    }
-  }
-
   private loadSettings(): void {
     if (isPlatformBrowser(this.platformId)) {
       try {
@@ -100,11 +72,6 @@ export class GameSettingsService {
           // Merge with defaults to ensure all properties exist
           const mergedSettings = { ...this.defaultSettings, ...parsedSettings };
           this.settingsSubject.next(mergedSettings);
-          
-          // Apply saved theme mode
-          if (mergedSettings.themeMode) {
-            this.applyThemeMode(mergedSettings.themeMode);
-          }
         }
       } catch (error) {
         console.warn('Failed to load game settings:', error);
@@ -126,6 +93,5 @@ export class GameSettingsService {
   resetToDefaults(): void {
     this.settingsSubject.next(this.defaultSettings);
     this.saveSettings(this.defaultSettings);
-    this.applyThemeMode(this.defaultSettings.themeMode);
   }
 }

@@ -49,10 +49,6 @@ export class SettingsOverlayComponent implements OnInit, OnDestroy {
     }
   }
 
-  setThemeMode(mode: 'light' | 'dark'): void {
-    this.gameSettingsService.setThemeMode(mode);
-  }
-
   isMobile(): boolean {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }

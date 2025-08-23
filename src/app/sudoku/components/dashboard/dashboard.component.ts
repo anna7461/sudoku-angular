@@ -2,13 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
-import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
 import { DailyChallengeService } from '../../services/daily-challenge.service';
 import { GameStateService } from '../../services/game-state.service';
 import { HeartsService } from '../../services/hearts.service';
 import { GameMode, GameModeConfig } from '../../models/game-modes';
-
 import { SettingsOverlayComponent } from '../settings-overlay/settings-overlay.component';
 import { HelpOverlayComponent } from '../help-overlay/help-overlay.component';
 import { DailyChallengeCalendarComponent } from '../daily-challenge-calendar/daily-challenge-calendar.component';
@@ -34,9 +32,6 @@ interface SavedGameInfo {
     DailyChallengeCalendarComponent,
     DailyChallengeResultsComponent,
   ],
-  host: {
-    '[class]': 'getThemeClass()'
-  }
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   gameModes: GameModeConfig[] = [
@@ -84,7 +79,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private newGameService: NewGameService,
-    private themeService: ThemeService,
     private storageService: StorageService,
     private dailyChallengeService: DailyChallengeService,
     private gameStateService: GameStateService,
@@ -132,10 +126,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     // Cleanup if needed
-  }
-
-  getThemeClass(): string {
-    return this.themeService.getCurrentTheme().className;
   }
 
   /**
