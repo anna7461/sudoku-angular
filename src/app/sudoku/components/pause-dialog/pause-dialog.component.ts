@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { PauseService } from '../../services/pause.service';
 import { GameResetService } from '../../services/game-reset.service';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
+import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 
 @Component({
   standalone: true,
@@ -21,7 +22,8 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
   constructor(
     private pauseService: PauseService,
     private gameResetService: GameResetService,
-    private newGameService: NewGameService
+    private newGameService: NewGameService,
+    private scrollToTopService: ScrollToTopService
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +65,10 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
       clearCurrentGame: true,
       resetTimer: true
     });
+    
+    // Scroll to top when starting new game
+    this.scrollToTopService.scrollToTop();
+    
     this.pauseService.resumeGame(); // Close the dialog
   }
 

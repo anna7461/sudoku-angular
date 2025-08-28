@@ -4,6 +4,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { PauseService } from '../../sudoku/services/pause.service';
 import { ThemeService, Theme } from '../../sudoku/services/theme.service';
 import { filter } from 'rxjs/operators';
+import { ScrollToTopService } from '../../services/scroll-to-top.service';
 
 @Component({
   selector: 'app-header',
@@ -21,7 +22,8 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private pauseService: PauseService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private scrollToTopService: ScrollToTopService
   ) {
     // Get all available themes
     this.availableThemes = this.themeService.getAllThemes();
@@ -42,6 +44,8 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.checkCurrentRoute();
+      // Scroll to top on route changes
+      this.scrollToTopService.scrollToTop();
     });
   }
 
@@ -54,6 +58,8 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
   }
 
   onSudokuTitleClick() {
+    // Scroll to top before navigating to dashboard
+    this.scrollToTopService.scrollToTopInstant();
     this.router.navigate(['/']);
   }
 

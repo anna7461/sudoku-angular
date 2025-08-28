@@ -1,5 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Global scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  scroll-behavior: smooth;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Scroll utility classes */
+.scroll-to-top {
+  scroll-behavior: smooth;
+}
+
+.scroll-to-top-instant {
+  scroll-behavior: auto;
+}
+
+/* Ensure proper scroll behavior on all scrollable elements */
+* {
+  scroll-behavior: inherit;
+}
+
 /* Mobile-specific global styles */
 @media (max-width: 768px) {
   html, body {

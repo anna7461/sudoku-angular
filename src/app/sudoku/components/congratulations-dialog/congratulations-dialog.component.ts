@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameDifficulty } from '../../services/new-game.service';
+import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 
 export interface CongratulationsStats {
   timeTaken: string;
@@ -24,6 +25,8 @@ export class CongratulationsDialogComponent implements OnChanges {
 
   selectedDifficulty: GameDifficulty = 'easy';
 
+  constructor(private scrollToTopService: ScrollToTopService) {}
+
   ngOnChanges(changes: SimpleChanges): void {
     // Pre-fill difficulty selection with current puzzle's difficulty
     if (changes['puzzleStats'] && this.puzzleStats?.difficulty) {
@@ -39,6 +42,8 @@ export class CongratulationsDialogComponent implements OnChanges {
   }
 
   onNewGame(): void {
+    // Scroll to top when starting new game
+    this.scrollToTopService.scrollToTop();
     this.newGame.emit(this.selectedDifficulty);
   }
 

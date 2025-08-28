@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
+import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 
 @Component({
   standalone: true,
@@ -25,7 +26,10 @@ export class ControlsComponent {
 
   selectedDifficulty: GameDifficulty = 'test';
 
-  constructor(private newGameService: NewGameService) {}
+  constructor(
+    private newGameService: NewGameService,
+    private scrollToTopService: ScrollToTopService
+  ) {}
 
   onResetClick() {
     this.resetGame.emit();
@@ -38,6 +42,9 @@ export class ControlsComponent {
       clearCurrentGame: true,
       resetTimer: true
     });
+    
+    // Scroll to top when starting new game
+    this.scrollToTopService.scrollToTop();
     
     // Also emit the event for backward compatibility
     this.newGame.emit(this.selectedDifficulty);

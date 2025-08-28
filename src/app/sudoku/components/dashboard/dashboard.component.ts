@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
+import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 
 interface GameMode {
   id: string;
@@ -58,11 +59,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private router: Router,
     private newGameService: NewGameService,
     private themeService: ThemeService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private scrollToTopService: ScrollToTopService
   ) {}
 
   ngOnInit(): void {
     this.checkForSavedGame();
+    
+    // Scroll to top when dashboard initializes
+    this.scrollToTopService.scrollToTop();
     
     // Listen for route changes to refresh saved game info when returning to dashboard
     this.router.events.subscribe((event) => {
@@ -153,6 +158,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onContinueGame(): void {
+    // Scroll to top before navigating to ensure clean start
+    this.scrollToTopService.scrollToTopInstant();
+    
     // Navigate to the main game component
     this.router.navigate(['/sudoku']);
   }
@@ -173,6 +181,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearCurrentGame: true,
       resetTimer: true
     });
+
+    // Scroll to top before navigating to ensure clean start
+    this.scrollToTopService.scrollToTopInstant();
 
     // Navigate to the game
     this.router.navigate(['/sudoku']);

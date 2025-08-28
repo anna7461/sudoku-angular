@@ -16,6 +16,7 @@ import {ThemeService} from './services/theme.service';
 import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
 import {NewGameService, GameDifficulty} from './services/new-game.service';
+import {ScrollToTopService} from '../services/scroll-to-top.service';
 
 @Component({
   standalone: true,
@@ -46,7 +47,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private pauseService: PauseService,
     private gameResetService: GameResetService,
     private newGameService: NewGameService,
-    private router: Router
+    private router: Router,
+    private scrollToTopService: ScrollToTopService
   ) {}
 
 
@@ -147,6 +149,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.checkCurrentRoute();
     }, 1000);
+
+    // Scroll to top when component initializes
+    this.scrollToTopService.scrollToTop();
 
     // Add document click listener for detecting clicks outside the board (browser only)
     if (typeof document !== 'undefined') {
@@ -443,6 +448,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
   goToDashboard(): void {
     // Save current game state before navigating
     this.saveGameState();
+    
+    // Scroll to top before navigating to dashboard
+    this.scrollToTopService.scrollToTopInstant();
+    
     this.router.navigate(['/']);
   }
 
@@ -489,6 +498,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
       // Save the new game state immediately after initialization
       this.saveGameState();
+
+      // Scroll to top when starting new game
+      this.scrollToTopService.scrollToTop();
 
       // Ensure minimum loading time
       setTimeout(() => {
