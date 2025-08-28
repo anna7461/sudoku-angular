@@ -1,17 +1,9 @@
-<!-- Back to Home Button -->
-<div class="back-to-home-container">
-  <button class="back-to-home-button" (click)="goToDashboard()">
-    <span class="back-icon">←</span>
-    <span class="back-text">Back to Home</span>
-  </button>
-</div>
-
-<app-controls
-  [disabled]="!areControlsAvailableCached"
-  [resetDisabled]="isResetDisabledCached"
-  (resetGame)="resetGame()"
-  (newGame)="onNewGame($event)"
-/>
+<!--<app-controls-->
+<!--  [disabled]="!areControlsAvailableCached"-->
+<!--  [resetDisabled]="isResetDisabledCached"-->
+<!--  (resetGame)="resetGame()"-->
+<!--  (newGame)="onNewGame($event)"-->
+<!--/>-->
 
 <div>
   <div class="puzzle-info-container">
@@ -28,14 +20,20 @@
       [isGameCompleted]="hasWonGameCached"
       [gameStartTime]="gameStartTime"
       [savedElapsedTime]="totalGameTime"
-      (timerUpdate)="onTimerUpdate($event)"
-      (pauseStateChange)="onPauseStateChange($event)">
+      (timerUpdate)="onTimerUpdate($event)">
     </app-timer>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="loading-spinner"></div>
+    <p>Generating puzzle...</p>
   </div>
 
   <div class="sudoku-container" #sudokuContainer>
     <div class="game-content">
       <app-board
+        *ngIf="!isLoading && boxes && boxes.length > 0"
         [boxes]="boxes"
         [selectedBoxIndex]="selectedBoxIndex"
         [selectedCellIndex]="selectedCellIndex"
@@ -44,7 +42,17 @@
         [disabled]="!isGameActive()"
         (cellSelected)="onCellSelected($event)">
       </app-board>
+
+      <!-- Debug Info for Mobile -->
+      <div *ngIf="!isLoading && (!boxes || boxes.length === 0)" class="debug-info">
+        <p>Debug: No puzzle data available</p>
+        <p>Boxes length: {{ boxes?.length || 0 }}</p>
+        <p>Loading state: {{ isLoading }}</p>
+        <button (click)="forceGeneratePuzzle()">Force Generate Puzzle</button>
+      </div>
+
       <app-board-controls
+        *ngIf="!isLoading && boxes && boxes.length > 0"
         [notesMode]="notesMode"
         [numberFirstMode]="numberFirstMode"
         [canUndo]="canUndo()"
@@ -56,6 +64,7 @@
         (hint)="provideHint()">
       </app-board-controls>
       <app-number-pad
+        *ngIf="!isLoading && boxes && boxes.length > 0"
         [currentNumber]="currentNumber"
         [selectedNumber]="selectedNumber"
         [numberFirstMode]="numberFirstMode"

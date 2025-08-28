@@ -1,6 +1,6 @@
 .board-controls {
   display: grid;
-  grid-template-columns: repeat(6, 76px);
+  grid-template-columns: repeat(5, 91px);
 }
 
 .board-control-button {
@@ -10,7 +10,7 @@
   background: none;
   border: none;
   color: var(--color-text-dark);
-  margin: 15px;
+  margin: 15px 5px;
   transition: all 0.2s ease;
   cursor: pointer;
 
@@ -177,4 +177,44 @@
   color: var(--color-primary);
   font-size: 16px;
   font-weight: bold;
+}
+
+// Mobile Responsive Styles
+@media (max-width: 768px) {
+  .board-controls {
+    grid-template-columns: repeat(5, 70px);
+    gap: 5px;
+  }
+
+  .board-control-button {
+    margin: 10px 3px;
+    grid-row-gap: 8px;
+
+    i {
+      font-size: 20px;
+    }
+
+    span {
+      font-size: 11px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .board-control-button {
+    margin: 8px 2px;
+    grid-row-gap: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .board-controls {
+    grid-template-columns: repeat(5, 63px);
+    gap: 2px;
+  }
+
+  .board-control-button {
+    margin: 6px 1px;
+    grid-row-gap: 5px;
+  }
 }

@@ -1,38 +1,4 @@
 .timer-container {
   display: grid;
-  grid-template-columns: auto 20px;
   justify-content: end;
-}
-
-.pause-btn {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--color-text-medium);
-  border: none;
-  background: none;
-
-  &:hover:not(:disabled) {
-    transform: var(--color-hover-transform);
-    color: var(--color-primary);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    opacity: var(--color-button-disabled-opacity);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  &.paused {
-    &:hover:not(:disabled) {
-    }
-  }
-
-  i {
-    font-size: 14px;
-  }
 }

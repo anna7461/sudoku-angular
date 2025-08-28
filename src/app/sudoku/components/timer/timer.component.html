@@ -1,11 +1,3 @@
 <div class="timer-container">
   <span class="timer-value">{{ getFormattedTime() }}</span>
-
-
-  <button class="pause-btn"
-          [class.paused]="isPaused"
-          (click)="togglePause()"
-          [disabled]="!hasStarted || !isGameActive">
-    <i [class]="isPaused ? 'fas fa-play' : 'fas fa-pause'"></i>
-  </button>
 </div>

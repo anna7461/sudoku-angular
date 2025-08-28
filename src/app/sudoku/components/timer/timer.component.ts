@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PauseService } from '../../services/pause.service';
 
 @Component({
   selector: 'app-timer',
@@ -16,34 +15,19 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() gameStartTime: number | null = null; // Add input for game start time from parent
   @Input() savedElapsedTime: number = 0; // Add input for saved elapsed time
   @Output() timerUpdate = new EventEmitter<number>();
-  @Output() pauseStateChange = new EventEmitter<boolean>();
 
   private timerInterval: any;
   private startTime: number = 0;
   private pausedTime: number = 0;
   private totalPausedTime: number = 0;
   private readonly TIMER_STORAGE_KEY = 'sudoku-timer-state';
-  private pauseStateSubscription: any; // Add subscription property
   
   elapsedSeconds: number = 0;
   isPaused: boolean = false;
   hasStarted: boolean = false;
   private isRestored: boolean = false; // Flag to prevent multiple restorations
 
-  constructor(private pauseService: PauseService) {}
-
   ngOnInit() {
-    // Subscribe to pause service game state changes
-    this.pauseStateSubscription = this.pauseService.gamePauseState$.subscribe(isPaused => {
-      if (isPaused && !this.isPaused) {
-        // Game was paused, pause the timer
-        this.pauseTimer();
-      } else if (!isPaused && this.isPaused) {
-        // Game was resumed, continue the timer
-        this.continueTimer();
-      }
-    });
-
     // Delay restoration slightly to avoid race conditions with parent component
     setTimeout(() => {
       this.restoreTimerState();
@@ -52,9 +36,6 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnDestroy() {
     this.stopTimer();
-    if (this.pauseStateSubscription) {
-      this.pauseStateSubscription.unsubscribe();
-    }
   }
 
   startTimer() {
@@ -122,7 +103,6 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     if (this.hasStarted && !this.isPaused) {
       this.pausedTime = Date.now();
       this.isPaused = true;
-      this.pauseStateChange.emit(true);
       this.saveTimerState(); // Save state when pausing
     }
   }
@@ -131,7 +111,6 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     if (this.isPaused) {
       this.totalPausedTime += Date.now() - this.pausedTime;
       this.isPaused = false;
-      this.pauseStateChange.emit(false);
       this.saveTimerState(); // Save state when continuing
       this.startTimer();
     }
@@ -283,16 +262,6 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     } catch (error) {
       console.warn('Failed to restore timer state:', error);
       this.resetTimer();
-    }
-  }
-
-  togglePause() {
-    if (this.isPaused) {
-      // Resume the game through the pause service
-      this.pauseService.resumeGame();
-    } else {
-      // Use PauseService to pause the game
-      this.pauseService.pauseGame();
     }
   }
 

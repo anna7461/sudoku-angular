@@ -1,12 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Mobile-specific global styles */
+@media (max-width: 768px) {
+  html, body {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button, input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  html, body {
+    font-size: 14px;
+  }
+}
+
 /* CSS Variables for Theme System */
 :root {
   /* Primary Colors */
   --color-primary: #3d55cc;
   --color-primary-hover: #324ab8;
   --color-primary-light: rgba(61, 85, 204, 0.1);
-  
+
   /* Text Colors */
   --color-text-darkest: #141a33;
   --color-text-dark: #505673;
@@ -14,7 +38,7 @@
   --color-text-light: #dadef2;
   --color-text-lightest: #f5f6fa;
   --color-text-white: #ffffff;
-  
+
   /* Background Colors */
   --color-bg-white: #ffffff;
   --color-bg-lightest: #f5f6fa;
@@ -22,13 +46,13 @@
   --color-bg-medium: #878ca8;
   --color-bg-dark: #505673;
   --color-bg-darkest: #141a33;
-  
+
   /* Border Colors */
   --color-border-light: #dadef2;
   --color-border-medium: #878ca8;
   --color-border-dark: #505673;
   --color-border-darkest: #141a33;
-  
+
   /* State Colors */
   --color-warning: #ffa800;
   --color-warning-light: rgba(255, 168, 0, 0.1);
@@ -38,7 +62,7 @@
   --color-danger-light: rgba(232, 88, 74, 0.1);
   --color-success: #37be76;
   --color-success-light: rgba(55, 190, 118, 0.1);
-  
+
   /* Game-specific Colors */
   --color-cell-fixed: var(--color-text-darkest);
   --color-cell-selected: var(--color-primary);
@@ -49,7 +73,7 @@
   --color-cell-highlighted-border: rgba(61, 85, 204, 0.2);
   --color-cell-number-highlighted: var(--color-primary);
   --color-cell-notes: var(--color-text-medium);
-  
+
   /* Message Colors */
   --color-victory-text: #27ae60;
   --color-victory-bg: #f0f9f0;
@@ -57,12 +81,12 @@
   --color-game-over-text: #e74c3c;
   --color-game-over-bg: #fdf2f2;
   --color-game-over-border: #e74c3c;
-  
+
   /* Hover & Focus States */
   --color-hover-transform: translateY(-1px);
   --color-button-hover-bg: var(--color-bg-lightest);
   --color-button-disabled-opacity: 0.6;
-  
+
   /* Shadows */
   --shadow-default: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -70,19 +94,19 @@
 }
 
 /* Theme: Classic Blue (Default) */
-app-sudoku.theme-classic-blue {
+body.theme-classic-blue {
   /* Primary Colors */
   --color-primary: #3d55cc;
   --color-primary-hover: #324ab8;
   --color-primary-light: rgba(61, 85, 204, 0.1);
-  
+
   /* Text Colors */
   --color-text-darkest: #141a33;
   --color-text-dark: #505673;
   --color-text-medium: #878ca8;
   --color-text-light: #dadef2;
   --color-text-lightest: #f5f6fa;
-  
+
   /* Game-specific Colors */
   --color-cell-highlighted: rgba(61, 85, 204, 0.035);
   --color-cell-highlighted-border: rgba(61, 85, 204, 0.2);
@@ -90,19 +114,19 @@ app-sudoku.theme-classic-blue {
 }
 
 /* Theme: Forest Green */
-app-sudoku.theme-forest-green {
+body.theme-forest-green {
   /* Primary Colors */
   --color-primary: #2d8a3f;
   --color-primary-hover: #237a35;
   --color-primary-light: rgba(45, 138, 63, 0.1);
-  
+
   /* Text Colors */
   --color-text-darkest: #1a3d1f;
   --color-text-dark: #4a6b4f;
   --color-text-medium: #7a9180;
   --color-text-light: #c8e6d0;
   --color-text-lightest: #f0f8f2;
-  
+
   /* Game-specific Colors */
   --color-cell-highlighted: rgba(45, 138, 63, 0.035);
   --color-cell-highlighted-border: rgba(45, 138, 63, 0.2);
@@ -110,19 +134,19 @@ app-sudoku.theme-forest-green {
 }
 
 /* Theme: Sunset Orange */
-app-sudoku.theme-sunset-orange {
+body.theme-sunset-orange {
   /* Primary Colors */
   --color-primary: #d47500;
   --color-primary-hover: #bc6900;
   --color-primary-light: rgba(212, 117, 0, 0.1);
-  
+
   /* Text Colors */
   --color-text-darkest: #3d2200;
   --color-text-dark: #6b4c1a;
   --color-text-medium: #9e7d4d;
   --color-text-light: #e6d0a8;
   --color-text-lightest: #faf6f0;
-  
+
   /* Game-specific Colors */
   --color-cell-highlighted: rgba(212, 117, 0, 0.035);
   --color-cell-highlighted-border: rgba(212, 117, 0, 0.2);
@@ -130,19 +154,19 @@ app-sudoku.theme-sunset-orange {
 }
 
 /* Theme: Purple Royale */
-app-sudoku.theme-purple-royale {
+body.theme-purple-royale {
   /* Primary Colors */
   --color-primary: #7c3aed;
   --color-primary-hover: #6d28d9;
   --color-primary-light: rgba(124, 58, 237, 0.1);
-  
+
   /* Text Colors */
   --color-text-darkest: #2d1b42;
   --color-text-dark: #553c73;
   --color-text-medium: #8b6fa8;
   --color-text-light: #d4c7e6;
   --color-text-lightest: #f5f2fa;
-  
+
   /* Game-specific Colors */
   --color-cell-highlighted: rgba(124, 58, 237, 0.035);
   --color-cell-highlighted-border: rgba(124, 58, 237, 0.2);
@@ -150,19 +174,19 @@ app-sudoku.theme-purple-royale {
 }
 
 /* Theme: Warm Sand */
-app-sudoku.theme-warm-sand {
+body.theme-warm-sand {
   /* Primary Colors */
   --color-primary: #b8860b;
   --color-primary-hover: #a67c0a;
   --color-primary-light: rgba(184, 134, 11, 0.1);
-  
+
   /* Text Colors */
   --color-text-darkest: #2d1f00;
   --color-text-dark: #5a4a1a;
   --color-text-medium: #8b7a4d;
   --color-text-light: #e6d8a8;
   --color-text-lightest: #fdfbf5;
-  
+
   /* Background Colors */
   --color-bg-white: #fdfbf5;
   --color-bg-lightest: #f9f6ed;
@@ -170,19 +194,19 @@ app-sudoku.theme-warm-sand {
   --color-bg-medium: #e6d8a8;
   --color-bg-dark: #8b7a4d;
   --color-bg-darkest: #2d1f00;
-  
+
   /* Border Colors */
   --color-border-light: #f4e4bc;
   --color-border-medium: #e6d8a8;
   --color-border-dark: #8b7a4d;
   --color-border-darkest: #5a4a1a;
-  
+
   /* Game-specific Colors */
   --color-cell-fixed: var(--color-text-darkest);
   --color-cell-highlighted: rgba(184, 134, 11, 0.1);
   --color-cell-highlighted-border: rgba(184, 134, 11, 0.2);
   --shadow-primary: 0 4px 8px rgba(184, 134, 11, 0.3);
-  
+
   /* Message Colors */
   --color-victory-text: #27ae60;
   --color-victory-bg: #f0f9f0;
@@ -193,19 +217,19 @@ app-sudoku.theme-warm-sand {
 }
 
 /* Theme: Dark Mode */
-app-sudoku.theme-dark-mode {
+body.theme-dark-mode {
   /* Primary Colors - High contrast blue for accessibility */
   --color-primary: #3b82f6;
   --color-primary-hover: #2563eb;
   --color-primary-light: rgba(59, 130, 246, 0.15);
-  
+
   /* Text Colors - High contrast for readability */
   --color-text-darkest: #ffffff;
   --color-text-dark: #e5e7eb;
   --color-text-medium: #d1d5db;
   --color-text-light: #9ca3af;
   --color-text-lightest: #6b7280;
-  
+
   /* Background Colors - Dark but not too dark for contrast */
   --color-bg-white: #111827;
   --color-bg-lightest: #1f2937;
@@ -213,13 +237,13 @@ app-sudoku.theme-dark-mode {
   --color-bg-medium: #4b5563;
   --color-bg-dark: #6b7280;
   --color-bg-darkest: #9ca3af;
-  
+
   /* Border Colors - Visible borders for accessibility */
   --color-border-light: #374151;
   --color-border-medium: #4b5563;
   --color-border-dark: #6b7280;
   --color-border-darkest: #9ca3af;
-  
+
   /* Game-specific Colors */
   --color-cell-fixed: var(--color-text-darkest);
   --color-cell-selected: var(--color-primary);
@@ -230,10 +254,10 @@ app-sudoku.theme-dark-mode {
   --color-cell-highlighted-border: rgba(59, 130, 246, 0.4);
   --color-cell-number-highlighted: var(--color-primary);
   --color-cell-notes: var(--color-text-medium);
-  
+
   /* Shadow Colors */
   --shadow-primary: 0 4px 8px rgba(59, 130, 246, 0.3);
-  
+
   /* Message Colors - High contrast for accessibility */
   --color-victory-text: #34d399;
   --color-victory-bg: #065f46;
@@ -244,5 +268,7 @@ app-sudoku.theme-dark-mode {
 }
 
 body {
-  margin: 0
+  margin: 0;
+  font-family: "Source Sans 3", sans-serif;
+  box-sizing: border-box;
 }

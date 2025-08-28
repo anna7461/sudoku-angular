@@ -27,9 +27,6 @@ interface SavedGameInfo {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   imports: [CommonModule],
-  host: {
-    '[class]': 'getThemeClass()'
-  }
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   gameModes: GameMode[] = [
@@ -79,9 +76,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Cleanup if needed
   }
 
-  getThemeClass(): string {
-    return this.themeService.getCurrentTheme().className;
-  }
+
 
   checkForSavedGame(): void {
     // Check if there's a saved game in localStorage

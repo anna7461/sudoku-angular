@@ -98,6 +98,17 @@ export class ThemeService {
     if (isPlatformBrowser(this.platformId)) {
       // Save to localStorage
       localStorage.setItem(this.THEME_KEY, theme.id.toString());
+      
+      // Apply theme globally to body element
+      const body = document.body;
+      
+      // Remove all existing theme classes
+      this.themes.forEach(t => {
+        body.classList.remove(t.className);
+      });
+      
+      // Add the new theme class
+      body.classList.add(theme.className);
     }
     
     // Update subject (works in both browser and server)

@@ -1,0 +1,260 @@
+.app-header {
+  background: var(--color-bg-white);
+  border-bottom: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-default);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-left {
+  .sudoku-title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.1s ease;
+    user-select: none;
+
+    &:hover {
+      color: var(--color-primary-hover);
+      transform: var(--color-hover-transform);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.header-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.header-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: 0.5rem;
+  background: var(--color-bg-white);
+  color: var(--color-text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+
+  &:hover {
+    background: var(--color-button-hover-bg);
+    border-color: var(--color-border-medium);
+    transform: var(--color-hover-transform);
+    box-shadow: var(--shadow-hover);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+.pause-button {
+  &:hover {
+    color: var(--color-warning);
+    border-color: var(--color-warning);
+  }
+}
+
+.theme-button {
+  &:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+}
+
+// Theme Popup Styles
+.theme-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.theme-popup {
+  background: var(--color-bg-white);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-hover);
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.theme-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-darkest);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-medium);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--color-text-dark);
+      background: var(--color-bg-lightest);
+    }
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid var(--color-border-light);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--color-bg-white);
+
+  &:hover {
+    border-color: var(--color-primary);
+    transform: var(--color-hover-transform);
+    box-shadow: var(--shadow-hover);
+  }
+
+  &.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+}
+
+.theme-preview {
+  display: flex;
+  gap: 0.25rem;
+
+  .color-swatch {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--color-border-medium);
+
+    &.primary {
+      border-color: var(--color-border-dark);
+    }
+  }
+}
+
+.theme-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+
+  .theme-name {
+    font-weight: 500;
+    color: var(--color-text-darkest);
+  }
+
+  .checkmark {
+    color: var(--color-primary);
+    margin-left: auto;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .header-content {
+    padding: 1rem;
+  }
+
+  .sudoku-title {
+    font-size: 1.5rem;
+  }
+
+  .header-button {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .theme-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .theme-option {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    padding: 0.75rem;
+  }
+
+  .sudoku-title {
+    font-size: 1.25rem;
+  }
+
+  .header-button {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.9rem;
+  }
+}

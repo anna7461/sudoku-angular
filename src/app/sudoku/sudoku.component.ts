@@ -33,9 +33,6 @@ import {NewGameService, GameDifficulty} from './services/new-game.service';
     CongratulationsDialogComponent
   ],
   styleUrls: ['./sudoku.component.scss'],
-  host: {
-    '[class]': 'getThemeClass()'
-  }
 })
 export class SudokuComponent implements OnInit, OnDestroy {
 
@@ -52,12 +49,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
-  /**
-   * Get the current theme class for the host element
-   */
-  getThemeClass(): string {
-    return this.themeService.getCurrentTheme().className;
-  }
+
 
   boxes: Box[] = [];
   private readonly STORAGE_KEY = 'sudoku-game-state';
@@ -134,6 +126,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
       boxesLength: this.boxes.length
     });
 
+    // Add mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    console.log('Device detection:', { isMobile, userAgent: navigator.userAgent });
+
     // Make component accessible from browser console for testing (browser only)
     if (typeof window !== 'undefined') {
       (window as any).sudokuComponent = this;
@@ -146,6 +142,11 @@ export class SudokuComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.loadGameState();
     }, 200);
+
+    // Check current route after a delay to ensure proper initialization
+    setTimeout(() => {
+      this.checkCurrentRoute();
+    }, 1000);
 
     // Add document click listener for detecting clicks outside the board (browser only)
     if (typeof document !== 'undefined') {
@@ -162,10 +163,16 @@ export class SudokuComponent implements OnInit, OnDestroy {
       window.addEventListener('sudoku-new-game', this.handleNewGame.bind(this) as EventListener);
     }
 
-    // Listen for pause state changes
-    if (typeof window !== 'undefined') {
-      window.addEventListener('sudoku-pause-state-changed', this.handlePauseStateChange.bind(this) as EventListener);
-    }
+    // Subscribe to pause service for pause state changes
+    this.pauseService.gamePauseState$.subscribe(isPaused => {
+      this.isGamePaused = isPaused;
+      
+      // Save game state when pause state changes
+      if (this.boxes && this.boxes.length > 0) {
+        this.saveGameState();
+        console.log(`Game state saved after pause state change: ${isPaused ? 'paused' : 'resumed'}`);
+      }
+    });
 
     // Add beforeunload event listener to save game state when user leaves
     if (typeof window !== 'undefined') {
@@ -175,10 +182,13 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Listen for router navigation to save game state before leaving
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
-        // Save game state before navigation starts
+        console.log('Navigation event detected:', event);
+        // Save current game state before navigation starts
         if (this.boxes && this.boxes.length > 0) {
           this.saveGameState();
           console.log('Game state saved before navigation');
+        } else {
+          console.log('No game state to save before navigation');
         }
       }
     });
@@ -203,7 +213,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     if (typeof window !== 'undefined') {
       window.removeEventListener('sudoku-game-reset', this.handleGameReset.bind(this) as EventListener);
       window.removeEventListener('sudoku-new-game', this.handleNewGame.bind(this) as EventListener);
-      window.removeEventListener('sudoku-pause-state-changed', this.handlePauseStateChange.bind(this) as EventListener);
+
       window.removeEventListener('beforeunload', this.handleBeforeUnload.bind(this) as EventListener);
     }
   }
@@ -242,22 +252,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     console.log('Game state saved before unload');
   }
 
-  /**
-   * Handle pause state change events
-   */
-  private handlePauseStateChange(event: Event): void {
-    const customEvent = event as CustomEvent;
-    const { isPaused } = customEvent.detail;
-    
-    // Update local pause state
-    this.isGamePaused = isPaused;
-    
-    // Save game state when pause state changes
-    if (this.boxes && this.boxes.length > 0) {
-      this.saveGameState();
-      console.log(`Game state saved after pause state change: ${isPaused ? 'paused' : 'resumed'}`);
-    }
-  }
+
 
   private saveGameState(): void {
     try {
@@ -290,13 +285,18 @@ export class SudokuComponent implements OnInit, OnDestroy {
     const startTime = Date.now();
     const minLoadingTime = 300; // ms
 
+    console.log('loadGameState called, starting game state loading...');
+
     try {
       const savedState = localStorage.getItem(this.STORAGE_KEY);
+      console.log('Saved state found:', !!savedState);
 
       if (savedState) {
         const gameState = JSON.parse(savedState);
+        console.log('Parsed game state:', gameState);
 
         if (Array.isArray(gameState.boxes) && gameState.boxes.length > 0) {
+          console.log('Valid saved game found, loading...');
           this.boxes = gameState.boxes;
           this.currentDifficulty = gameState.difficulty ?? '';
           this.mistakeCount = gameState.mistakeCount ?? 0;
@@ -309,7 +309,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
             difficulty: this.currentDifficulty,
             mistakeCount: this.mistakeCount,
             score: this.score,
-            notesMode: this.notesMode
+            notesMode: this.notesMode,
+            boxesLength: this.boxes.length
           });
 
           // Clear current number and selection when loading saved game
@@ -320,9 +321,11 @@ export class SudokuComponent implements OnInit, OnDestroy {
           // Load solution and fixed cells if available
           if (gameState.solution && Array.isArray(gameState.solution)) {
             this.solution = gameState.solution;
+            console.log('Solution loaded from saved state');
           }
           if (gameState.fixedCells && Array.isArray(gameState.fixedCells)) {
             this.fixedCells = gameState.fixedCells;
+            console.log('Fixed cells loaded from saved state');
           }
 
           // Load move history if available
@@ -369,7 +372,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
             this.initializeBoard(this.currentDifficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert');
           }
 
-          console.log('Game state loaded:', gameState);
+          console.log('Game state loaded successfully, finishing loading...');
           this.finishLoading(startTime, minLoadingTime);
           return;
         }
@@ -380,6 +383,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
     // Check if there's a pending new game request from NewGameService
     const pendingNewGame = this.newGameService.getLastNewGameRequest();
+    console.log('Pending new game request:', pendingNewGame);
+    
     if (pendingNewGame && pendingNewGame.difficulty) {
       console.log(`Found pending new game request with difficulty: ${pendingNewGame.difficulty}`);
       this.initializeBoard(pendingNewGame.difficulty);
@@ -394,10 +399,28 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
   private finishLoading(startTime: number, minLoadingTime: number): void {
     const elapsed = Date.now() - startTime;
+    console.log(`finishLoading called, elapsed: ${elapsed}ms, minLoadingTime: ${minLoadingTime}ms`);
+    
     setTimeout(() => {
+      console.log('Setting isLoading to false and triggering change detection...');
       this.isLoading = false;
       this.invalidateGameActiveCache();
+      
+      // Force change detection multiple times for mobile
       this.changeDetectorRef.detectChanges();
+      setTimeout(() => {
+        this.changeDetectorRef.detectChanges();
+        console.log('Second change detection triggered');
+      }, 50);
+      
+      console.log('Loading finished, current state:', {
+        isLoading: this.isLoading,
+        boxesLength: this.boxes.length,
+        boxes: this.boxes
+      });
+      
+      // Check route again after loading to ensure puzzle is generated
+      this.checkCurrentRoute();
     }, Math.max(0, minLoadingTime - elapsed));
   }
 
@@ -526,12 +549,6 @@ export class SudokuComponent implements OnInit, OnDestroy {
       this.saveGameState();
     }
   }
-
-  onPauseStateChange(isPaused: boolean) {
-    this.isGamePaused = isPaused;
-  }
-
-
 
   // Method to toggle notes mode
   toggleNotesMode() {
@@ -1436,11 +1453,15 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.selectedCellIndex = null;
 
     // 1. Generate solved board and store the solution for validation
+    console.log('Generating solved board...');
     const solvedBoard = this.generateSolvedBoard();
+    console.log('Solved board generated:', solvedBoard);
     this.solution = solvedBoard.map(row => [...row]); // deep copy
 
     // 2. Create puzzle from solved board
+    console.log('Creating puzzle from solved board...');
     const puzzle = this.createPuzzleFromSolved(solvedBoard, difficulty);
+    console.log('Puzzle created:', puzzle);
     this.currentDifficulty = difficulty || 'test';
 
     console.log(
@@ -1451,8 +1472,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
     // 3. Track fixed cells (original numbers from the puzzle)
     this.fixedCells = puzzle.map(row => row.map(num => num !== 0));
+    console.log('Fixed cells tracked:', this.fixedCells);
 
     // 4. Build boxes[] from puzzle
+    console.log('Building boxes from puzzle...');
     this.boxes = [];
     for (let boxRow = 0; boxRow < 3; boxRow++) {
       for (let boxCol = 0; boxCol < 3; boxCol++) {
@@ -1477,11 +1500,21 @@ export class SudokuComponent implements OnInit, OnDestroy {
       }
     }
 
+    console.log('Boxes built:', this.boxes);
+    console.log('Boxes length:', this.boxes.length);
+    console.log('First box cells:', this.boxes[0]?.cells);
+
     // 5. Save initial game state
     this.saveGameState();
 
     // 6. Invalidate game active cache since boxes are now initialized
     this.invalidateGameActiveCache();
+    
+    // 7. Force change detection for mobile
+    setTimeout(() => {
+      this.changeDetectorRef.detectChanges();
+      console.log('Change detection triggered, boxes should now be visible');
+    }, 100);
   }
 
   private generateSudokuPuzzle(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert'): number[][] {
@@ -1597,6 +1630,21 @@ export class SudokuComponent implements OnInit, OnDestroy {
     } else {
       console.log('❌ WARNING: Some boards were duplicated');
     }
+  }
+
+  /**
+   * Force puzzle generation for debugging purposes
+   * This method can be called from the debug button or console
+   */
+  public forceGeneratePuzzle(difficulty: 'test' | 'easy' | 'medium' | 'hard' | 'expert' = 'test') {
+    console.log(`Force generating puzzle with difficulty: ${difficulty}`);
+    this.isLoading = true;
+    this.changeDetectorRef.detectChanges();
+    
+    setTimeout(() => {
+      this.initializeBoard(difficulty);
+      console.log('Force puzzle generation completed');
+    }, 100);
   }
 
   private createPuzzleFromSolved(
@@ -2469,5 +2517,23 @@ export class SudokuComponent implements OnInit, OnDestroy {
     return cell.state;
   }
 
+  /**
+   * Check current route and prevent unwanted navigation
+   */
+  private checkCurrentRoute(): void {
+    const currentUrl = this.router.url;
+    console.log('Current route:', currentUrl);
+    
+    // If we're on the sudoku route but don't have puzzle data, try to generate it
+    if (currentUrl === '/sudoku' && (!this.boxes || this.boxes.length === 0)) {
+      console.log('On sudoku route but no puzzle data, attempting to generate...');
+      setTimeout(() => {
+        if (!this.boxes || this.boxes.length === 0) {
+          console.log('Still no puzzle data, forcing generation...');
+          this.forceGeneratePuzzle();
+        }
+      }, 500);
+    }
+  }
 
 }
