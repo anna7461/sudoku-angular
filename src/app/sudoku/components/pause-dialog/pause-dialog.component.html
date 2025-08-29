@@ -5,6 +5,25 @@
     </div>
     
     <div class="pause-dialog-content">
+      <!-- Game Information Section -->
+      <div class="game-info" *ngIf="currentTime || currentDifficulty">
+        <h3>Current Game Status</h3>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="currentTime">
+            <span class="info-label">Current Time:</span>
+            <span class="info-value time-value">{{ currentTime }}</span>
+          </div>
+          <div class="info-item" *ngIf="currentDifficulty">
+            <span class="info-label">Difficulty:</span>
+            <span class="info-value difficulty-value">{{ currentDifficulty }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Mistakes Limit:</span>
+            <span class="info-value mistakes-value">{{ mistakesLimit }}</span>
+          </div>
+        </div>
+      </div>
+      
       <div class="difficulty-selection">
         <label for="difficulty-select">Select Difficulty:</label>
         <select 

@@ -18,6 +18,11 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
   message = '';
   selectedDifficulty: GameDifficulty = 'test';
   availableDifficulties: { value: GameDifficulty; label: string }[] = [];
+  
+  // Game state information
+  currentTime: string = '';
+  currentDifficulty: string = '';
+  mistakesLimit: number = 3;
 
   constructor(
     private pauseService: PauseService,
@@ -31,6 +36,9 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
     this.pauseService.pauseDialog$.subscribe(dialogData => {
       this.isVisible = dialogData.isVisible;
       this.message = dialogData.message;
+      this.currentTime = dialogData.currentTime || '';
+      this.currentDifficulty = dialogData.currentDifficulty || '';
+      this.mistakesLimit = dialogData.mistakesLimit || 3;
     });
 
     // Get available difficulties

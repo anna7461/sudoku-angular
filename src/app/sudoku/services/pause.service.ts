@@ -1,10 +1,14 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
+import { GameService } from './game.service';
 
 export interface PauseDialogData {
   isVisible: boolean;
   message: string;
+  currentTime?: string;
+  currentDifficulty?: string;
+  mistakesLimit?: number;
 }
 
 @Injectable({
@@ -24,15 +28,24 @@ export class PauseService {
   public pauseDialog$ = this.pauseDialogSubject.asObservable();
   public gamePauseState$ = this.gamePauseStateSubject.asObservable();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private gameService: GameService
+  ) {}
 
   /**
    * Pause the game and show pause dialog
    */
   pauseGame(): void {
+    // Get current game state automatically
+    const currentGameState = this.gameService.getCurrentGameState();
+    
     this.pauseDialogSubject.next({
       isVisible: true,
-      message: 'Game is paused'
+      message: 'Game is paused',
+      currentTime: currentGameState.currentTime,
+      currentDifficulty: currentGameState.currentDifficulty,
+      mistakesLimit: currentGameState.mistakesLimit
     });
     
     // Update game pause state

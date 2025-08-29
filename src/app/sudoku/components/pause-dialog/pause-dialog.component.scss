@@ -34,6 +34,66 @@
 }
 
 .pause-dialog-content {
+  .game-info {
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: var(--color-bg-light);
+    border-radius: 8px;
+    border: 1px solid var(--color-border-light);
+    
+    h3 {
+      margin: 0 0 16px 0;
+      color: var(--color-text-darkest);
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      
+      .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--color-border-light);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        .info-label {
+          color: var(--color-text-dark);
+          font-weight: 500;
+          font-size: 0.9rem;
+        }
+        
+        .info-value {
+          font-weight: 600;
+          font-size: 1rem;
+          
+          &.time-value {
+            color: var(--color-primary);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+          }
+          
+          &.difficulty-value {
+            color: var(--color-success);
+            text-transform: capitalize;
+          }
+          
+          &.mistakes-value {
+            color: var(--color-warning);
+          }
+        }
+      }
+    }
+  }
+  
   .difficulty-selection {
     margin-bottom: 24px;
     

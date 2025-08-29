@@ -17,6 +17,7 @@ import {PauseService} from './services/pause.service';
 import {GameResetService} from './services/game-reset.service';
 import {NewGameService, GameDifficulty} from './services/new-game.service';
 import {ScrollToTopService} from '../services/scroll-to-top.service';
+import {GameService} from './services/game.service';
 
 @Component({
   standalone: true,
@@ -48,7 +49,8 @@ export class SudokuComponent implements OnInit, OnDestroy {
     private gameResetService: GameResetService,
     private newGameService: NewGameService,
     private router: Router,
-    private scrollToTopService: ScrollToTopService
+    private scrollToTopService: ScrollToTopService,
+    private gameService: GameService
   ) {}
 
 
@@ -143,6 +145,13 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Also give NewGameService time to process any pending requests
     setTimeout(() => {
       this.loadGameState();
+      
+      // Initialize game state service with default values
+      this.gameService.updateGameState({
+        currentTime: '00:00',
+        currentDifficulty: this.getCurrentDifficulty() || 'Test',
+        mistakesLimit: 3
+      });
     }, 200);
 
     // Check current route after a delay to ensure proper initialization
@@ -349,6 +358,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
             this.isGamePaused = gameState.isGamePaused;
           }
 
+          // Update game state service with loaded values
+          this.gameService.updateGameState({
+            currentDifficulty: this.getCurrentDifficulty(),
+            mistakesLimit: 3 // Standard mistakes limit
+          });
+
           // Timer component will automatically restore from localStorage
           // No need to manually call restoration here
 
@@ -550,6 +565,11 @@ export class SudokuComponent implements OnInit, OnDestroy {
   // Timer event handlers
   onTimerUpdate(elapsedSeconds: number) {
     this.totalGameTime = elapsedSeconds;
+    
+    // Update game state service with current time
+    this.gameService.updateGameState({
+      currentTime: this.timerComponent.getCurrentFormattedTime()
+    });
     
     // Save game state periodically to keep elapsed time updated
     if (this.boxes && this.boxes.length > 0 && elapsedSeconds % 10 === 0) {
@@ -1471,6 +1491,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
     const puzzle = this.createPuzzleFromSolved(solvedBoard, difficulty);
     console.log('Puzzle created:', puzzle);
     this.currentDifficulty = difficulty || 'test';
+
+    // Update game state service with current difficulty and mistakes limit
+    this.gameService.updateGameState({
+      currentDifficulty: this.getCurrentDifficulty(),
+      mistakesLimit: 3 // Standard mistakes limit
+    });
 
     console.log(
       difficulty
