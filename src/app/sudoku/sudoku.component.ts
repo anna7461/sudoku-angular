@@ -448,10 +448,6 @@ export class SudokuComponent implements OnInit, OnDestroy {
   goToDashboard(): void {
     // Save current game state before navigating
     this.saveGameState();
-    
-    // Scroll to top before navigating to dashboard
-    this.scrollToTopService.scrollToTopInstant();
-    
     this.router.navigate(['/']);
   }
 

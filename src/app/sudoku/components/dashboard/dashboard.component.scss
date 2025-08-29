@@ -19,11 +19,9 @@
 
 .dashboard-title {
   font-size: 4rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--color-primary);
   margin: 0;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  letter-spacing: -0.02em;
 
   @media (max-width: 768px) {
     font-size: 3rem;
