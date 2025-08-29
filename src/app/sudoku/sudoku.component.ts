@@ -27,7 +27,6 @@ import {GameService} from './services/game.service';
     CommonModule,
     BoardComponent,
     NumberPadComponent,
-    ControlsComponent,
     TimerComponent,
     BoardControlsComponent,
     PauseDialogComponent,
@@ -284,6 +283,11 @@ export class SudokuComponent implements OnInit, OnDestroy {
         gameStartTime: this.gameStartTime,
         totalGameTime: this.totalGameTime,
         isGamePaused: this.isGamePaused,
+        // Add Game Over state persistence
+        isGameOver: this.showGameOverDialog,
+        gameOverStats: this.gameOverStats,
+        isGameCompleted: this.showCongratulationsDialog,
+        congratulationsStats: this.congratulationsStats,
         timestamp: Date.now()
       };
 
@@ -358,6 +362,22 @@ export class SudokuComponent implements OnInit, OnDestroy {
             this.isGamePaused = gameState.isGamePaused;
           }
 
+          // Load Game Over state if available
+          if (gameState.isGameOver !== undefined) {
+            this.showGameOverDialog = gameState.isGameOver;
+          }
+          if (gameState.gameOverStats !== undefined) {
+            this.gameOverStats = gameState.gameOverStats;
+          }
+
+          // Load Game Completed state if available
+          if (gameState.isGameCompleted !== undefined) {
+            this.showCongratulationsDialog = gameState.isGameCompleted;
+          }
+          if (gameState.congratulationsStats !== undefined) {
+            this.congratulationsStats = gameState.congratulationsStats;
+          }
+
           // Update game state service with loaded values
           this.gameService.updateGameState({
             currentDifficulty: this.getCurrentDifficulty(),
@@ -369,14 +389,17 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
           // Check if the loaded game state has too many mistakes and auto-reset if needed
           if (this.mistakeCount >= 3) {
-            console.log('Loaded game has too many mistakes, auto-resetting...');
-            this.mistakeCount = 0;
-            this.score = 0;
-            this.moveHistory = [];
-            this.gameStartTime = null;
-            this.totalGameTime = 0;
-            this.isGamePaused = false;
-            this.invalidateGameActiveCache();
+            console.log('Loaded game has too many mistakes, checking if it was already in Game Over state...');
+            
+            // If the game was already in Game Over state, maintain it
+            if (this.showGameOverDialog) {
+              console.log('Game was already in Game Over state, maintaining it');
+              // Don't reset - keep the Game Over dialog open
+            } else {
+              console.log('Game has too many mistakes but was not in Game Over state, triggering Game Over...');
+              // Trigger Game Over instead of auto-resetting
+              this.handleGameOver();
+            }
           }
 
           // Check if the loaded game is already completed
@@ -625,6 +648,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
   // Method to fill the currently selected cell with a specific number
   private fillSelectedCellWithNumber(num: number) {
+    // Prevent moves if the game is over
+    if (this.isGameOver()) {
+      console.log('Cannot make moves - game is over');
+      return;
+    }
+
     if (this.selectedBoxIndex === null || this.selectedCellIndex === null) {
       return;
     }
@@ -956,6 +985,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
   // Undo the last move
   undo() {
+    // Prevent undo if the game is over
+    if (this.isGameOver()) {
+      console.log('Cannot undo moves - game is over');
+      return;
+    }
+
     console.log('Sudoku: undo() called, moveHistory length:', this.moveHistory.length);
     if (!this.canUndo()) {
       console.log('No moves to undo');
@@ -1066,6 +1101,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
     if (this.timerComponent) {
       this.timerComponent.pauseTimer();
     }
+
+    // Save the Game Over state immediately
+    this.saveGameState();
   }
 
   // Handle game over dialog actions
@@ -1085,6 +1123,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.showGameOverDialog = false;
     this.gameOverStats = null;
     // Don't restart the game, just close the dialog
+    
+    // Save the updated state (dialog closed)
+    this.saveGameState();
   }
 
   // Handle congratulations dialog actions
@@ -2196,7 +2237,10 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
   // Check if the game is over (too many mistakes)
   public isGameOver(): boolean {
-    const isOver = this.mistakeCount >= 3;
+    // Game is over if either:
+    // 1. Mistake limit reached (mistakeCount >= 3)
+    // 2. Game Over dialog is currently shown (persisted state)
+    const isOver = this.mistakeCount >= 3 || this.showGameOverDialog;
     return isOver;
   }
 

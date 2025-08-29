@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameDifficulty } from '../../services/new-game.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
@@ -17,7 +17,7 @@ export interface GameOverStats {
   templateUrl: './game-over-dialog.component.html',
   styleUrls: ['./game-over-dialog.component.scss']
 })
-export class GameOverDialogComponent implements OnChanges {
+export class GameOverDialogComponent implements OnChanges, OnInit, OnDestroy {
   @Input() isVisible: boolean = false;
   @Input() gameStats: GameOverStats | null = null;
   @Output() resetGame = new EventEmitter<void>();
@@ -25,8 +25,28 @@ export class GameOverDialogComponent implements OnChanges {
   @Output() close = new EventEmitter<void>();
 
   selectedDifficulty: GameDifficulty = 'easy';
+  private escapeKeyHandler: (event: KeyboardEvent) => void;
 
-  constructor(private scrollToTopService: ScrollToTopService) {}
+  constructor(private scrollToTopService: ScrollToTopService) {
+    // Create the escape key handler
+    this.escapeKeyHandler = (event: KeyboardEvent) => {
+      if (this.isVisible && event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        // Do nothing - prevent dialog from closing
+      }
+    };
+  }
+
+  ngOnInit(): void {
+    // Add event listener for escape key
+    document.addEventListener('keydown', this.escapeKeyHandler);
+  }
+
+  ngOnDestroy(): void {
+    // Remove event listener
+    document.removeEventListener('keydown', this.escapeKeyHandler);
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     // Pre-fill difficulty selection with current game's difficulty
