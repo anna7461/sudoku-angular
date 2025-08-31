@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnIni
 import { CommonModule } from '@angular/common';
 import { GameDifficulty } from '../../services/new-game.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
+import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
 
 export interface GameOverStats {
   mistakeCount: number;
@@ -13,18 +14,20 @@ export interface GameOverStats {
 @Component({
   selector: 'app-game-over-dialog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DifficultyDialogComponent],
   templateUrl: './game-over-dialog.component.html',
   styleUrls: ['./game-over-dialog.component.scss']
 })
-export class GameOverDialogComponent implements OnChanges, OnInit, OnDestroy {
+export class GameOverDialogComponent implements OnInit, OnDestroy {
   @Input() isVisible: boolean = false;
   @Input() gameStats: GameOverStats | null = null;
   @Output() resetGame = new EventEmitter<void>();
   @Output() newGame = new EventEmitter<GameDifficulty>();
   @Output() close = new EventEmitter<void>();
-
-  selectedDifficulty: GameDifficulty = 'easy';
+  
+  // Difficulty dialog state
+  showDifficultyDialog: boolean = false;
+  
   private escapeKeyHandler: (event: KeyboardEvent) => void;
 
   constructor(private scrollToTopService: ScrollToTopService) {
@@ -46,35 +49,38 @@ export class GameOverDialogComponent implements OnChanges, OnInit, OnDestroy {
   ngOnDestroy(): void {
     // Remove event listener
     document.removeEventListener('keydown', this.escapeKeyHandler);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // Pre-fill difficulty selection with current game's difficulty
-    if (changes['gameStats'] && this.gameStats?.difficulty) {
-      const difficulty = this.gameStats.difficulty.toLowerCase() as GameDifficulty;
-      if (difficulty === 'easy' || difficulty === 'medium' || difficulty === 'hard' || difficulty === 'expert') {
-        this.selectedDifficulty = difficulty;
-      }
-    }
+    // Restore body scroll if component is destroyed while dialog is open
+    document.body.style.overflow = '';
   }
 
   onResetGame(): void {
     this.resetGame.emit();
   }
 
-  onNewGame(): void {
+  onNewGameClick(): void {
+    this.showDifficultyDialog = true;
+    // Prevent body scroll when dialog is open
+    document.body.style.overflow = 'hidden';
+  }
+
+  onDifficultySelected(difficulty: GameDifficulty): void {
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
+    
     // Scroll to top when starting new game
     this.scrollToTopService.scrollToTop();
-    this.newGame.emit(this.selectedDifficulty);
+    this.newGame.emit(difficulty);
+  }
+
+  onDifficultyDialogClose(): void {
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
   }
 
   onClose(): void {
     this.close.emit();
-  }
-
-  onDifficultyChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.selectedDifficulty = target.value as GameDifficulty;
   }
 
   // Prevent clicks inside the dialog from closing it

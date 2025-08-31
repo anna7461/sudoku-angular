@@ -3,6 +3,7 @@
   grid-template-columns: repeat(3, 1fr);
   border: 1px solid var(--color-border-darkest);
   width: fit-content;
+  position: relative;
 
   &.disabled {
     opacity: var(--color-button-disabled-opacity);
@@ -31,6 +32,16 @@
   cursor: pointer;
   user-select: none;
   font-weight: bold;
+  min-height: 44px;
+  transition: all 0.2s ease;
+
+  /* Enhanced focus styles for accessibility */
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring, #3b82f6);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--color-focus-ring-light, rgba(59, 130, 246, 0.3));
+    z-index: 10;
+  }
 
   :host-context(.theme-dark-mode) {
     background-color: var(--color-bg-white);
@@ -43,16 +54,24 @@
   &.selected {
     background-color: var(--color-cell-selected);
     color: var(--color-cell-selected-text);
+    border: 2px solid var(--color-cell-selected);
+    /* Enhanced focus for selected cell */
+    &:focus-visible {
+      outline: 2px solid var(--color-text-white, #ffffff);
+      outline-offset: 1px;
+    }
   }
 
   &.correct {
     color: var(--color-cell-correct);
     background-color: transparent;
+    font-weight: 600; /* Slightly bolder for better readability */
   }
 
   &.error {
     color: var(--color-cell-error);
     background-color: transparent;
+    font-weight: 600; /* Slightly bolder for better readability */
 
     .main-number {
       color: var(--color-cell-error) !important;
@@ -68,19 +87,30 @@
     &:hover {
       background-color: var(--color-cell-highlighted-border);
     }
+
+    /* Enhanced focus for fixed selected cell */
+    &:focus-visible {
+      outline: 2px solid var(--color-focus-ring, #3b82f6);
+      outline-offset: 1px;
+    }
   }
 
   &.number-highlighted {
     background-color: var(--color-cell-number-highlighted);
     color: var(--color-cell-selected-text);
+    border: 1px solid var(--color-cell-number-highlighted);
 
     .note {
       color: var(--color-warning);
       font-weight: bold;
     }
+
+    /* Enhanced focus for number highlighted cell */
+    &:focus-visible {
+      outline: 2px solid var(--color-text-white, #ffffff);
+      outline-offset: 1px;
+    }
   }
-
-
 
   &.related-highlighted {
     background-color: var(--color-cell-highlighted);
@@ -90,10 +120,17 @@
   &.current-number-highlighted {
     background-color: var(--color-primary);
     color: var(--color-cell-selected-text);
+    border: 1px solid var(--color-primary);
 
     .note {
       color: var(--color-success);
       font-weight: bold;
+    }
+
+    /* Enhanced focus for current number highlighted cell */
+    &:focus-visible {
+      outline: 2px solid var(--color-text-white, #ffffff);
+      outline-offset: 1px;
     }
   }
 
@@ -137,19 +174,25 @@
       font-weight: bold;
       border-radius: 2px;
       transition: all 0.2s ease;
+      /* Improved accessibility for notes */
+      min-height: 12px;
+      min-width: 12px;
 
       &.has-note {
         color: var(--color-cell-notes);
+        font-weight: 600; /* Better readability */
       }
 
       &.note-error {
         color: var(--color-danger);
         background-color: var(--color-cell-selected-text);
+        border: 1px solid var(--color-danger);
       }
 
       &.note-selected {
         background-color: var(--color-primary);
         color: var(--color-cell-selected-text);
+        border: 1px solid var(--color-primary);
       }
 
       &.note-highlighted {
@@ -170,6 +213,37 @@
   }
 }
 
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .board {
+    border: 3px solid var(--color-text-darkest, #000000);
+  }
+
+  .box {
+    border: 3px solid var(--color-text-darkest, #000000);
+  }
+
+  .cell {
+    border: 2px solid var(--color-text-darkest, #000000);
+
+    &:focus-visible {
+      outline: 3px solid var(--color-text-darkest, #000000);
+      outline-offset: 1px;
+    }
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+
+    .note {
+      transition: none;
+    }
+  }
+}
+
 // Mobile Responsive Styles
 @media (max-width: 768px) {
   .board {
@@ -184,6 +258,7 @@
 
   .cell {
     font-size: 20px;
+    min-height: 40px; /* Slightly smaller but still accessible */
   }
 }
 
@@ -194,6 +269,7 @@
 
   .cell {
     font-size: 18px;
+    min-height: 36px; /* Maintain accessibility */
   }
 }
 
@@ -204,5 +280,6 @@
 
   .cell {
     font-size: 16px;
+    min-height: 32px; /* Minimum accessible size */
   }
 }

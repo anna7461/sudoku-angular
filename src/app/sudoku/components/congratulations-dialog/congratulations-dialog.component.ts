@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { GameDifficulty } from '../../services/new-game.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
+import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
 
 export interface CongratulationsStats {
   timeTaken: string;
@@ -12,7 +13,7 @@ export interface CongratulationsStats {
 @Component({
   selector: 'app-congratulations-dialog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DifficultyDialogComponent],
   templateUrl: './congratulations-dialog.component.html',
   styleUrls: ['./congratulations-dialog.component.scss']
 })
@@ -23,37 +24,43 @@ export class CongratulationsDialogComponent implements OnChanges {
   @Output() newGame = new EventEmitter<GameDifficulty>();
   @Output() close = new EventEmitter<void>();
 
-  selectedDifficulty: GameDifficulty = 'easy';
+  // Difficulty dialog state
+  showDifficultyDialog: boolean = false;
 
   constructor(private scrollToTopService: ScrollToTopService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Pre-fill difficulty selection with current puzzle's difficulty
-    if (changes['puzzleStats'] && this.puzzleStats?.difficulty) {
-      const difficulty = this.puzzleStats.difficulty.toLowerCase() as GameDifficulty;
-      if (difficulty === 'easy' || difficulty === 'medium' || difficulty === 'hard' || difficulty === 'expert') {
-        this.selectedDifficulty = difficulty;
-      }
-    }
+    // Component no longer needs to track difficulty selection
   }
 
   onResetGame(): void {
     this.resetGame.emit();
   }
 
-  onNewGame(): void {
+  onNewGameClick(): void {
+    this.showDifficultyDialog = true;
+    // Prevent body scroll when dialog is open
+    document.body.style.overflow = 'hidden';
+  }
+
+  onDifficultySelected(difficulty: GameDifficulty): void {
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
+    
     // Scroll to top when starting new game
     this.scrollToTopService.scrollToTop();
-    this.newGame.emit(this.selectedDifficulty);
+    this.newGame.emit(difficulty);
+  }
+
+  onDifficultyDialogClose(): void {
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
   }
 
   onClose(): void {
     this.close.emit();
-  }
-
-  onDifficultyChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    this.selectedDifficulty = target.value as GameDifficulty;
   }
 
   // Prevent clicks inside the dialog from closing it

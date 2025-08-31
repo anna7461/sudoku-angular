@@ -43,36 +43,18 @@
 
   <!-- New Game Button -->
   <section class="new-game-section">
-    <button class="new-game-button secondary-button" (click)="onNewGame()">
-      New Game
-    </button>
+     <button 
+        type="button" 
+        class="btn btn-new-game" 
+        (click)="onNewGameClick()">
+        New Game
+      </button>
   </section>
-
-  <!-- Difficulty Selection Overlay -->
-  <div 
-    *ngIf="showDifficultyOverlay" 
-    class="difficulty-overlay"
-    (click)="onOverlayClick($event)"
-  >
-    <div class="difficulty-modal">
-      <div class="modal-header">
-        <h2>Select Difficulty</h2>
-        <button class="close-button" (click)="closeDifficultyOverlay()">
-          ✕
-        </button>
-      </div>
-      <div class="difficulty-options">
-        <button 
-          *ngFor="let difficulty of ['test', 'easy', 'medium', 'hard', 'expert']"
-          class="difficulty-option"
-          [class.selected]="selectedDifficulty === difficulty"
-          (click)="onDifficultySelect(difficulty)"
-        >
-          <span class="difficulty-icon">{{ getDifficultyIcon(difficulty) }}</span>
-          <span class="difficulty-label">{{ getDifficultyLabel(difficulty) }}</span>
-          <span class="difficulty-description">{{ getDifficultyDescription(difficulty) }}</span>
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
+
+<!-- Difficulty Selection Dialog -->
+<app-difficulty-dialog
+  [isVisible]="showDifficultyDialog"
+  (difficultySelected)="onDifficultySelected($event)"
+  (close)="onDifficultyDialogClose()"
+></app-difficulty-dialog>

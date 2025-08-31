@@ -25,19 +25,6 @@
         </div>
       </div>
       
-      <div class="difficulty-selection">
-        <label for="difficulty-select">New Game Difficulty:</label>
-        <select 
-          id="difficulty-select" 
-          [value]="selectedDifficulty"
-          (change)="onDifficultyChange($event)"
-          class="difficulty-dropdown">
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-          <option value="expert">Expert</option>
-        </select>
-      </div>
     </div>
     
     <div class="dialog-actions">
@@ -52,10 +39,16 @@
       <button 
         type="button" 
         class="btn btn-new-game" 
-        (click)="onNewGame()">
-        <i class="fas fa-plus"></i>
+        (click)="onNewGameClick()">
         New Game
       </button>
     </div>
   </div>
 </div>
+
+<!-- Difficulty Selection Dialog -->
+<app-difficulty-dialog
+  [isVisible]="showDifficultyDialog"
+  (difficultySelected)="onDifficultySelected($event)"
+  (close)="onDifficultyDialogClose()"
+></app-difficulty-dialog>

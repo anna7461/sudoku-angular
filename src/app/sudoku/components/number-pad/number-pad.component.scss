@@ -61,10 +61,6 @@
       transform: translateY(-3px);
       box-shadow: var(--shadow-primary);
       animation: pulse-hold 1s ease-in-out infinite;
-
-      .number {
-        font-weight: bold;
-      }
     }
 
     &.completed {

@@ -1,13 +1,339 @@
-// Variables
-$primary: #3d55cc;
-$darkest: #141a33;
-$dark: #505673;
-$medium: #878ca8;
-$light: #dadef2;
-$lightest: #f5f6fa;
-$white: #fff;
-$warning: #ffa800;
-$info: #3699ff;
-$danger: #e8584a;
-$success: #37be76;
-$black: #000;
+// Base color palette with improved accessibility
+$primary: #2563eb; // Improved contrast
+$darkest: #0f172a; // Darker for better contrast
+$dark: #334155; // Better contrast
+$medium: #64748b; // Improved readability
+$light: #e2e8f0; // Better contrast
+$lightest: #f8fafc; // Improved contrast
+$white: #ffffff;
+$warning: #d97706; // Better contrast
+$info: #2563eb; // Improved contrast
+$danger: #dc2626; // Better contrast
+$success: #059669; // Improved contrast
+$black: #000000;
+
+// Theme configuration map with ALL colors for each theme - ACCESSIBILITY IMPROVED
+$themes: (
+  'classic-blue': (
+    'primary': #2563eb, // Improved contrast from #3d55cc
+    'primary-hover': #1d4ed8, // Better hover state
+    'primary-light': rgba(37, 99, 235, 0.12), // Slightly more opaque
+    'text-darkest': #0f172a, // Better contrast
+    'text-dark': #334155, // Improved readability
+    'text-medium': #64748b, // Better contrast
+    'text-light': #cbd5e1, // Improved contrast
+    'text-lightest': #f1f5f9, // Better contrast
+    'text-white': #ffffff,
+    'bg-white': #ffffff,
+    'bg-lightest': #f8fafc, // Better contrast
+    'bg-light': #e2e8f0, // Improved contrast
+    'bg-medium': #64748b, // Better contrast
+    'bg-dark': #334155, // Improved contrast
+    'bg-darkest': #0f172a, // Better contrast
+    'border-light': #e2e8f0, // Better contrast
+    'border-medium': #64748b, // Improved contrast
+    'border-dark': #334155, // Better contrast
+    'border-darkest': #0f172a, // Improved contrast
+    'warning': #d97706, // Better contrast
+    'warning-light': rgba(217, 119, 6, 0.12), // More opaque
+    'info': #2563eb, // Improved contrast
+    'info-light': rgba(37, 99, 235, 0.12), // More opaque
+    'danger': #dc2626, // Better contrast
+    'danger-light': rgba(220, 38, 38, 0.12), // More opaque
+    'success': #059669, // Improved contrast
+    'success-light': rgba(5, 150, 105, 0.12), // More opaque
+    'victory-text': #047857, // Better contrast
+    'victory-bg': #ecfdf5, // Improved contrast
+    'victory-border': #047857, // Better contrast
+    'game-over-text': #b91c1c, // Better contrast
+    'game-over-bg': #fef2f2, // Improved contrast
+    'game-over-border': #b91c1c, // Better contrast
+    'cell-highlighted': rgba(37, 99, 235, 0.08), // More opaque for better visibility
+    'cell-highlighted-border': rgba(37, 99, 235, 0.25), // Better contrast
+    'shadow-primary': 0 4px 12px rgba(37, 99, 235, 0.25), // Better shadow
+    'theme-accent': #dbeafe, // Better contrast
+    'theme-text-secondary': #475569, // Improved contrast
+    'disabled-bg': #9ca3af, // Better contrast
+    'focus-ring': #3b82f6, // Focus indicator
+    'focus-ring-light': rgba(59, 130, 246, 0.5) // Light focus ring
+  ),
+  'forest-green': (
+    'primary': #059669, // Improved contrast from #2d8a3f
+    'primary-hover': #047857, // Better hover state
+    'primary-light': rgba(5, 150, 105, 0.12), // More opaque
+    'text-darkest': #064e3b, // Better contrast
+    'text-dark': #065f46, // Improved readability
+    'text-medium': #047857, // Better contrast
+    'text-light': #a7f3d0, // Improved contrast
+    'text-lightest': #ecfdf5, // Better contrast
+    'text-white': #ffffff,
+    'bg-white': #ffffff,
+    'bg-lightest': #f0fdf4, // Better contrast
+    'bg-light': #dcfce7, // Improved contrast
+    'bg-medium': #86efac, // Better contrast
+    'bg-dark': #16a34a, // Improved contrast
+    'bg-darkest': #15803d, // Better contrast
+    'border-light': #dcfce7, // Better contrast
+    'border-medium': #86efac, // Improved contrast
+    'border-dark': #16a34a, // Better contrast
+    'border-darkest': #15803d, // Improved contrast
+    'warning': #d97706, // Better contrast
+    'warning-light': rgba(217, 119, 6, 0.12), // More opaque
+    'info': #2563eb, // Improved contrast
+    'info-light': rgba(37, 99, 235, 0.12), // More opaque
+    'danger': #dc2626, // Better contrast
+    'danger-light': rgba(220, 38, 38, 0.12), // More opaque
+    'success': #059669, // Improved contrast
+    'success-light': rgba(5, 150, 105, 0.12), // More opaque
+    'victory-text': #047857, // Better contrast
+    'victory-bg': #ecfdf5, // Improved contrast
+    'victory-border': #047857, // Better contrast
+    'game-over-text': #b91c1c, // Better contrast
+    'game-over-bg': #fef2f2, // Improved contrast
+    'game-over-border': #b91c1c, // Better contrast
+    'cell-highlighted': rgba(5, 150, 105, 0.08), // More opaque for better visibility
+    'cell-highlighted-border': rgba(5, 150, 105, 0.25), // Better contrast
+    'shadow-primary': 0 4px 12px rgba(5, 150, 105, 0.25), // Better shadow
+    'theme-accent': #a7f3d0, // Better contrast
+    'theme-text-secondary': #065f46, // Improved contrast
+    'disabled-bg': #9ca3af, // Better contrast
+    'focus-ring': #10b981, // Focus indicator
+    'focus-ring-light': rgba(16, 185, 129, 0.5) // Light focus ring
+  ),
+  'sunset-orange': (
+    'primary': #ea580c, // Improved contrast from #d47500
+    'primary-hover': #c2410c, // Better hover state
+    'primary-light': rgba(234, 88, 12, 0.12), // More opaque
+    'text-darkest': #451a03, // Better contrast
+    'text-dark': #7c2d12, // Improved readability
+    'text-medium': #9a3412, // Better contrast
+    'text-light': #fed7aa, // Improved contrast
+    'text-lightest': #fff7ed, // Better contrast
+    'text-white': #ffffff,
+    'bg-white': #ffffff,
+    'bg-lightest': #fff7ed, // Better contrast
+    'bg-light': #fed7aa, // Improved contrast
+    'bg-medium': #fb923c, // Better contrast
+    'bg-dark': #ea580c, // Improved contrast
+    'bg-darkest': #c2410c, // Better contrast
+    'border-light': #fed7aa, // Better contrast
+    'border-medium': #fb923c, // Improved contrast
+    'border-dark': #ea580c, // Better contrast
+    'border-darkest': #c2410c, // Improved contrast
+    'warning': #d97706, // Better contrast
+    'warning-light': rgba(217, 119, 6, 0.12), // More opaque
+    'info': #2563eb, // Improved contrast
+    'info-light': rgba(37, 99, 235, 0.12), // More opaque
+    'danger': #dc2626, // Better contrast
+    'danger-light': rgba(220, 38, 38, 0.12), // More opaque
+    'success': #059669, // Improved contrast
+    'success-light': rgba(5, 150, 105, 0.12), // More opaque
+    'victory-text': #047857, // Better contrast
+    'victory-bg': #ecfdf5, // Improved contrast
+    'victory-border': #047857, // Better contrast
+    'game-over-text': #b91c1c, // Better contrast
+    'game-over-bg': #fef2f2, // Improved contrast
+    'game-over-border': #b91c1c, // Better contrast
+    'cell-highlighted': rgba(234, 88, 12, 0.08), // More opaque for better visibility
+    'cell-highlighted-border': rgba(234, 88, 12, 0.25), // Better contrast
+    'shadow-primary': 0 4px 12px rgba(234, 88, 12, 0.25), // Better shadow
+    'theme-accent': #fed7aa, // Better contrast
+    'theme-text-secondary': #7c2d12, // Improved contrast
+    'disabled-bg': #9ca3af, // Better contrast
+    'focus-ring': #f97316, // Focus indicator
+    'focus-ring-light': rgba(249, 115, 22, 0.5) // Light focus ring
+  ),
+  'purple-royale': (
+    'primary': #7c3aed, // Already good contrast
+    'primary-hover': #6d28d9, // Better hover state
+    'primary-light': rgba(124, 58, 237, 0.12), // More opaque
+    'text-darkest': #1e1b4b, // Better contrast
+    'text-dark': #3730a3, // Improved readability
+    'text-medium': #5b21b6, // Better contrast
+    'text-light': #c4b5fd, // Improved contrast
+    'text-lightest': #f3f4f6, // Better contrast
+    'text-white': #ffffff,
+    'bg-white': #ffffff,
+    'bg-lightest': #faf5ff, // Better contrast
+    'bg-light': #ddd6fe, // Improved contrast
+    'bg-medium': #a78bfa, // Better contrast
+    'bg-dark': #7c3aed, // Improved contrast
+    'bg-darkest': #5b21b6, // Better contrast
+    'border-light': #ddd6fe, // Better contrast
+    'border-medium': #a78bfa, // Improved contrast
+    'border-dark': #7c3aed, // Better contrast
+    'border-darkest': #5b21b6, // Improved contrast
+    'warning': #d97706, // Better contrast
+    'warning-light': rgba(217, 119, 6, 0.12), // More opaque
+    'info': #2563eb, // Improved contrast
+    'info-light': rgba(37, 99, 235, 0.12), // More opaque
+    'danger': #dc2626, // Better contrast
+    'danger-light': rgba(220, 38, 38, 0.12), // More opaque
+    'success': #059669, // Improved contrast
+    'success-light': rgba(5, 150, 105, 0.12), // More opaque
+    'victory-text': #047857, // Better contrast
+    'victory-bg': #ecfdf5, // Improved contrast
+    'victory-border': #047857, // Better contrast
+    'game-over-text': #b91c1c, // Better contrast
+    'game-over-bg': #fef2f2, // Improved contrast
+    'game-over-border': #b91c1c, // Better contrast
+    'cell-highlighted': rgba(124, 58, 237, 0.08), // More opaque for better visibility
+    'cell-highlighted-border': rgba(124, 58, 237, 0.25), // Better contrast
+    'shadow-primary': 0 4px 12px rgba(124, 58, 237, 0.25), // Better shadow
+    'theme-accent': #c4b5fd, // Better contrast
+    'theme-text-secondary': #3730a3, // Improved contrast
+    'disabled-bg': #9ca3af, // Better contrast
+    'focus-ring': #8b5cf6, // Focus indicator
+    'focus-ring-light': rgba(139, 92, 246, 0.5) // Light focus ring
+  ),
+  'warm-sand': (
+    'primary': #d97706, // Improved contrast from #b8860b
+    'primary-hover': #b45309, // Better hover state
+    'primary-light': rgba(217, 119, 6, 0.12), // More opaque
+    'text-darkest': #451a03, // Better contrast
+    'text-dark': #7c2d12, // Improved readability
+    'text-medium': #9a3412, // Better contrast
+    'text-light': #fbbf24, // Improved contrast
+    'text-lightest': #fefce8, // Better contrast
+    'text-white': #ffffff,
+    'bg-white': #fefce8, // Better contrast
+    'bg-lightest': #fef3c7, // Improved contrast
+    'bg-light': #fde68a, // Better contrast
+    'bg-medium': #f59e0b, // Improved contrast
+    'bg-dark': #d97706, // Better contrast
+    'bg-darkest': #b45309, // Improved contrast
+    'border-light': #fde68a, // Better contrast
+    'border-medium': #f59e0b, // Improved contrast
+    'border-dark': #d97706, // Better contrast
+    'border-darkest': #b45309, // Improved contrast
+    'warning': #d97706, // Better contrast
+    'warning-light': rgba(217, 119, 6, 0.12), // More opaque
+    'info': #2563eb, // Improved contrast
+    'info-light': rgba(37, 99, 235, 0.12), // More opaque
+    'danger': #dc2626, // Better contrast
+    'danger-light': rgba(220, 38, 38, 0.12), // More opaque
+    'success': #059669, // Improved contrast
+    'success-light': rgba(5, 150, 105, 0.12), // More opaque
+    'victory-text': #047857, // Better contrast
+    'victory-bg': #ecfdf5, // Improved contrast
+    'victory-border': #047857, // Better contrast
+    'game-over-text': #b91c1c, // Better contrast
+    'game-over-bg': #fef2f2, // Improved contrast
+    'game-over-border': #b91c1c, // Better contrast
+    'cell-highlighted': rgba(217, 119, 6, 0.08), // More opaque for better visibility
+    'cell-highlighted-border': rgba(217, 119, 6, 0.25), // Better contrast
+    'shadow-primary': 0 4px 12px rgba(217, 119, 6, 0.25), // Better shadow
+    'theme-accent': #fde68a, // Better contrast
+    'theme-text-secondary': #7c2d12, // Improved contrast
+    'disabled-bg': #9ca3af, // Better contrast
+    'focus-ring': #f59e0b, // Focus indicator
+    'focus-ring-light': rgba(245, 158, 11, 0.5) // Light focus ring
+  ),
+  'dark-mode': (
+    'primary': #3b82f6, // Already good contrast
+    'primary-hover': #2563eb, // Better hover state
+    'primary-light': rgba(59, 130, 246, 0.2), // More opaque for better visibility
+    'text-darkest': #ffffff, // Maximum contrast
+    'text-dark': #f1f5f9, // Better contrast
+    'text-medium': #cbd5e1, // Improved readability
+    'text-light': #94a3b8, // Better contrast
+    'text-lightest': #64748b, // Improved contrast
+    'text-white': #ffffff,
+    'bg-white': #0f172a, // Better contrast
+    'bg-lightest': #1e293b, // Improved contrast
+    'bg-light': #334155, // Better contrast
+    'bg-medium': #475569, // Improved contrast
+    'bg-dark': #64748b, // Better contrast
+    'bg-darkest': #94a3b8, // Improved contrast
+    'border-light': #334155, // Better contrast
+    'border-medium': #475569, // Improved contrast
+    'border-dark': #64748b, // Better contrast
+    'border-darkest': #94a3b8, // Improved contrast
+    'warning': #f59e0b, // Better contrast
+    'warning-light': rgba(245, 158, 11, 0.2), // More opaque
+    'info': #60a5fa, // Better contrast
+    'info-light': rgba(96, 165, 250, 0.2), // More opaque
+    'danger': #f87171, // Better contrast
+    'danger-light': rgba(248, 113, 113, 0.2), // More opaque
+    'success': #34d399, // Better contrast
+    'success-light': rgba(52, 211, 153, 0.2), // More opaque
+    'victory-text': #34d399, // Better contrast
+    'victory-bg': #064e3b, // Improved contrast
+    'victory-border': #34d399, // Better contrast
+    'game-over-text': #f87171, // Better contrast
+    'game-over-bg': #450a0a, // Improved contrast
+    'game-over-border': #f87171, // Better contrast
+    'cell-highlighted': rgba(59, 130, 246, 0.2), // More opaque for better visibility
+    'cell-highlighted-border': rgba(59, 130, 246, 0.5), // Better contrast
+    'shadow-primary': 0 4px 12px rgba(59, 130, 246, 0.4), // Better shadow
+    'theme-accent': #334155, // Better contrast
+    'theme-text-secondary': #94a3b8, // Improved contrast
+    'disabled-bg': #64748b, // Better contrast
+    'focus-ring': #60a5fa, // Focus indicator
+    'focus-ring-light': rgba(96, 165, 250, 0.5) // Light focus ring
+  )
+);
+
+// Mixin to generate theme CSS variables with accessibility improvements
+@mixin generate-theme-variables($theme-name, $theme-colors) {
+  body.theme-#{$theme-name} {
+    // Primary Colors
+    --color-primary: #{map-get($theme-colors, 'primary')};
+    --color-primary-hover: #{map-get($theme-colors, 'primary-hover')};
+    --color-primary-light: #{map-get($theme-colors, 'primary-light')};
+
+    // Text Colors
+    --color-text-darkest: #{map-get($theme-colors, 'text-darkest')};
+    --color-text-dark: #{map-get($theme-colors, 'text-dark')};
+    --color-text-medium: #{map-get($theme-colors, 'text-medium')};
+    --color-text-light: #{map-get($theme-colors, 'text-light')};
+    --color-text-lightest: #{map-get($theme-colors, 'text-lightest')};
+    --color-text-white: #{map-get($theme-colors, 'text-white')};
+
+    // Background Colors
+    --color-bg-white: #{map-get($theme-colors, 'bg-white')};
+    --color-bg-lightest: #{map-get($theme-colors, 'bg-lightest')};
+    --color-bg-light: #{map-get($theme-colors, 'bg-light')};
+    --color-bg-medium: #{map-get($theme-colors, 'bg-medium')};
+    --color-bg-dark: #{map-get($theme-colors, 'bg-dark')};
+    --color-bg-darkest: #{map-get($theme-colors, 'bg-darkest')};
+
+    // Border Colors
+    --color-border-light: #{map-get($theme-colors, 'border-light')};
+    --color-border-medium: #{map-get($theme-colors, 'border-medium')};
+    --color-border-dark: #{map-get($theme-colors, 'border-dark')};
+    --color-border-darkest: #{map-get($theme-colors, 'border-darkest')};
+
+    // State Colors
+    --color-warning: #{map-get($theme-colors, 'warning')};
+    --color-warning-light: #{map-get($theme-colors, 'warning-light')};
+    --color-info: #{map-get($theme-colors, 'info')};
+    --color-info-light: #{map-get($theme-colors, 'info-light')};
+    --color-danger: #{map-get($theme-colors, 'danger')};
+    --color-danger-light: #{map-get($theme-colors, 'danger-light')};
+    --color-success: #{map-get($theme-colors, 'success')};
+    --color-success-light: #{map-get($theme-colors, 'success-light')};
+
+    // Message Colors
+    --color-victory-text: #{map-get($theme-colors, 'victory-text')};
+    --color-victory-bg: #{map-get($theme-colors, 'victory-bg')};
+    --color-victory-border: #{map-get($theme-colors, 'victory-border')};
+    --color-game-over-text: #{map-get($theme-colors, 'game-over-text')};
+    --color-game-over-bg: #{map-get($theme-colors, 'game-over-bg')};
+    --color-game-over-border: #{map-get($theme-colors, 'game-over-border')};
+
+    // Game-specific Colors
+    --color-cell-highlighted: #{map-get($theme-colors, 'cell-highlighted')};
+    --color-cell-highlighted-border: #{map-get($theme-colors, 'cell-highlighted-border')};
+    --shadow-primary: #{map-get($theme-colors, 'shadow-primary')};
+
+    // Theme-specific Colors
+    --theme-accent: #{map-get($theme-colors, 'theme-accent')};
+    --theme-text-secondary: #{map-get($theme-colors, 'theme-text-secondary')};
+    --color-disabled-bg: #{map-get($theme-colors, 'disabled-bg')};
+
+    // Accessibility Colors
+    --color-focus-ring: #{map-get($theme-colors, 'focus-ring')};
+    --color-focus-ring-light: #{map-get($theme-colors, 'focus-ring-light')};
+  }
+}

@@ -121,89 +121,10 @@
   }
 }
 
-.difficulty-selection {
-  margin-bottom: 24px;
-  
-  label {
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text-darkest);
-    margin-bottom: 8px;
-  }
-  
-  .difficulty-dropdown {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid var(--color-border-medium);
-    border-radius: 8px;
-    background: var(--color-bg-white);
-    color: var(--color-text-darkest);
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-    
-    &:focus {
-      outline: none;
-      border-color: var(--color-success);
-    }
-    
-    option {
-      background: var(--color-bg-white);
-      color: var(--color-text-darkest);
-      padding: 8px;
-    }
-  }
-}
-
 .dialog-actions {
   display: flex;
   gap: 16px;
   padding: 0 24px 24px;
-  
-  .btn {
-    flex: 1;
-    padding: 14px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    
-    &:active {
-      transform: translateY(0);
-    }
-    
-    &.btn-reset {
-      background: var(--color-bg-medium);
-      color: var(--color-text-darkest);
-      
-      &:hover {
-        background: var(--color-bg-dark);
-      }
-    }
-    
-    &.btn-new-game {
-      background: var(--color-success);
-      color: white;
-      
-      &:hover {
-        background: var(--color-success);
-        filter: brightness(1.1);
-      }
-    }
-  }
 }
 
 // Responsive design

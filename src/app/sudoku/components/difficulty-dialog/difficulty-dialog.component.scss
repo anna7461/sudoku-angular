@@ -1,0 +1,126 @@
+.difficulty-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.difficulty-dialog {
+  background-color: var(--color-bg-white);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--shadow-hover);
+  border: 1px solid var(--color-border-light);
+}
+
+.difficulty-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-light);
+  
+  h2 {
+    margin: 0;
+    color: var(--color-text-darkest);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.difficulty-dialog-content {
+  .difficulty-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.difficulty-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: 2px solid transparent;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  cursor: pointer;
+  border-radius: 15px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--color-bg-light);
+    border-color: var(--color-primary);
+    transform: translateX(8px);
+  }
+
+  &.selected {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+
+    .difficulty-description {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+}
+
+.difficulty-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  min-width: 24px;
+}
+
+.difficulty-label {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-right: 1rem;
+  min-width: 80px;
+}
+
+.difficulty-description {
+  color: var(--color-text-medium);
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .difficulty-dialog {
+    padding: 20px;
+    margin: 20px;
+    
+    .difficulty-dialog-header h2 {
+      font-size: 1.25rem;
+    }
+  }
+  
+  .difficulty-option {
+    padding: 12px;
+    
+    .difficulty-icon {
+      font-size: 20px;
+      min-width: 28px;
+    }
+    
+    .difficulty-label {
+      font-size: 16px;
+      min-width: 70px;
+    }
+    
+    .difficulty-description {
+      font-size: 13px;
+    }
+  }
+}

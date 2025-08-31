@@ -1,64 +1,16 @@
-// Back to Home Button
-.back-to-home-container {
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 1rem;
-  padding: 0 1rem;
-}
-
-.back-to-home-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-primary, #3d55cc);
-  border: 2px solid var(--color-primary, #3d55cc);
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    background: var(--color-primary, #3d55cc);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(61, 85, 204, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-.back-icon {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.back-text {
-  font-weight: 600;
-}
-
-.margin-right-4 {
-  margin-right: 4px;
-}
-
 .text-center {
   text-align: center;
 }
 
 :host(app-sudoku) {
   display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--color-bg-white);
-    padding: 20px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-white);
+  padding: 20px;
+  min-height: 100vh;
+  position: relative;
 }
 
 .sudoku-container {
@@ -67,6 +19,7 @@
   align-items: center;
   gap: 20px;
   width: fit-content;
+  position: relative;
 }
 
 .puzzle-info-container {
@@ -75,10 +28,11 @@
   font-size: 14px;
   color: var(--color-text-dark);
   display: grid;
-  grid-template-areas: '... score ...'
-                       'mistakes difficulty time';
+  grid-template-areas: "... score ..."
+                       "mistakes difficulty time";
   grid-template-columns: 1fr 1fr 1fr;
   grid-row-gap: 20px;
+  position: relative;
 }
 
 .score {
@@ -86,71 +40,24 @@
   font-size: 20px;
   font-weight: bold;
   color: var(--color-primary);
+  text-align: center;
+  line-height: 1.2;
 }
 
 .mistakes {
   grid-area: mistakes;
+  font-weight: 500;
 }
 
 .difficulty {
   grid-area: difficulty;
+  text-align: center;
+  font-weight: 500;
 }
 
 .time {
   grid-area: time;
-}
-
-
-
-
-.game-over-message {
-  width: 365px;
-  color: var(--color-game-over-text);
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: var(--color-game-over-bg);
-  border: 2px solid var(--color-game-over-border);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: shake 0.5s ease-in-out;
-
-  i {
-    font-size: 18px;
-    color: var(--color-game-over-text);
-  }
-
-  .game-over-text {
-    font-weight: bold;
-    font-size: 1em;
-    color: var(--color-game-over-text);
-  }
-}
-
-.victory-message {
-  width: 365px;
-  color: var(--color-victory-text);
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: var(--color-victory-bg);
-  border: 2px solid var(--color-victory-border);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  animation: bounce 0.6s ease-in-out;
-
-  i {
-    font-size: 18px;
-    color: var(--color-victory-text);
-  }
-
-  .victory-text {
-    font-weight: bold;
-    font-size: 1em;
-    color: var(--color-victory-text);
-  }
+  font-weight: 500;
 }
 
 .game-content {
@@ -159,23 +66,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(0); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
 }
 
 // Loading Indicator Styles
@@ -187,6 +83,7 @@
   padding: 2rem;
   text-align: center;
   color: var(--color-text-dark);
+  position: relative;
 
   .loading-spinner {
     width: 40px;
@@ -196,12 +93,15 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
+    position: relative;
   }
 
   p {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 500;
+    line-height: 1.4;
+    color: var(--color-text-darkest);
   }
 }
 
@@ -210,40 +110,32 @@
   100% { transform: rotate(360deg); }
 }
 
-// Debug Info Styles
-.debug-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  background-color: var(--color-warning-light);
-  border: 1px solid var(--color-warning);
-  border-radius: 8px;
-  margin: 1rem 0;
-  color: var(--color-text-dark);
-
-  p {
-    margin: 0.5rem 0;
-    font-size: 0.9rem;
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .score {
+    color: var(--color-text-darkest);
+    font-weight: 900;
   }
 
-  button {
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  .mistakes, .difficulty, .time {
+    color: var(--color-text-darkest);
+    font-weight: 600;
+  }
 
-    &:hover {
-      background-color: var(--color-primary-hover);
-      transform: translateY(-1px);
-    }
+  .loading-indicator p {
+    color: var(--color-text-darkest);
+    font-weight: 600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .game-content {
+    animation: none;
+  }
+
+  .loading-spinner {
+    animation: none;
   }
 }
 
@@ -264,8 +156,8 @@
   .puzzle-info-container {
     width: 100%;
     max-width: 100vw;
-    grid-template-areas: '... score ...'
-                         'mistakes difficulty time';
+    grid-template-areas: "... score ..."
+                         "mistakes difficulty time";
     grid-template-columns: 33%;
   }
 
@@ -295,20 +187,6 @@
 
     p {
       font-size: 1rem;
-    }
-  }
-
-  .debug-info {
-    padding: 1.5rem;
-    margin: 0.75rem 0;
-
-    p {
-      font-size: 0.85rem;
-    }
-
-    button {
-      padding: 0.625rem 1.25rem;
-      font-size: 0.95rem;
     }
   }
 }
@@ -343,20 +221,4 @@
       font-size: 0.9rem;
     }
   }
-
-  .debug-info {
-    padding: 1rem;
-    margin: 0.5rem 0;
-
-    p {
-      font-size: 0.8rem;
-    }
-
-    button {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-    }
-  }
 }
-
-

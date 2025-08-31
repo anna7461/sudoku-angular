@@ -1,0 +1,236 @@
+.btn {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Improved accessibility */
+    min-height: 44px; /* Minimum touch target size */
+    position: relative;
+    text-decoration: none;
+
+    &:hover {
+        transform: var(--color-hover-transform);
+        box-shadow: var(--shadow-hover);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    /* Enhanced focus styles for accessibility */
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring, #3b82f6);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px var(--color-focus-ring-light, rgba(59, 130, 246, 0.3));
+    }
+
+    /* Disabled state with better contrast */
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+
+        &:hover {
+            transform: none;
+            box-shadow: none;
+        }
+    }
+
+    &.btn-reset {
+        background: var(--color-bg-medium);
+        color: var(--color-text-white); /* Better contrast */
+        border: 1px solid var(--color-border-dark);
+
+        &:hover {
+            background: var(--color-bg-dark);
+            color: var(--color-text-white);
+        }
+
+        &:focus-visible {
+            border-color: var(--color-focus-ring, #3b82f6);
+        }
+    }
+
+    &.btn-new-game {
+      background-color: var(--color-primary);
+      color: var(--color-text-white);
+
+        &:hover {
+            background: var(--color-primary-hover);
+            filter: brightness(1.1);
+        }
+
+        &:focus-visible {
+            border-color: var(--color-focus-ring);
+        }
+    }
+
+    &.btn-primary {
+        background-color: var(--color-primary);
+        color: var(--color-text-white);
+
+        &:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        &:focus-visible {
+            border-color: var(--color-focus-ring);
+        }
+    }
+
+    &.btn-secondary {
+        background-color: var(--color-bg-light);
+        color: var(--color-text-darkest); /* Better contrast */
+        border: 1px solid var(--color-border-medium);
+
+        &:hover {
+            background-color: var(--color-bg-medium);
+            color: var(--color-text-white); /* Better contrast on hover */
+        }
+
+        &:focus-visible {
+            border-color: var(--color-focus-ring);
+        }
+    }
+
+    &.btn-accent {
+        background-color: var(--color-success);
+        color: var(--color-text-white);
+
+        &:hover {
+            background-color: var(--color-success);
+            opacity: 0.9;
+        }
+
+        &:focus-visible {
+            border-color: var(--color-focus-ring);
+        }
+    }
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: var(--color-text-dark);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    width: 44px; /* Minimum touch target size */
+    height: 44px; /* Minimum touch target size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Improved accessibility */
+    min-height: 44px;
+    position: relative;
+
+    &:hover {
+      background: var(--color-bg-light);
+      transform: scale(1.1);
+    }
+
+    /* Enhanced focus styles */
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring, #3b82f6);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px var(--color-focus-ring-light, rgba(59, 130, 246, 0.3));
+    }
+}
+
+.mode-button {
+    background: linear-gradient(135deg, var(--color-primary), var(--theme-accent));
+    color: var(--color-text-white); /* Ensure white text for better contrast */
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-primary);
+    /* Improved accessibility */
+    min-height: 44px;
+    position: relative;
+
+    &:hover:not(.disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
+    }
+
+    /* Enhanced focus styles */
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring, #3b82f6);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px var(--color-focus-ring-light, rgba(59, 130, 246, 0.3));
+    }
+
+    &.disabled {
+      background: var(--color-disabled-bg);
+      color: var(--color-text-darkest); /* Better contrast for disabled state */
+      cursor: not-allowed;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+}
+
+.continue-button {
+    background: var(--color-bg-white);
+    color: var(--color-primary); /* Ensure white text for better contrast */
+    border: 1px solid var(--color-primary);
+    padding: 1rem 3rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-primary);
+    min-width: 280px;
+    /* Improved accessibility */
+    min-height: 44px;
+    position: relative;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-primary);
+    }
+
+    /* Enhanced focus styles */
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px var(--color-focus-ring-light);
+    }
+}
+
+/* High contrast mode support for buttons */
+@media (prefers-contrast: high) {
+    .btn, .close-button, .mode-button, .continue-button {
+        border: 2px solid var(--color-text-darkest);
+
+        &:focus-visible {
+            outline: 3px solid var(--color-text-darkest);
+            outline-offset: 1px;
+        }
+    }
+}
+
+/* Reduced motion support for buttons */
+@media (prefers-reduced-motion: reduce) {
+    .btn, .close-button, .mode-button, .continue-button {
+        transition: none;
+
+        &:hover {
+            transform: none;
+        }
+    }
+}

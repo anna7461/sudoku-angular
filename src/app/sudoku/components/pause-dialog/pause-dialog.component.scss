@@ -93,82 +93,12 @@
       }
     }
   }
-  
-  .difficulty-selection {
-    margin-bottom: 24px;
-    
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--color-text-dark);
-      font-weight: 500;
-    }
-    
-    .difficulty-select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--color-border-medium);
-      border-radius: 6px;
-      background-color: var(--color-bg-white);
-      color: var(--color-text-darkest);
-      font-size: 1rem;
-      
-      &:focus {
-        outline: none;
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 2px var(--color-primary-light);
-      }
-    }
-  }
 }
 
 .pause-dialog-actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  
-  .btn {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    
-    &:hover {
-      transform: var(--color-hover-transform);
-      box-shadow: var(--shadow-hover);
-    }
-    
-    &.btn-primary {
-      background-color: var(--color-primary);
-      color: var(--color-text-white);
-      
-      &:hover {
-        background-color: var(--color-primary-hover);
-      }
-    }
-    
-    &.btn-secondary {
-      background-color: var(--color-bg-light);
-      color: var(--color-text-dark);
-      
-      &:hover {
-        background-color: var(--color-bg-medium);
-      }
-    }
-    
-    &.btn-accent {
-      background-color: var(--color-success);
-      color: var(--color-text-white);
-      
-      &:hover {
-        background-color: var(--color-success);
-        opacity: 0.9;
-      }
-    }
-  }
 }
 
 // Responsive design
@@ -179,11 +109,6 @@
     
     .pause-dialog-header h2 {
       font-size: 1.25rem;
-    }
-    
-    .pause-dialog-actions .btn {
-      padding: 10px 16px;
-      font-size: 0.9rem;
     }
   }
 }

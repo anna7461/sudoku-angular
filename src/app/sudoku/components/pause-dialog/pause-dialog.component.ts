@@ -5,24 +5,26 @@ import { PauseService } from '../../services/pause.service';
 import { GameResetService } from '../../services/game-reset.service';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
+import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
 
 @Component({
   standalone: true,
   selector: 'app-pause-dialog',
   templateUrl: './pause-dialog.component.html',
   styleUrls: ['./pause-dialog.component.scss'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, DifficultyDialogComponent]
 })
 export class PauseDialogComponent implements OnInit, OnDestroy {
   isVisible = false;
   message = '';
-  selectedDifficulty: GameDifficulty = 'test';
-  availableDifficulties: { value: GameDifficulty; label: string }[] = [];
   
   // Game state information
   currentTime: string = '';
   currentDifficulty: string = '';
   mistakesLimit: number = 3;
+
+  // Difficulty dialog state
+  showDifficultyDialog: boolean = false;
 
   constructor(
     private pauseService: PauseService,
@@ -39,20 +41,27 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
       this.currentTime = dialogData.currentTime || '';
       this.currentDifficulty = dialogData.currentDifficulty || '';
       this.mistakesLimit = dialogData.mistakesLimit || 3;
+      
+      // Prevent body scroll when pause dialog is open
+      if (this.isVisible) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
     });
-
-    // Get available difficulties
-    this.availableDifficulties = this.newGameService.getAvailableDifficulties();
   }
 
   ngOnDestroy(): void {
-    // Cleanup handled by async pipe
+    // Restore body scroll if component is destroyed while dialogs are open
+    document.body.style.overflow = '';
   }
 
   /**
    * Resume the game
    */
   onResume(): void {
+    // Restore body scroll
+    document.body.style.overflow = '';
     this.pauseService.resumeGame();
   }
 
@@ -60,16 +69,31 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
    * Reset the current game
    */
   onResetGame(): void {
+    // Restore body scroll
+    document.body.style.overflow = '';
     this.gameResetService.resetCurrentGame();
     this.pauseService.resumeGame(); // Close the dialog
   }
 
   /**
-   * Start a new game with selected difficulty
+   * Show difficulty selection dialog
    */
   onStartNewGame(): void {
+    this.showDifficultyDialog = true;
+    // Prevent body scroll when dialog is open
+    document.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Handle difficulty selection
+   */
+  onDifficultySelected(difficulty: GameDifficulty): void {
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
+    
     this.newGameService.startNewGame({
-      difficulty: this.selectedDifficulty,
+      difficulty: difficulty,
       clearCurrentGame: true,
       resetTimer: true
     });
@@ -77,14 +101,17 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
     // Scroll to top when starting new game
     this.scrollToTopService.scrollToTop();
     
-    this.pauseService.resumeGame(); // Close the dialog
+    // Close the pause dialog and restore body scroll
+    document.body.style.overflow = '';
+    this.pauseService.resumeGame();
   }
 
   /**
-   * Handle difficulty selection change
+   * Close difficulty dialog
    */
-  onDifficultyChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    this.selectedDifficulty = select.value as GameDifficulty;
+  onDifficultyDialogClose(): void {
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
   }
 }

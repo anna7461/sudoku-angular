@@ -1,0 +1,25 @@
+<div class="difficulty-dialog-overlay" *ngIf="isVisible">
+  <div class="difficulty-dialog">
+    <div class="difficulty-dialog-header">
+      <h2>Select Difficulty</h2>
+      <button class="close-button" (click)="onClose()">
+        ✕
+      </button>
+    </div>
+    
+    <div class="difficulty-dialog-content">
+      <div class="difficulty-options">
+        <button 
+          *ngFor="let difficulty of availableDifficulties"
+          class="difficulty-option"
+          [class.selected]="selectedDifficulty === difficulty.value"
+          (click)="onDifficultySelect(difficulty.value)"
+        >
+          <span class="difficulty-icon">{{ difficulty.icon }}</span>
+          <span class="difficulty-label">{{ difficulty.label }}</span>
+          <span class="difficulty-description">{{ difficulty.description }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,6 +5,7 @@ import { NewGameService, GameDifficulty } from '../../services/new-game.service'
 import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
+import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
 
 interface GameMode {
   id: string;
@@ -27,7 +28,7 @@ interface SavedGameInfo {
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [CommonModule],
+  imports: [CommonModule, DifficultyDialogComponent],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   gameModes: GameMode[] = [
@@ -52,8 +53,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ];
 
   savedGameInfo: SavedGameInfo = { exists: false };
-  showDifficultyOverlay = false;
-  selectedDifficulty: GameDifficulty = 'medium';
+
+  showDifficultyDialog: boolean = false;
 
   constructor(
     private router: Router,
@@ -64,6 +65,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Ensure body scroll is enabled when dashboard loads
+    document.body.style.overflow = '';
+    
     this.checkForSavedGame();
     
     // Scroll to top when dashboard initializes
@@ -78,7 +82,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    // Restore body scroll if component is destroyed while dialog is open
+    document.body.style.overflow = '';
   }
 
 
@@ -137,7 +142,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.savedGameInfo = {
             exists: true,
             timeElapsed: this.formatTime(currentElapsedTime),
-            difficulty: this.getDifficultyLabel(difficulty)
+            difficulty: this.getDifficultyLabelFromString(difficulty)
           };
         } else {
           this.savedGameInfo = { exists: false };
@@ -158,6 +163,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onContinueGame(): void {
+    // Ensure body scroll is restored
+    document.body.style.overflow = '';
+    
     // Scroll to top before navigating to ensure clean start
     this.scrollToTopService.scrollToTopInstant();
     
@@ -165,23 +173,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/sudoku']);
   }
 
-  onNewGame(): void {
-    this.showDifficultyOverlay = true;
+  onNewGameClick(): void {
+    this.showDifficultyDialog = true;
+    // Prevent body scroll when dialog is open
+    document.body.style.overflow = 'hidden';
   }
 
-  onDifficultySelect(difficulty: string): void {
-    console.log(`Dashboard: Difficulty selected: ${difficulty}, Type: ${typeof difficulty}`);
-    this.selectedDifficulty = difficulty as GameDifficulty;
-    this.showDifficultyOverlay = false;
+  onDifficultySelected(difficulty: GameDifficulty): void {
+    console.log(`Dashboard: Starting new game with difficulty: ${difficulty}`);
+    
+    // Close the dialog
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
     
     // Start new game with selected difficulty
-    console.log(`Dashboard: Starting new game with difficulty: ${difficulty}`);
     this.newGameService.startNewGame({
-      difficulty: difficulty as GameDifficulty,
+      difficulty: difficulty,
       clearCurrentGame: true,
       resetTimer: true
     });
 
+    // Ensure body scroll is restored before navigation
+    document.body.style.overflow = '';
+    
     // Scroll to top before navigating to ensure clean start
     this.scrollToTopService.scrollToTopInstant();
 
@@ -189,15 +204,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/sudoku']);
   }
 
-  closeDifficultyOverlay(): void {
-    this.showDifficultyOverlay = false;
-  }
-
-  onOverlayClick(event: Event): void {
-    // Close overlay if clicking on the backdrop
-    if (event.target === event.currentTarget) {
-      this.closeDifficultyOverlay();
-    }
+  onDifficultyDialogClose(): void {
+    this.showDifficultyDialog = false;
+    // Restore body scroll
+    document.body.style.overflow = '';
   }
 
   onGameModeClick(mode: GameMode): void {
@@ -210,7 +220,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  getDifficultyLabel(difficulty: string): string {
+  private getDifficultyLabelFromString(difficulty: string): string {
     const labels: { [key: string]: string } = {
       'test': 'Test',
       'easy': 'Easy',
@@ -221,25 +231,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return labels[difficulty] || difficulty;
   }
 
-  getDifficultyIcon(difficulty: string): string {
-    const icons: { [key: string]: string } = {
-      'test': '🧪',
-      'easy': '😊',
-      'medium': '🤔',
-      'hard': '😰',
-      'expert': '😱'
-    };
-    return icons[difficulty] || '❓';
-  }
 
-  getDifficultyDescription(difficulty: string): string {
-    const descriptions: { [key: string]: string } = {
-      'test': 'Quick puzzle for testing',
-      'easy': 'Perfect for beginners',
-      'medium': 'Balanced challenge',
-      'hard': 'For experienced players',
-      'expert': 'Ultimate challenge'
-    };
-    return descriptions[difficulty] || 'Select difficulty';
-  }
 }

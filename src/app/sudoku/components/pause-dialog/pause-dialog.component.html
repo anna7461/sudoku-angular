@@ -3,7 +3,7 @@
     <div class="pause-dialog-header">
       <h2>{{ message }}</h2>
     </div>
-    
+
     <div class="pause-dialog-content">
       <!-- Game Information Section -->
       <div class="game-info" *ngIf="currentTime || currentDifficulty">
@@ -23,40 +23,25 @@
           </div>
         </div>
       </div>
-      
-      <div class="difficulty-selection">
-        <label for="difficulty-select">Select Difficulty:</label>
-        <select 
-          id="difficulty-select" 
-          [(ngModel)]="selectedDifficulty"
-          (change)="onDifficultyChange($event)"
-          class="difficulty-select">
-          <option 
-            *ngFor="let diff of availableDifficulties" 
-            [value]="diff.value">
-            {{ diff.label }}
-          </option>
-        </select>
-      </div>
-      
+
       <div class="pause-dialog-actions">
-        <button 
-          type="button" 
-          class="btn btn-primary" 
+        <button
+          type="button"
+          class="btn btn-primary"
           (click)="onResume()">
           Resume Game
         </button>
-        
-        <button 
-          type="button" 
-          class="btn btn-secondary" 
+
+        <button
+          type="button"
+          class="btn btn-secondary"
           (click)="onResetGame()">
           Reset Game
         </button>
-        
-        <button 
-          type="button" 
-          class="btn btn-accent" 
+
+        <button
+          type="button"
+          class="btn btn-new-game"
           (click)="onStartNewGame()">
           Start New Game
         </button>
@@ -64,3 +49,10 @@
     </div>
   </div>
 </div>
+
+<!-- Difficulty Selection Dialog -->
+<app-difficulty-dialog
+  [isVisible]="showDifficultyDialog"
+  (difficultySelected)="onDifficultySelected($event)"
+  (close)="onDifficultyDialogClose()"
+></app-difficulty-dialog>
