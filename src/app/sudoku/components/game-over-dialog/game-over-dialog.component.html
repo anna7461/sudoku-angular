@@ -6,45 +6,46 @@
         Game Over
       </h2>
     </div>
-    
+
     <div class="dialog-content" *ngIf="gameStats">
       <div class="stats-container">
         <div class="stat-item">
-          <div class="stat-label">Mistakes</div>
+          <div class="stat-label"><i class="fa fa-times-circle"></i> Mistakes</div>
           <div class="stat-value mistake-count">{{ gameStats.mistakeCount }}/3</div>
         </div>
-        
+
         <div class="stat-item">
-          <div class="stat-label">Final Time</div>
+          <div class="stat-label"><i class="fa fa-clock"></i> Final Time</div>
           <div class="stat-value time-value">{{ gameStats.finalTime }}</div>
         </div>
-        
+
         <div class="stat-item">
-          <div class="stat-label">Final Score</div>
+          <div class="stat-label"><i class="fa fa-star"></i> Final Score</div>
           <div class="stat-value score-value">{{ gameStats.finalScore }}</div>
         </div>
-        
+
         <div class="stat-item">
-          <div class="stat-label">Difficulty</div>
+          <div class="stat-label"><i class="fa fa-chart-line"></i> Difficulty</div>
           <div class="stat-value difficulty-value">{{ gameStats.difficulty }}</div>
         </div>
       </div>
-      
+
     </div>
-    
+
     <div class="dialog-actions">
-      <button 
-        type="button" 
-        class="btn btn-reset" 
+      <button
+        type="button"
+        class="btn btn-secondary"
         (click)="onResetGame()">
         <i class="fas fa-redo"></i>
-        Reset Game
+        Restart Game
       </button>
-      
-      <button 
-        type="button" 
-        class="btn btn-new-game" 
+
+      <button
+        type="button"
+        class="btn btn-primary"
         (click)="onNewGameClick()">
+        <i class="fa fa-plus"></i>
         New Game
       </button>
     </div>
