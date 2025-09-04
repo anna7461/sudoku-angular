@@ -22,6 +22,18 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
   currentTime: string = '';
   currentDifficulty: string = '';
   mistakesLimit: number = 3;
+  currentScore: number = 0;
+  currentMistakes: number = 0;
+  
+  // Computed game stats for display
+  get gameStats() {
+    return {
+      mistakeCount: this.currentMistakes,
+      finalTime: this.currentTime,
+      finalScore: this.currentScore,
+      difficulty: this.currentDifficulty
+    };
+  }
 
   // Difficulty dialog state
   showDifficultyDialog: boolean = false;
@@ -41,6 +53,8 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
       this.currentTime = dialogData.currentTime || '';
       this.currentDifficulty = dialogData.currentDifficulty || '';
       this.mistakesLimit = dialogData.mistakesLimit || 3;
+      this.currentScore = dialogData.currentScore || 0;
+      this.currentMistakes = dialogData.currentMistakes || 0;
       
       // Prevent body scroll when pause dialog is open
       if (this.isVisible) {

@@ -1,0 +1,133 @@
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.dialog {
+  background: var(--color-bg-white);
+  border: 2px solid var(--color-border-medium);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: dialogSlideIn 0.3s ease-out;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dialog-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--color-border-light);
+  text-align: center;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-darkest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  i {
+    font-size: 28px;
+  }
+}
+
+.dialog-content {
+  padding: 24px;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 16px;
+  background: var(--color-bg-lightest);
+  border-radius: 8px;
+  border: 1px solid var(--color-border-light);
+}
+
+.stat-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-darkest);
+  margin-bottom: 8px;
+
+  > i {
+    color: var(--color-primary);
+    margin-right: 4px;
+    font-size: 16px;
+  }
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-dark);
+
+  &.mistake-count {
+    color: var(--color-danger);
+  }
+
+  &.time-value {
+    color: var(--color-info);
+  }
+
+  &.score-value {
+    color: var(--color-success);
+  }
+
+  &.difficulty-value {
+    text-transform: capitalize;
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 16px;
+  padding: 24px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+// Responsive design
+@media (max-width: 600px) {
+  .stats-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}

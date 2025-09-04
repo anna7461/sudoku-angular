@@ -149,7 +149,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
       this.gameService.updateGameState({
         currentTime: '00:00',
         currentDifficulty: this.getCurrentDifficulty() || 'Test',
-        mistakesLimit: 3
+        mistakesLimit: 3,
+        currentScore: this.score,
+        currentMistakes: this.mistakeCount
       });
     }, 200);
 
@@ -381,7 +383,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
           // Update game state service with loaded values
           this.gameService.updateGameState({
             currentDifficulty: this.getCurrentDifficulty(),
-            mistakesLimit: 3 // Standard mistakes limit
+            mistakesLimit: 3, // Standard mistakes limit
+            currentScore: this.score,
+            currentMistakes: this.mistakeCount
           });
 
           // Timer component will automatically restore from localStorage
@@ -500,6 +504,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.selectedNumber = null; // Reset the selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
+    
+    // Update game state service
+    this.gameService.updateGameState({
+      currentScore: this.score,
+      currentMistakes: this.mistakeCount
+    });
 
     // Reset game over dialog state
     this.showGameOverDialog = false;
@@ -591,7 +601,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
     
     // Update game state service with current time
     this.gameService.updateGameState({
-      currentTime: this.timerComponent.getCurrentFormattedTime()
+      currentTime: this.timerComponent.getCurrentFormattedTime(),
+      currentScore: this.score,
+      currentMistakes: this.mistakeCount
     });
     
     // Save game state periodically to keep elapsed time updated
@@ -712,6 +724,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
       // Update score
       this.score += 10;
+      
+      // Update game state service
+      this.gameService.updateGameState({
+        currentScore: this.score,
+        currentMistakes: this.mistakeCount
+      });
 
       // Check if puzzle is complete
       if (this.isPuzzleComplete()) {
@@ -730,6 +748,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
       // Increment mistake count
       this.mistakeCount++;
       this.invalidateGameActiveCache();
+      
+      // Update game state service
+      this.gameService.updateGameState({
+        currentScore: this.score,
+        currentMistakes: this.mistakeCount
+      });
 
       // Check if game over (3 mistakes)
       if (this.mistakeCount >= 3) {
@@ -838,6 +862,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
       // Update score
       this.score += 10;
+      
+      // Update game state service
+      this.gameService.updateGameState({
+        currentScore: this.score,
+        currentMistakes: this.mistakeCount
+      });
 
       // Check if puzzle is complete
       if (this.isPuzzleComplete()) {
@@ -856,6 +886,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
       // Increment mistake count
       this.mistakeCount++;
       this.invalidateGameActiveCache();
+      
+      // Update game state service
+      this.gameService.updateGameState({
+        currentScore: this.score,
+        currentMistakes: this.mistakeCount
+      });
 
       // Check if game over (3 mistakes)
       if (this.mistakeCount >= 3) {
@@ -1058,6 +1094,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
       this.score += 5; // Add back points for incorrect move
       // Note: Mistake count is NOT decremented - mistakes should only increase
     }
+    
+    // Update game state service
+    this.gameService.updateGameState({
+      currentScore: this.score,
+      currentMistakes: this.mistakeCount
+    });
 
     // Clear current selection and number
     this.selectedBoxIndex = null;
@@ -1536,7 +1578,9 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Update game state service with current difficulty and mistakes limit
     this.gameService.updateGameState({
       currentDifficulty: this.getCurrentDifficulty(),
-      mistakesLimit: 3 // Standard mistakes limit
+      mistakesLimit: 3, // Standard mistakes limit
+      currentScore: this.score,
+      currentMistakes: this.mistakeCount
     });
 
     console.log(
@@ -2022,6 +2066,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
     this.selectedNumber = null; // Reset selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
+    
+    // Update game state service
+    this.gameService.updateGameState({
+      currentScore: this.score,
+      currentMistakes: this.mistakeCount
+    });
 
     // Reset game over dialog state
     this.showGameOverDialog = false;
@@ -2227,6 +2277,12 @@ export class SudokuComponent implements OnInit, OnDestroy {
 
     // Update score (hints give fewer points)
     this.score += 5;
+    
+    // Update game state service
+    this.gameService.updateGameState({
+      currentScore: this.score,
+      currentMistakes: this.mistakeCount
+    });
 
     // Save game state
     this.saveGameState();

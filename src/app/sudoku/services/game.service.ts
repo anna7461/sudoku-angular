@@ -5,6 +5,8 @@ export interface GameState {
   currentTime: string;
   currentDifficulty: string;
   mistakesLimit: number;
+  currentScore: number;
+  currentMistakes: number;
 }
 
 @Injectable({
@@ -14,7 +16,9 @@ export class GameService {
   private gameStateSubject = new BehaviorSubject<GameState>({
     currentTime: '00:00',
     currentDifficulty: 'Test',
-    mistakesLimit: 3
+    mistakesLimit: 3,
+    currentScore: 0,
+    currentMistakes: 0
   });
 
   public gameState$ = this.gameStateSubject.asObservable();

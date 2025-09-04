@@ -9,6 +9,8 @@ export interface PauseDialogData {
   currentTime?: string;
   currentDifficulty?: string;
   mistakesLimit?: number;
+  currentScore?: number;
+  currentMistakes?: number;
 }
 
 @Injectable({
@@ -45,7 +47,9 @@ export class PauseService {
       message: 'Game is paused',
       currentTime: currentGameState.currentTime,
       currentDifficulty: currentGameState.currentDifficulty,
-      mistakesLimit: currentGameState.mistakesLimit
+      mistakesLimit: currentGameState.mistakesLimit,
+      currentScore: currentGameState.currentScore,
+      currentMistakes: currentGameState.currentMistakes
     });
     
     // Update game pause state

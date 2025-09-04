@@ -1,49 +1,58 @@
-<div class="pause-dialog-overlay" *ngIf="isVisible">
-  <div class="pause-dialog">
-    <div class="pause-dialog-header">
-      <h2>{{ message }}</h2>
+<div class="dialog-overlay" *ngIf="isVisible">
+  <div class="dialog">
+    <div class="dialog-header">
+
+      <h2 class="dialog-title"><i class="fas fa-pause"></i> {{ message }}</h2>
     </div>
 
-    <div class="pause-dialog-content">
+    <div class="dialog-content">
       <!-- Game Information Section -->
-      <div class="game-info" *ngIf="currentTime || currentDifficulty">
-        <h3>Current Game Status</h3>
-        <div class="info-grid">
-          <div class="info-item" *ngIf="currentTime">
-            <span class="info-label">Current Time:</span>
-            <span class="info-value time-value">{{ currentTime }}</span>
-          </div>
-          <div class="info-item" *ngIf="currentDifficulty">
-            <span class="info-label">Difficulty:</span>
-            <span class="info-value difficulty-value">{{ currentDifficulty }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Mistakes Limit:</span>
-            <span class="info-value mistakes-value">{{ mistakesLimit }}</span>
-          </div>
+      <div *ngIf="gameStats" class="stats-container">
+        <div class="stat-item">
+          <div class="stat-label"><i class="fa fa-heart"></i> Mistakes</div>
+          <div class="stat-value mistake-count">{{ gameStats.mistakeCount }}/3</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-label"><i class="fa fa-clock"></i> Current Time</div>
+          <div class="stat-value time-value">{{ gameStats.finalTime }}</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-label"><i class="fa fa-star"></i> Current Score</div>
+          <div class="stat-value score-value">{{ gameStats.finalScore }}</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-label"><i class="fa fa-chart-line"></i> Difficulty</div>
+          <div class="stat-value difficulty-value">{{ gameStats.difficulty }}</div>
         </div>
       </div>
+    </div>
 
-      <div class="pause-dialog-actions">
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="onResume()">
-          Resume Game
-        </button>
-
+    <div class="dialog-actions pause-dialog-actions">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="onResume()">
+        <i class="fas fa-play"></i>
+        Resume Game
+      </button>
+      <div class="display-flex">
         <button
           type="button"
           class="btn btn-secondary"
           (click)="onResetGame()">
-          Reset Game
+          <i class="fas fa-redo"></i>
+          Restart Game
         </button>
 
         <button
           type="button"
           class="btn btn-new-game"
           (click)="onStartNewGame()">
-          Start New Game
+          <i class="fa fa-plus"></i>
+          New Game
         </button>
       </div>
     </div>
