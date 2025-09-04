@@ -1,0 +1,72 @@
+.game-board-animation {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--color-border-darkest);
+  width: fit-content;
+  position: relative;
+  margin-bottom: 24px;
+
+  .box {
+    display: grid;
+    grid-template-columns: repeat(3, 30px);
+    grid-template-rows: repeat(3, 30px);
+    border: 1px solid var(--color-border-darkest);
+
+    > div {
+      position: relative;
+      border: 1px solid var(--color-border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      background-color: var(--color-bg-white);
+      color: var(--color-text-darkest);
+      //opacity: 0; // hidden by default
+
+      /* Enhanced focus styles for accessibility */
+      &:focus-visible {
+        outline: 2px solid var(--color-focus-ring, #3b82f6);
+        outline-offset: 2px;
+        box-shadow: 0 0 0 4px var(--color-focus-ring-light, rgba(59, 130, 246, 0.3));
+        z-index: 10;
+      }
+
+      &.filled {
+        opacity: 1; // always visible
+        background-color: var(--color-bg-white);
+        color: var(--color-text-darkest);
+        border: 1px solid var(--color-border-light);
+      }
+
+      &.reveal {
+        animation: revealCell 1s ease forwards;
+        background-color: var(--color-bg-white);
+        color: var(--color-text-white);
+        border: 1px solid var(--color-border-light);
+      }
+    }
+  }
+}
+
+@keyframes revealCell {
+  0% {
+    opacity: 0;
+    color: var(--color-text-white);
+    transform: scale(0.8);
+    background-color: var(--color-primary-light);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: var(--color-primary);
+    color: var(--color-text-lightest);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    background-color: var(--color-bg-white);
+    color: var(--color-primary);
+  }
+}

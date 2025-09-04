@@ -4,30 +4,33 @@
     <h1 class="dashboard-title">Sudoku</h1>
   </header>
 
-  <!-- Game Mode Cards -->
-  <section class="game-modes">
-    <div class="game-modes-grid">
-      <div 
-        *ngFor="let mode of gameModes" 
-        class="game-mode-card"
-        [class.coming-soon]="mode.isComingSoon"
-        (click)="onGameModeClick(mode)"
-      >
-        <div class="mode-icon">{{ mode.icon }}</div>
-        <div class="mode-content">
-          <h3 class="mode-label">{{ mode.label }}</h3>
-          <p class="mode-description">{{ mode.description }}</p>
-          <button 
-            class="mode-button"
-            [class.disabled]="mode.isComingSoon"
-            [disabled]="mode.isComingSoon"
-          >
-            {{ mode.buttonText }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
+
+<app-game-board-animation />
+
+<!--  &lt;!&ndash; Game Mode Cards &ndash;&gt;-->
+<!--  <section class="game-modes">-->
+<!--    <div class="game-modes-grid">-->
+<!--      <div -->
+<!--        *ngFor="let mode of gameModes" -->
+<!--        class="game-mode-card"-->
+<!--        [class.coming-soon]="mode.isComingSoon"-->
+<!--        (click)="onGameModeClick(mode)"-->
+<!--      >-->
+<!--        <div class="mode-icon">{{ mode.icon }}</div>-->
+<!--        <div class="mode-content">-->
+<!--          <h3 class="mode-label">{{ mode.label }}</h3>-->
+<!--          <p class="mode-description">{{ mode.description }}</p>-->
+<!--          <button -->
+<!--            class="mode-button"-->
+<!--            [class.disabled]="mode.isComingSoon"-->
+<!--            [disabled]="mode.isComingSoon"-->
+<!--          >-->
+<!--            {{ mode.buttonText }}-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </section>-->
 
   <!-- Continue Game Button (only visible if saved game exists) -->
   <section *ngIf="savedGameInfo.exists" class="continue-section">
@@ -43,9 +46,9 @@
 
   <!-- New Game Button -->
   <section class="new-game-section">
-     <button 
-        type="button" 
-        class="btn btn-new-game" 
+     <button
+        type="button"
+        class="btn btn-new-game"
         (click)="onNewGameClick()">
         New Game
       </button>

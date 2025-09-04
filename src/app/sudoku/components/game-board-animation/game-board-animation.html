@@ -1,0 +1,9 @@
+<div class="game-board-animation">
+  <div class="box" *ngFor="let box of board; let boxIndex = index">
+    <div class="cell"
+         *ngFor="let num of box; let cellIndex = index"
+         [ngClass]="isFilled(boxIndex, cellIndex) ? 'filled' : 'reveal'">
+      <div class="main-number">{{ num }}</div>
+    </div>
+  </div>
+</div>

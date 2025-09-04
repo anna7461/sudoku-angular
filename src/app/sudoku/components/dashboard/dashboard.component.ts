@@ -6,6 +6,7 @@ import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
+import {GameBoardAnimationComponent} from '../game-board-animation/game-board-animation';
 
 interface GameMode {
   id: string;
@@ -28,7 +29,7 @@ interface SavedGameInfo {
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  imports: [CommonModule, DifficultyDialogComponent],
+  imports: [CommonModule, DifficultyDialogComponent, GameBoardAnimationComponent],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   gameModes: GameMode[] = [
@@ -67,12 +68,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Ensure body scroll is enabled when dashboard loads
     document.body.style.overflow = '';
-    
+
     this.checkForSavedGame();
-    
+
     // Scroll to top when dashboard initializes
     this.scrollToTopService.scrollToTop();
-    
+
     // Listen for route changes to refresh saved game info when returning to dashboard
     this.router.events.subscribe((event) => {
       if (event.type === 1) { // NavigationEnd event
@@ -165,10 +166,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onContinueGame(): void {
     // Ensure body scroll is restored
     document.body.style.overflow = '';
-    
+
     // Scroll to top before navigating to ensure clean start
     this.scrollToTopService.scrollToTopInstant();
-    
+
     // Navigate to the main game component
     this.router.navigate(['/sudoku']);
   }
@@ -181,12 +182,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onDifficultySelected(difficulty: GameDifficulty): void {
     console.log(`Dashboard: Starting new game with difficulty: ${difficulty}`);
-    
+
     // Close the dialog
     this.showDifficultyDialog = false;
     // Restore body scroll
     document.body.style.overflow = '';
-    
+
     // Start new game with selected difficulty
     this.newGameService.startNewGame({
       difficulty: difficulty,
@@ -196,7 +197,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Ensure body scroll is restored before navigation
     document.body.style.overflow = '';
-    
+
     // Scroll to top before navigating to ensure clean start
     this.scrollToTopService.scrollToTopInstant();
 

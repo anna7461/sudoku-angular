@@ -1,3 +1,5 @@
+@use "sass:map";
+
 // Base color palette with improved accessibility
 $primary: #2563eb; // Improved contrast
 $darkest: #0f172a; // Darker for better contrast
@@ -278,62 +280,62 @@ $themes: (
 @mixin generate-theme-variables($theme-name, $theme-colors) {
   body.theme-#{$theme-name} {
     // Primary Colors
-    --color-primary: #{map-get($theme-colors, 'primary')};
-    --color-primary-hover: #{map-get($theme-colors, 'primary-hover')};
-    --color-primary-light: #{map-get($theme-colors, 'primary-light')};
+    --color-primary: #{map.get($theme-colors, 'primary')};
+    --color-primary-hover: #{map.get($theme-colors, 'primary-hover')};
+    --color-primary-light: #{map.get($theme-colors, 'primary-light')};
 
     // Text Colors
-    --color-text-darkest: #{map-get($theme-colors, 'text-darkest')};
-    --color-text-dark: #{map-get($theme-colors, 'text-dark')};
-    --color-text-medium: #{map-get($theme-colors, 'text-medium')};
-    --color-text-light: #{map-get($theme-colors, 'text-light')};
-    --color-text-lightest: #{map-get($theme-colors, 'text-lightest')};
-    --color-text-white: #{map-get($theme-colors, 'text-white')};
+    --color-text-darkest: #{map.get($theme-colors, 'text-darkest')};
+    --color-text-dark: #{map.get($theme-colors, 'text-dark')};
+    --color-text-medium: #{map.get($theme-colors, 'text-medium')};
+    --color-text-light: #{map.get($theme-colors, 'text-light')};
+    --color-text-lightest: #{map.get($theme-colors, 'text-lightest')};
+    --color-text-white: #{map.get($theme-colors, 'text-white')};
 
     // Background Colors
-    --color-bg-white: #{map-get($theme-colors, 'bg-white')};
-    --color-bg-lightest: #{map-get($theme-colors, 'bg-lightest')};
-    --color-bg-light: #{map-get($theme-colors, 'bg-light')};
-    --color-bg-medium: #{map-get($theme-colors, 'bg-medium')};
-    --color-bg-dark: #{map-get($theme-colors, 'bg-dark')};
-    --color-bg-darkest: #{map-get($theme-colors, 'bg-darkest')};
+    --color-bg-white: #{map.get($theme-colors, 'bg-white')};
+    --color-bg-lightest: #{map.get($theme-colors, 'bg-lightest')};
+    --color-bg-light: #{map.get($theme-colors, 'bg-light')};
+    --color-bg-medium: #{map.get($theme-colors, 'bg-medium')};
+    --color-bg-dark: #{map.get($theme-colors, 'bg-dark')};
+    --color-bg-darkest: #{map.get($theme-colors, 'bg-darkest')};
 
     // Border Colors
-    --color-border-light: #{map-get($theme-colors, 'border-light')};
-    --color-border-medium: #{map-get($theme-colors, 'border-medium')};
-    --color-border-dark: #{map-get($theme-colors, 'border-dark')};
-    --color-border-darkest: #{map-get($theme-colors, 'border-darkest')};
+    --color-border-light: #{map.get($theme-colors, 'border-light')};
+    --color-border-medium: #{map.get($theme-colors, 'border-medium')};
+    --color-border-dark: #{map.get($theme-colors, 'border-dark')};
+    --color-border-darkest: #{map.get($theme-colors, 'border-darkest')};
 
     // State Colors
-    --color-warning: #{map-get($theme-colors, 'warning')};
-    --color-warning-light: #{map-get($theme-colors, 'warning-light')};
-    --color-info: #{map-get($theme-colors, 'info')};
-    --color-info-light: #{map-get($theme-colors, 'info-light')};
-    --color-danger: #{map-get($theme-colors, 'danger')};
-    --color-danger-light: #{map-get($theme-colors, 'danger-light')};
-    --color-success: #{map-get($theme-colors, 'success')};
-    --color-success-light: #{map-get($theme-colors, 'success-light')};
+    --color-warning: #{map.get($theme-colors, 'warning')};
+    --color-warning-light: #{map.get($theme-colors, 'warning-light')};
+    --color-info: #{map.get($theme-colors, 'info')};
+    --color-info-light: #{map.get($theme-colors, 'info-light')};
+    --color-danger: #{map.get($theme-colors, 'danger')};
+    --color-danger-light: #{map.get($theme-colors, 'danger-light')};
+    --color-success: #{map.get($theme-colors, 'success')};
+    --color-success-light: #{map.get($theme-colors, 'success-light')};
 
     // Message Colors
-    --color-victory-text: #{map-get($theme-colors, 'victory-text')};
-    --color-victory-bg: #{map-get($theme-colors, 'victory-bg')};
-    --color-victory-border: #{map-get($theme-colors, 'victory-border')};
-    --color-game-over-text: #{map-get($theme-colors, 'game-over-text')};
-    --color-game-over-bg: #{map-get($theme-colors, 'game-over-bg')};
-    --color-game-over-border: #{map-get($theme-colors, 'game-over-border')};
+    --color-victory-text: #{map.get($theme-colors, 'victory-text')};
+    --color-victory-bg: #{map.get($theme-colors, 'victory-bg')};
+    --color-victory-border: #{map.get($theme-colors, 'victory-border')};
+    --color-game-over-text: #{map.get($theme-colors, 'game-over-text')};
+    --color-game-over-bg: #{map.get($theme-colors, 'game-over-bg')};
+    --color-game-over-border: #{map.get($theme-colors, 'game-over-border')};
 
     // Game-specific Colors
-    --color-cell-highlighted: #{map-get($theme-colors, 'cell-highlighted')};
-    --color-cell-highlighted-border: #{map-get($theme-colors, 'cell-highlighted-border')};
-    --shadow-primary: #{map-get($theme-colors, 'shadow-primary')};
+    --color-cell-highlighted: #{map.get($theme-colors, 'cell-highlighted')};
+    --color-cell-highlighted-border: #{map.get($theme-colors, 'cell-highlighted-border')};
+    --shadow-primary: #{map.get($theme-colors, 'shadow-primary')};
 
     // Theme-specific Colors
-    --theme-accent: #{map-get($theme-colors, 'theme-accent')};
-    --theme-text-secondary: #{map-get($theme-colors, 'theme-text-secondary')};
-    --color-disabled-bg: #{map-get($theme-colors, 'disabled-bg')};
+    --theme-accent: #{map.get($theme-colors, 'theme-accent')};
+    --theme-text-secondary: #{map.get($theme-colors, 'theme-text-secondary')};
+    --color-disabled-bg: #{map.get($theme-colors, 'disabled-bg')};
 
     // Accessibility Colors
-    --color-focus-ring: #{map-get($theme-colors, 'focus-ring')};
-    --color-focus-ring-light: #{map-get($theme-colors, 'focus-ring-light')};
+    --color-focus-ring: #{map.get($theme-colors, 'focus-ring')};
+    --color-focus-ring-light: #{map.get($theme-colors, 'focus-ring-light')};
   }
 }
