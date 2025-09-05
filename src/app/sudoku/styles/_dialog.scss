@@ -119,8 +119,20 @@
 // Responsive design
 @media (max-width: 600px) {
   .stats-container {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 8px;
+  }
+
+  .stat-item {
+    padding: 16px 8px;
+
+    .stat-label {
+      font-size: 13px;
+
+      > i {
+        font-size: 14px;
+        margin-right: 2px;
+      }
+    }
   }
 
   .dialog-actions {

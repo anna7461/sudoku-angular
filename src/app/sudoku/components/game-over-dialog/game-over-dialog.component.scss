@@ -11,19 +11,3 @@
   text-align: center;
   margin-top: 0;
 }
-
-// Responsive design
-@media (max-width: 600px) {
-  .stats-container {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .dialog-actions {
-    flex-direction: column;
-
-    .btn {
-      width: 100%;
-    }
-  }
-}
