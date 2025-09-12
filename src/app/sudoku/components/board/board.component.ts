@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Box } from '../../models/box.model';
 
@@ -9,7 +9,7 @@ import { Box } from '../../models/box.model';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss']
 })
-export class BoardComponent {
+export class BoardComponent implements OnChanges {
   @Input() boxes: Box[] = [];
   @Input() selectedBoxIndex: number | null = null;
   @Input() selectedCellIndex: number | null = null;
@@ -19,6 +19,30 @@ export class BoardComponent {
   @Output() cellSelected = new EventEmitter<{ boxIndex: number, cellIndex: number, isEditable: boolean }>();
 
   constructor(private cdr: ChangeDetectorRef) {}
+
+  ngOnChanges() {
+    console.log('BoardComponent: boxes input changed');
+    console.log('Boxes count:', this.boxes.length);
+    if (this.boxes.length > 0) {
+      console.log('First box cells:', this.boxes[0].cells.slice(0, 3));
+      console.log('Sample cell values:', this.boxes[0].cells.slice(0, 3).map(cell => ({
+        value: cell.value,
+        isGiven: cell.isGiven,
+        isFixed: cell.isFixed
+      })));
+      
+      // Debug: Check all cells in the first box to see what's actually being rendered
+      console.log('=== BOARD COMPONENT DEBUG ===');
+      for (let boxIndex = 0; boxIndex < 3; boxIndex++) {
+        const box = this.boxes[boxIndex];
+        console.log(`Board Box ${boxIndex}:`);
+        for (let cellIndex = 0; cellIndex < 3; cellIndex++) {
+          const cell = box.cells[cellIndex];
+          console.log(`  Board Cell ${cellIndex}: value=${cell.value}, isGiven=${cell.isGiven}, isFixed=${cell.isFixed}`);
+        }
+      }
+    }
+  }
 
   onCellClick(boxIndex: number, cellIndex: number) {
     // Don't allow cell selection if board is disabled
@@ -124,7 +148,51 @@ export class BoardComponent {
 
   // Method to force change detection
   detectChanges() {
+    console.log('BoardComponent detectChanges called');
     this.cdr.detectChanges();
+  }
+  
+  // Method to force complete re-render
+  forceRerender() {
+    console.log('BoardComponent forceRerender called');
+    this.cdr.markForCheck();
+    this.cdr.detectChanges();
+  }
+  
+  // Method to completely reset the component
+  resetComponent() {
+    console.log('BoardComponent resetComponent called');
+    // Clear the boxes temporarily to force a complete re-render
+    const tempBoxes = this.boxes;
+    this.boxes = [];
+    this.cdr.detectChanges();
+    
+    // Restore the boxes after a brief delay
+    setTimeout(() => {
+      this.boxes = tempBoxes;
+      this.cdr.detectChanges();
+      console.log('BoardComponent reset completed');
+      
+      // Debug: Check what's actually in the DOM
+      this.debugDOMContent();
+    }, 10);
+  }
+  
+  // Method to debug what's actually in the DOM
+  debugDOMContent() {
+    console.log('=== DOM DEBUG ===');
+    if (typeof document !== 'undefined') {
+      const cells = document.querySelectorAll('.cell');
+      console.log('Found', cells.length, 'cells in DOM');
+      
+      // Check first few cells
+      for (let i = 0; i < Math.min(9, cells.length); i++) {
+        const cell = cells[i];
+        const mainNumber = cell.querySelector('.main-number');
+        const cellText = mainNumber ? mainNumber.textContent : 'empty';
+        console.log(`DOM Cell ${i}: "${cellText}"`);
+      }
+    }
   }
 
   // Method to check if a note violates Sudoku rules

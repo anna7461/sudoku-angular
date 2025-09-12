@@ -1,6 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
+import { LocalStorageService } from './local-storage.service';
 
 export type GameDifficulty = 'test' | 'easy' | 'medium' | 'hard' | 'expert';
 
@@ -19,7 +20,10 @@ export class NewGameService {
   private newGameSubject = new BehaviorSubject<NewGameOptions | null>(null);
   public newGame$ = this.newGameSubject.asObservable();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private localStorageService: LocalStorageService
+  ) {}
 
   /**
    * Start a new game with specified difficulty
@@ -36,8 +40,9 @@ export class NewGameService {
     console.log('NewGameService: Extracted difficulty:', difficulty, 'Type:', typeof difficulty);
 
     // Clear current game state if requested
-    if (clearCurrentGame && isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(this.GAME_STATE_KEY);
+    if (clearCurrentGame) {
+      // Clear classic mode game state
+      this.localStorageService.clearSavedGame('classic');
     }
 
     // Emit new game event that components can listen to
@@ -110,6 +115,14 @@ export class NewGameService {
   }
 
   /**
+   * Clear the pending new game request
+   */
+  clearPendingRequest(): void {
+    this.newGameSubject.next(null);
+    console.log('NewGameService: Pending request cleared');
+  }
+
+  /**
    * Emit a new game event that components can listen to
    */
   private emitNewGameEvent(options: NewGameOptions): void {
@@ -127,8 +140,7 @@ export class NewGameService {
    * Check if there's a saved game state
    */
   hasSavedGame(): boolean {
-    // No longer checking for saved games
-    return false;
+    return this.localStorageService.hasSavedGame('classic');
   }
 
   /**

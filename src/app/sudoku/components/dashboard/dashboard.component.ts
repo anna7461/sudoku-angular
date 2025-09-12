@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 import { ThemeService } from '../../services/theme.service';
 import { StorageService } from '../../services/storage.service';
+import { LocalStorageService, SavedGameInfo } from '../../services/local-storage.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
 import {GameBoardAnimationComponent} from '../game-board-animation/game-board-animation';
@@ -18,11 +19,7 @@ interface GameMode {
   isComingSoon: boolean;
 }
 
-interface SavedGameInfo {
-  exists: boolean;
-  timeElapsed?: string;
-  difficulty?: string;
-}
+// Remove local interface since we're using the one from LocalStorageService
 
 @Component({
   standalone: true,
@@ -62,6 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private newGameService: NewGameService,
     private themeService: ThemeService,
     private storageService: StorageService,
+    private localStorageService: LocalStorageService,
     private scrollToTopService: ScrollToTopService
   ) {}
 
@@ -90,8 +88,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
   checkForSavedGame(): void {
-    // No longer checking for saved games - always show no saved game
-    this.savedGameInfo = { exists: false };
+    // Check for saved game in classic mode
+    this.savedGameInfo = this.localStorageService.getSavedGameInfo('classic');
+    
+    // Log for debugging
+    if (this.savedGameInfo.exists) {
+      console.log('Found saved game:', this.savedGameInfo);
+    }
   }
 
   formatTime(seconds: number): string {
