@@ -194,44 +194,7 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
         return;
       }
 
-      // Check main game state first (same key as sudoku component)
-      const mainGameState = localStorage.getItem('sudoku-game-state');
-      if (mainGameState) {
-        const gameState = JSON.parse(mainGameState);
-        console.log('Restoring timer from main game state:', gameState);
-        
-        if (gameState.gameStartTime && gameState.gameStartTime > 0) {
-          this.startTime = gameState.gameStartTime;
-          this.hasStarted = true;
-          this.elapsedSeconds = gameState.totalGameTime || 0;
-          this.isRestored = true;
-          
-          // Calculate the correct elapsed time based on current time
-          const currentTime = Date.now();
-          const actualElapsed = Math.floor((currentTime - this.startTime) / 1000);
-          
-          // If there's a significant difference, it means the game was paused
-          if (actualElapsed > this.elapsedSeconds) {
-            this.totalPausedTime = (actualElapsed - this.elapsedSeconds) * 1000;
-          }
-          
-          console.log('Timer restored:', {
-            startTime: this.startTime,
-            elapsedSeconds: this.elapsedSeconds,
-            totalPausedTime: this.totalPausedTime,
-            actualElapsed
-          });
-          
-          // Emit the current elapsed time to update the parent
-          this.timerUpdate.emit(this.elapsedSeconds);
-          
-          // If game is active and not paused, continue the timer
-          if (this.isGameActive && !this.isGamePaused && !this.isGameCompleted) {
-            this.startTimer();
-          }
-          return;
-        }
-      }
+      // No longer loading from main game state - start fresh
 
       // Fallback to timer-specific localStorage state
       const savedState = localStorage.getItem(this.TIMER_STORAGE_KEY);

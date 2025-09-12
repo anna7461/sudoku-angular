@@ -127,10 +127,7 @@ export class NewGameService {
    * Check if there's a saved game state
    */
   hasSavedGame(): boolean {
-    if (isPlatformBrowser(this.platformId)) {
-      const savedState = localStorage.getItem(this.GAME_STATE_KEY);
-      return savedState !== null;
-    }
+    // No longer checking for saved games
     return false;
   }
 

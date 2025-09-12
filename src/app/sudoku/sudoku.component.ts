@@ -143,7 +143,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
     // Use setTimeout to prevent immediate state changes that cause blinking
     // Also give NewGameService time to process any pending requests
     setTimeout(() => {
-      this.loadGameState();
+      this.initializeNewGame();
       
       // Initialize game state service with default values
       this.gameService.updateGameState({
@@ -301,132 +301,11 @@ export class SudokuComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadGameState(): void {
+  private initializeNewGame(): void {
     const startTime = Date.now();
     const minLoadingTime = 300; // ms
 
-    console.log('loadGameState called, starting game state loading...');
-
-    try {
-      const savedState = localStorage.getItem(this.STORAGE_KEY);
-      console.log('Saved state found:', !!savedState);
-
-      if (savedState) {
-        const gameState = JSON.parse(savedState);
-        console.log('Parsed game state:', gameState);
-
-        if (Array.isArray(gameState.boxes) && gameState.boxes.length > 0) {
-          console.log('Valid saved game found, loading...');
-          this.boxes = gameState.boxes;
-          this.currentDifficulty = gameState.difficulty ?? '';
-          this.mistakeCount = gameState.mistakeCount ?? 0;
-          this.score = gameState.score ?? 0;
-          this.notesMode = gameState.notesMode ?? false;
-          this.numberFirstMode = gameState.numberFirstMode ?? false;
-          this.selectedNumber = gameState.selectedNumber ?? null;
-
-          console.log('Loaded game state:', {
-            difficulty: this.currentDifficulty,
-            mistakeCount: this.mistakeCount,
-            score: this.score,
-            notesMode: this.notesMode,
-            boxesLength: this.boxes.length
-          });
-
-          // Clear current number and selection when loading saved game
-          this.currentNumber = null;
-          this.selectedBoxIndex = null;
-          this.selectedCellIndex = null;
-
-          // Load solution and fixed cells if available
-          if (gameState.solution && Array.isArray(gameState.solution)) {
-            this.solution = gameState.solution;
-            console.log('Solution loaded from saved state');
-          }
-          if (gameState.fixedCells && Array.isArray(gameState.fixedCells)) {
-            this.fixedCells = gameState.fixedCells;
-            console.log('Fixed cells loaded from saved state');
-          }
-
-          // Load move history if available
-          if (gameState.moveHistory && Array.isArray(gameState.moveHistory)) {
-            this.moveHistory = gameState.moveHistory;
-          }
-
-          // Load timer information if available
-          if (gameState.gameStartTime !== undefined) {
-            this.gameStartTime = gameState.gameStartTime;
-          }
-          if (gameState.totalGameTime !== undefined) {
-            this.totalGameTime = gameState.totalGameTime;
-          }
-          if (gameState.isGamePaused !== undefined) {
-            this.isGamePaused = gameState.isGamePaused;
-          }
-
-          // Load Game Over state if available
-          if (gameState.isGameOver !== undefined) {
-            this.showGameOverDialog = gameState.isGameOver;
-          }
-          if (gameState.gameOverStats !== undefined) {
-            this.gameOverStats = gameState.gameOverStats;
-          }
-
-          // Load Game Completed state if available
-          if (gameState.isGameCompleted !== undefined) {
-            this.showCongratulationsDialog = gameState.isGameCompleted;
-          }
-          if (gameState.congratulationsStats !== undefined) {
-            this.congratulationsStats = gameState.congratulationsStats;
-          }
-
-          // Update game state service with loaded values
-          this.gameService.updateGameState({
-            currentDifficulty: this.getCurrentDifficulty(),
-            mistakesLimit: 3, // Standard mistakes limit
-            currentScore: this.score,
-            currentMistakes: this.mistakeCount
-          });
-
-          // Timer component will automatically restore from localStorage
-          // No need to manually call restoration here
-
-          // Check if the loaded game state has too many mistakes and auto-reset if needed
-          if (this.mistakeCount >= 3) {
-            console.log('Loaded game has too many mistakes, checking if it was already in Game Over state...');
-            
-            // If the game was already in Game Over state, maintain it
-            if (this.showGameOverDialog) {
-              console.log('Game was already in Game Over state, maintaining it');
-              // Don't reset - keep the Game Over dialog open
-            } else {
-              console.log('Game has too many mistakes but was not in Game Over state, triggering Game Over...');
-              // Trigger Game Over instead of auto-resetting
-              this.handleGameOver();
-            }
-          }
-
-          // Check if the loaded game is already completed
-          if (this.boxes && this.boxes.length > 0 && this.hasWonGame()) {
-            console.log('Loaded game is already completed');
-            console.log('🏆 Game was completed previously!');
-          }
-
-          // If we have a saved game but no solution, we need to regenerate the puzzle
-          // This ensures we can still validate moves
-          if (!this.solution || this.solution.length === 0) {
-            console.log('Regenerating solution for saved game...');
-            this.initializeBoard(this.currentDifficulty as 'test' | 'easy' | 'medium' | 'hard' | 'expert');
-          }
-
-          console.log('Game state loaded successfully, finishing loading...');
-          this.finishLoading(startTime, minLoadingTime);
-          return;
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load game state:', error);
-    }
+    console.log('initializeNewGame called, starting fresh game...');
 
     // Check if there's a pending new game request from NewGameService
     const pendingNewGame = this.newGameService.getLastNewGameRequest();
@@ -439,7 +318,7 @@ export class SudokuComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('No valid saved state found, starting new game');
+    console.log('Starting default new game');
     this.initializeBoard(); // Default puzzle
     this.finishLoading(startTime, minLoadingTime);
   }

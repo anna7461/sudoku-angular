@@ -90,71 +90,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
   checkForSavedGame(): void {
-    // Check if there's a saved game in localStorage
-    const savedGame = localStorage.getItem('sudoku-game-state');
-    if (savedGame) {
-      try {
-        const gameData = JSON.parse(savedGame);
-        if (gameData && gameData.boxes && gameData.boxes.length > 0) {
-          // Prefer timer's saved state for exact parity with in-game timer
-          let currentElapsedTime = 0;
-          const savedTimer = localStorage.getItem('sudoku-timer-state');
-          if (savedTimer) {
-            try {
-              const timerState = JSON.parse(savedTimer);
-              const startTime: number = timerState.startTime || 0; // ms
-              const totalPausedTime: number = timerState.totalPausedTime || 0; // ms
-              const elapsedSeconds: number = timerState.elapsedSeconds || 0; // s
-              const hasStarted: boolean = !!timerState.hasStarted;
-
-              if (hasStarted && startTime > 0) {
-                const now = Date.now();
-                currentElapsedTime = Math.max(
-                  0,
-                  Math.floor((now - startTime - totalPausedTime) / 1000)
-                );
-              } else {
-                currentElapsedTime = elapsedSeconds;
-              }
-            } catch {
-              // Fallback to game state if timer state parsing fails
-              currentElapsedTime = gameData.totalGameTime || 0;
-              if (!gameData.isGamePaused && gameData.gameStartTime) {
-                const now = Date.now();
-                const startTime = gameData.gameStartTime;
-                const additionalTime = Math.floor((now - startTime) / 1000);
-                currentElapsedTime += additionalTime;
-              }
-            }
-          } else {
-            // Fallback to game state if no timer state exists
-            currentElapsedTime = gameData.totalGameTime || 0;
-            if (!gameData.isGamePaused && gameData.gameStartTime) {
-              const now = Date.now();
-              const startTime = gameData.gameStartTime;
-              const additionalTime = Math.floor((now - startTime) / 1000);
-              currentElapsedTime += additionalTime;
-            }
-          }
-
-          // Get difficulty from the correct field
-          const difficulty = gameData.difficulty || 'Unknown';
-
-          this.savedGameInfo = {
-            exists: true,
-            timeElapsed: this.formatTime(currentElapsedTime),
-            difficulty: this.getDifficultyLabelFromString(difficulty)
-          };
-        } else {
-          this.savedGameInfo = { exists: false };
-        }
-      } catch (error) {
-        console.warn('Error parsing saved game data:', error);
-        this.savedGameInfo = { exists: false };
-      }
-    } else {
-      this.savedGameInfo = { exists: false };
-    }
+    // No longer checking for saved games - always show no saved game
+    this.savedGameInfo = { exists: false };
   }
 
   formatTime(seconds: number): string {

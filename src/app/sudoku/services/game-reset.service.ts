@@ -75,10 +75,7 @@ export class GameResetService {
    * Check if there's a saved game state
    */
   hasSavedGame(): boolean {
-    if (isPlatformBrowser(this.platformId)) {
-      const savedState = localStorage.getItem(this.GAME_STATE_KEY);
-      return savedState !== null;
-    }
+    // No longer checking for saved games
     return false;
   }
 
@@ -86,17 +83,7 @@ export class GameResetService {
    * Get the saved game state data
    */
   getSavedGameState(): any {
-    if (isPlatformBrowser(this.platformId)) {
-      const savedState = localStorage.getItem(this.GAME_STATE_KEY);
-      if (savedState) {
-        try {
-          return JSON.parse(savedState);
-        } catch (error) {
-          console.error('Failed to parse saved game state:', error);
-          return null;
-        }
-      }
-    }
+    // No longer loading saved game state
     return null;
   }
 }
