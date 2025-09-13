@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-timer',
@@ -26,6 +26,8 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   isPaused: boolean = false;
   hasStarted: boolean = false;
   private isRestored: boolean = false; // Flag to prevent multiple restorations
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit() {
     // Delay restoration slightly to avoid race conditions with parent component
@@ -134,11 +136,13 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     this.isRestored = false; // Reset restoration flag for new games
     this.timerUpdate.emit(0);
     
-    // Clear saved timer state
-    try {
-      localStorage.removeItem(this.TIMER_STORAGE_KEY);
-    } catch (error) {
-      console.warn('Failed to clear timer state:', error);
+    // Clear saved timer state (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        localStorage.removeItem(this.TIMER_STORAGE_KEY);
+      } catch (error) {
+        console.warn('Failed to clear timer state:', error);
+      }
     }
   }
 
@@ -154,20 +158,22 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private saveTimerState(): void {
-    try {
-      const timerState = {
-        startTime: this.startTime,
-        totalPausedTime: this.totalPausedTime,
-        elapsedSeconds: this.elapsedSeconds,
-        isPaused: this.isPaused,
-        hasStarted: this.hasStarted,
-        pausedTime: this.isPaused ? this.pausedTime : 0,
-        timestamp: Date.now()
-      };
-      
-      localStorage.setItem(this.TIMER_STORAGE_KEY, JSON.stringify(timerState));
-    } catch (error) {
-      console.warn('Failed to save timer state:', error);
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        const timerState = {
+          startTime: this.startTime,
+          totalPausedTime: this.totalPausedTime,
+          elapsedSeconds: this.elapsedSeconds,
+          isPaused: this.isPaused,
+          hasStarted: this.hasStarted,
+          pausedTime: this.isPaused ? this.pausedTime : 0,
+          timestamp: Date.now()
+        };
+        
+        localStorage.setItem(this.TIMER_STORAGE_KEY, JSON.stringify(timerState));
+      } catch (error) {
+        console.warn('Failed to save timer state:', error);
+      }
     }
   }
 
@@ -181,7 +187,7 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     try {
       // First check if parent component provided game start time
       if (this.gameStartTime && this.gameStartTime > 0) {
-        console.log('Restoring timer from parent game start time:', this.gameStartTime);
+        // Restoring timer from parent game start time
         this.startTime = this.gameStartTime;
         this.hasStarted = true;
         this.elapsedSeconds = this.savedElapsedTime;
@@ -196,11 +202,11 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
 
       // No longer loading from main game state - start fresh
 
-      // Fallback to timer-specific localStorage state
-      const savedState = localStorage.getItem(this.TIMER_STORAGE_KEY);
+      // Fallback to timer-specific localStorage state (browser only)
+      const savedState = isPlatformBrowser(this.platformId) ? localStorage.getItem(this.TIMER_STORAGE_KEY) : null;
       if (savedState) {
         const timerState = JSON.parse(savedState);
-        console.log('Restoring timer from timer localStorage:', timerState);
+        // Restoring timer from timer localStorage
         
         // Restore timer state
         this.startTime = timerState.startTime || 0;
@@ -219,7 +225,7 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
           this.startTimer();
         }
       } else {
-        console.log('No saved timer state found, starting fresh');
+        // No saved timer state found, starting fresh
         this.resetTimer();
       }
     } catch (error) {

@@ -127,21 +127,16 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('ngOnInit: Initial state:', {
-      isLoading: this.isLoading,
-      mistakeCount: this.mistakeCount,
-      boxesLength: this.boxes.length
-    });
+    // ngOnInit: Initial state logged
 
     // Add mobile detection
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    console.log('Device detection:', { isMobile, userAgent: navigator.userAgent });
+    // Device detection completed
 
     // Make component accessible from browser console for testing (browser only)
     if (typeof window !== 'undefined') {
       (window as any).sudokuComponent = this;
-      console.log('SudokuComponent available at window.sudokuComponent');
-      console.log('Test unique puzzle generation with: window.sudokuComponent.testUniquePuzzleGeneration()');
+      // SudokuComponent available at window.sudokuComponent
     }
 
     // Use setTimeout to prevent immediate state changes that cause blinking
@@ -217,11 +212,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    console.log('ngAfterViewInit called - ViewChild references should now be available');
-    console.log('boardComponent available:', !!this.boardComponent);
-    console.log('timerComponent available:', !!this.timerComponent);
-    console.log('Current loading state:', this.isLoading);
-    console.log('Current boxes length:', this.boxes?.length || 0);
+    // ViewChild references should now be available
     
     // The board component might not be available yet due to conditional rendering
     // We'll check for it later when the component gets rendered
@@ -390,34 +381,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
         this.localStorageService.updateGameState('classic', gameStateUpdate);
       }
 
-      console.log('Game state saved to localStorage service');
-      console.log('Saved state details:', {
-        gameStatus,
-        difficulty: this.currentDifficulty,
-        timer: this.totalGameTime,
-        mistakes: this.mistakeCount,
-        hasBoxes: this.boxes.length > 0,
-        samplePuzzleGrid: puzzleGrid[0]?.slice(0, 3),
-        sampleUserEntries: userEntries[0]?.slice(0, 3)
-      });
-      
-      // Debug: Show the difference between puzzle and user entries
-      console.log('Puzzle vs User Entries comparison:');
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const puzzleVal = puzzleGrid[row][col];
-          const userVal = userEntries[row][col];
-          if (puzzleVal !== 0 || userVal !== null) {
-            console.log(`[${row}][${col}]: puzzle=${puzzleVal}, user=${userVal}`);
-          }
-        }
-      }
-      
-      // Debug: Show what's actually being saved to localStorage
-      console.log('=== SAVING DEBUG ===');
-      console.log('Sample puzzleGrid row 0:', puzzleGrid[0]);
-      console.log('Sample userEntries row 0:', userEntries[0]);
-      console.log('Sample userEntries row 1:', userEntries[1]);
+      // Game state saved to localStorage service
 
     } catch (error) {
       console.error('Failed to save game state:', error);
@@ -428,36 +392,29 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     const startTime = Date.now();
     const minLoadingTime = 300; // ms
 
-    console.log('initializeNewGame called, checking for saved game...');
+    // initializeNewGame called, checking for saved game
 
     // First, check for saved game in localStorage (priority over stale requests)
     const savedGame = this.localStorageService.loadGameState('classic');
-    console.log('Loaded saved game from localStorage:', savedGame);
+    // Loaded saved game from localStorage
     
     if (savedGame && savedGame.gameStatus === 'in-progress') {
-      console.log('Found saved game with in-progress status, loading...', {
-        difficulty: savedGame.difficulty,
-        timer: savedGame.timer,
-        mistakes: savedGame.mistakes,
-        gameStatus: savedGame.gameStatus
-      });
+      // Found saved game with in-progress status, loading
       // Clear any pending new game request since we're loading a saved game
       this.newGameService.clearPendingRequest();
       this.loadSavedGame(savedGame);
       this.finishLoading(startTime, minLoadingTime);
       return;
     } else if (savedGame) {
-      console.log('Found saved game but status is not in-progress:', savedGame.gameStatus);
-    } else {
-      console.log('No saved game found in localStorage');
+      // Found saved game but status is not in-progress
     }
 
     // Then check if there's a pending new game request from NewGameService
     const pendingNewGame = this.newGameService.getLastNewGameRequest();
-    console.log('Pending new game request:', pendingNewGame);
+    // Pending new game request checked
     
     if (pendingNewGame && pendingNewGame.difficulty) {
-      console.log(`Found pending new game request with difficulty: ${pendingNewGame.difficulty}`);
+      // Found pending new game request
       // Clear the pending request since we're processing it
       this.newGameService.clearPendingRequest();
       this.initializeBoard(pendingNewGame.difficulty);
@@ -465,13 +422,13 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    console.log('No saved game or pending request found, starting default new game');
+    // No saved game or pending request found, starting default new game
     this.initializeBoard(); // Default puzzle
     this.finishLoading(startTime, minLoadingTime);
   }
 
   private loadSavedGame(savedState: GameState): void {
-    console.log('Loading saved game:', savedState);
+    // Loading saved game
     
     // Validate saved state
     if (!this.localStorageService.validateGameState(savedState)) {
@@ -480,20 +437,11 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     
-    console.log('Saved state validation passed');
-    console.log('Puzzle grid:', savedState.puzzleGrid);
-    console.log('User entries:', savedState.userEntries);
-    console.log('Notes:', savedState.notes);
-    
-    // Debug: Show what's actually being loaded from localStorage
-    console.log('=== LOADING DEBUG ===');
-    console.log('Sample puzzleGrid row 0:', savedState.puzzleGrid[0]);
-    console.log('Sample userEntries row 0:', savedState.userEntries[0]);
-    console.log('Sample userEntries row 1:', savedState.userEntries[1]);
+    // Saved state validation passed
     
     // Restore puzzle and solution grids
     this.solution = savedState.solutionGrid.map(row => [...row]);
-    console.log('Solution restored:', this.solution);
+    // Solution restored
     
     // Convert saved state back to boxes format
     const reconstructedBoxes = this.localStorageService.gridToBoxes(
@@ -511,20 +459,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       }))
     }));
     
-    console.log('Boxes reconstructed:', this.boxes.length);
-    console.log('First box cells count:', this.boxes[0]?.cells?.length);
-    console.log('Sample cells from first box:', this.boxes[0]?.cells?.slice(0, 3));
-    
-    // Debug: Check the actual values in the reconstructed boxes
-    console.log('=== RECONSTRUCTED BOXES DEBUG ===');
-    for (let boxIndex = 0; boxIndex < 3; boxIndex++) {
-      const box = this.boxes[boxIndex];
-      console.log(`Box ${boxIndex}:`);
-      for (let cellIndex = 0; cellIndex < 3; cellIndex++) {
-        const cell = box.cells[cellIndex];
-        console.log(`  Cell ${cellIndex}: value=${cell.value}, isGiven=${cell.isGiven}, isFixed=${cell.isFixed}`);
-      }
-    }
+    // Boxes reconstructed
     
     // Restore game state
     this.mistakeCount = savedState.mistakes;
@@ -532,12 +467,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentDifficulty = savedState.difficulty;
     this.totalGameTime = savedState.timer;
     
-    console.log('Game state restored:', {
-      mistakes: this.mistakeCount,
-      score: this.score,
-      difficulty: this.currentDifficulty,
-      timer: this.totalGameTime
-    });
+    // Game state restored
     
     // Restore UI state
     this.selectedBoxIndex = savedState.selectedBoxIndex;
@@ -571,35 +501,23 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     // Also trigger board component change detection if available
     // Use multiple timeouts to ensure proper change detection
     setTimeout(() => {
-      console.log('First change detection attempt - boardComponent available:', !!this.boardComponent);
       if (this.boardComponent) {
         this.boardComponent.detectChanges();
-        console.log('Board component change detection triggered (first attempt)');
-      } else {
-        console.log('Board component not available yet (first attempt)');
       }
       this.changeDetectorRef.detectChanges();
     }, 50);
     
     setTimeout(() => {
-      console.log('Second change detection attempt - boardComponent available:', !!this.boardComponent);
       if (this.boardComponent) {
         this.boardComponent.detectChanges();
-        console.log('Board component change detection triggered (second attempt)');
-      } else {
-        console.log('Board component not available yet (second attempt)');
       }
       this.changeDetectorRef.detectChanges();
     }, 200);
     
     setTimeout(() => {
-      console.log('Third change detection attempt - boardComponent available:', !!this.boardComponent);
       if (this.boardComponent) {
         this.boardComponent.detectChanges();
         this.boardComponent.forceRerender();
-        console.log('Board component change detection triggered (third attempt)');
-      } else {
-        console.log('Board component not available yet (third attempt)');
       }
       this.changeDetectorRef.detectChanges();
     }, 500);
@@ -612,10 +530,10 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private finishLoading(startTime: number, minLoadingTime: number): void {
     const elapsed = Date.now() - startTime;
-    console.log(`finishLoading called, elapsed: ${elapsed}ms, minLoadingTime: ${minLoadingTime}ms`);
+    // finishLoading called
     
     setTimeout(() => {
-      console.log('Setting isLoading to false and triggering change detection...');
+      // Setting isLoading to false and triggering change detection
       this.isLoading = false;
       this.invalidateGameActiveCache();
       
@@ -623,25 +541,20 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       this.changeDetectorRef.detectChanges();
       setTimeout(() => {
         this.changeDetectorRef.detectChanges();
-        console.log('Second change detection triggered');
+        // Second change detection triggered
         
         // Now check if the board component is available and trigger its change detection
         setTimeout(() => {
-          console.log('Checking for board component after loading complete...');
-          console.log('boardComponent available:', !!this.boardComponent);
-          
           if (this.boardComponent) {
-            console.log('Board component found! Triggering change detection...');
             this.boardComponent.detectChanges();
             this.boardComponent.forceRerender();
             this.boardComponent.resetComponent();
             this.changeDetectorRef.detectChanges();
           } else {
-            console.log('Board component still not available, will retry...');
             // Retry a few more times with longer delays
             setTimeout(() => {
               if (this.boardComponent) {
-                console.log('Board component found on retry! Triggering change detection...');
+                // Board component found on retry
                 this.boardComponent.detectChanges();
                 this.boardComponent.forceRerender();
                 this.changeDetectorRef.detectChanges();
@@ -651,11 +564,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 100);
       }, 50);
       
-      console.log('Loading finished, current state:', {
-        isLoading: this.isLoading,
-        boxesLength: this.boxes.length,
-        boxes: this.boxes
-      });
+      // Loading finished
       
       // Check route again after loading to ensure puzzle is generated
       this.checkCurrentRoute();
@@ -668,7 +577,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       this.localStorageService.clearSavedGame('classic');
       // Clear pause state to prevent pause dialog from appearing
       this.pauseService.resumeGame();
-      console.log('Game state cleared from localStorage service');
+      // Game state cleared from localStorage service
     } catch (error) {
       console.error('Failed to clear game state:', error);
     }
@@ -689,7 +598,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Method to start a new game with a specific difficulty
   startNewGame(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert') {
-    console.log(`Starting new game with difficulty: ${difficulty || ''}, Type: ${typeof difficulty}`);
+    // Starting new game
     this.isLoading = true;
     this.clearGameState();
     this.selectedBoxIndex = null;
@@ -1773,7 +1682,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   initializeBoard(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert') {
-    console.log(`initializeBoard called with difficulty: ${difficulty}, Type: ${typeof difficulty}`);
+    // initializeBoard called
     
     // Clear current number and selection when initializing new board
     this.currentNumber = null;
@@ -1782,15 +1691,11 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedCellIndex = null;
 
     // 1. Generate solved board and store the solution for validation
-    console.log('Generating solved board...');
     const solvedBoard = this.generateSolvedBoard();
-    console.log('Solved board generated:', solvedBoard);
     this.solution = solvedBoard.map(row => [...row]); // deep copy
 
     // 2. Create puzzle from solved board
-    console.log('Creating puzzle from solved board...');
     const puzzle = this.createPuzzleFromSolved(solvedBoard, difficulty);
-    console.log('Puzzle created:', puzzle);
     this.currentDifficulty = difficulty || 'test';
 
     // Update game state service with current difficulty and mistakes limit
@@ -1801,18 +1706,13 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       currentMistakes: this.mistakeCount
     });
 
-    console.log(
-      difficulty
-        ? `Generated ${this.currentDifficulty} difficulty puzzle`
-        : 'Generated puzzle without difficulty level'
-    );
+    // Generated puzzle
 
     // 3. Track fixed cells (original numbers from the puzzle)
     this.fixedCells = puzzle.map(row => row.map(num => num !== 0));
-    console.log('Fixed cells tracked:', this.fixedCells);
+    // Fixed cells tracked
 
     // 4. Build boxes[] from puzzle
-    console.log('Building boxes from puzzle...');
     this.boxes = [];
     for (let boxRow = 0; boxRow < 3; boxRow++) {
       for (let boxCol = 0; boxCol < 3; boxCol++) {
@@ -1837,9 +1737,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    console.log('Boxes built:', this.boxes);
-    console.log('Boxes length:', this.boxes.length);
-    console.log('First box cells:', this.boxes[0]?.cells);
+    // Boxes built
 
     // 5. Save initial game state
     this.saveGameState();
@@ -1850,7 +1748,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     // 7. Force change detection for mobile
     setTimeout(() => {
       this.changeDetectorRef.detectChanges();
-      console.log('Change detection triggered, boxes should now be visible');
+      // Change detection triggered, boxes should now be visible
     }, 100);
   }
 

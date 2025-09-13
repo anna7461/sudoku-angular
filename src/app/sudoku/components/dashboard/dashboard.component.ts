@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 import { ThemeService } from '../../services/theme.service';
@@ -60,12 +60,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private themeService: ThemeService,
     private storageService: StorageService,
     private localStorageService: LocalStorageService,
-    private scrollToTopService: ScrollToTopService
+    private scrollToTopService: ScrollToTopService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    // Ensure body scroll is enabled when dashboard loads
-    document.body.style.overflow = '';
+    // Ensure body scroll is enabled when dashboard loads (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
 
     this.checkForSavedGame();
 
@@ -81,8 +84,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Restore body scroll if component is destroyed while dialog is open
-    document.body.style.overflow = '';
+    // Restore body scroll if component is destroyed while dialog is open (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 
 
@@ -93,7 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     
     // Log for debugging
     if (this.savedGameInfo.exists) {
-      console.log('Found saved game:', this.savedGameInfo);
+      // Found saved game
     }
   }
 
@@ -104,8 +109,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onContinueGame(): void {
-    // Ensure body scroll is restored
-    document.body.style.overflow = '';
+    // Ensure body scroll is restored (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
 
     // Scroll to top before navigating to ensure clean start
     this.scrollToTopService.scrollToTopInstant();
@@ -116,17 +123,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onNewGameClick(): void {
     this.showDifficultyDialog = true;
-    // Prevent body scroll when dialog is open
-    document.body.style.overflow = 'hidden';
+    // Prevent body scroll when dialog is open (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   onDifficultySelected(difficulty: GameDifficulty): void {
-    console.log(`Dashboard: Starting new game with difficulty: ${difficulty}`);
+    // Dashboard: Starting new game
 
     // Close the dialog
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
 
     // Start new game with selected difficulty
     this.newGameService.startNewGame({
@@ -135,8 +146,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       resetTimer: true
     });
 
-    // Ensure body scroll is restored before navigation
-    document.body.style.overflow = '';
+    // Ensure body scroll is restored before navigation (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
 
     // Scroll to top before navigating to ensure clean start
     this.scrollToTopService.scrollToTopInstant();
@@ -147,8 +160,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onDifficultyDialogClose(): void {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 
   onGameModeClick(mode: GameMode): void {

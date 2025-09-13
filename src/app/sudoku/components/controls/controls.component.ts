@@ -1,5 +1,5 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Output, EventEmitter, Input, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { NewGameService, GameDifficulty } from '../../services/new-game.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
@@ -22,7 +22,8 @@ export class ControlsComponent {
 
   constructor(
     private newGameService: NewGameService,
-    private scrollToTopService: ScrollToTopService
+    private scrollToTopService: ScrollToTopService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   onResetClick() {
@@ -31,14 +32,18 @@ export class ControlsComponent {
 
   onNewGameClick() {
     this.showDifficultyDialog = true;
-    // Prevent body scroll when dialog is open
-    document.body.style.overflow = 'hidden';
+    // Prevent body scroll when dialog is open (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   onDifficultySelected(difficulty: GameDifficulty) {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     
     // Emit the event for parent components
     this.newGame.emit(difficulty);
@@ -46,7 +51,9 @@ export class ControlsComponent {
 
   onDifficultyDialogClose() {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 }

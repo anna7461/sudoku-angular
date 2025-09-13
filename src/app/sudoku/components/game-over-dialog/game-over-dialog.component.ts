@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { GameDifficulty } from '../../services/new-game.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
@@ -30,7 +30,10 @@ export class GameOverDialogComponent implements OnInit, OnDestroy {
   
   private escapeKeyHandler: (event: KeyboardEvent) => void;
 
-  constructor(private scrollToTopService: ScrollToTopService) {
+  constructor(
+    private scrollToTopService: ScrollToTopService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     // Create the escape key handler
     this.escapeKeyHandler = (event: KeyboardEvent) => {
       if (this.isVisible && event.key === 'Escape') {
@@ -42,15 +45,19 @@ export class GameOverDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Add event listener for escape key
-    document.addEventListener('keydown', this.escapeKeyHandler);
+    // Add event listener for escape key (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.addEventListener('keydown', this.escapeKeyHandler);
+    }
   }
 
   ngOnDestroy(): void {
-    // Remove event listener
-    document.removeEventListener('keydown', this.escapeKeyHandler);
-    // Restore body scroll if component is destroyed while dialog is open
-    document.body.style.overflow = '';
+    // Remove event listener (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.removeEventListener('keydown', this.escapeKeyHandler);
+      // Restore body scroll if component is destroyed while dialog is open
+      document.body.style.overflow = '';
+    }
   }
 
   onResetGame(): void {
@@ -59,14 +66,18 @@ export class GameOverDialogComponent implements OnInit, OnDestroy {
 
   onNewGameClick(): void {
     this.showDifficultyDialog = true;
-    // Prevent body scroll when dialog is open
-    document.body.style.overflow = 'hidden';
+    // Prevent body scroll when dialog is open (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   onDifficultySelected(difficulty: GameDifficulty): void {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     
     // Scroll to top when starting new game
     this.scrollToTopService.scrollToTop();
@@ -75,8 +86,10 @@ export class GameOverDialogComponent implements OnInit, OnDestroy {
 
   onDifficultyDialogClose(): void {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 
   onClose(): void {

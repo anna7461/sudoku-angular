@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { GameDifficulty } from '../../services/new-game.service';
 import { ScrollToTopService } from '../../../services/scroll-to-top.service';
 import { DifficultyDialogComponent } from '../difficulty-dialog/difficulty-dialog.component';
@@ -27,7 +27,10 @@ export class CongratulationsDialogComponent implements OnChanges {
   // Difficulty dialog state
   showDifficultyDialog: boolean = false;
 
-  constructor(private scrollToTopService: ScrollToTopService) {}
+  constructor(
+    private scrollToTopService: ScrollToTopService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     // Component no longer needs to track difficulty selection
@@ -39,14 +42,18 @@ export class CongratulationsDialogComponent implements OnChanges {
 
   onNewGameClick(): void {
     this.showDifficultyDialog = true;
-    // Prevent body scroll when dialog is open
-    document.body.style.overflow = 'hidden';
+    // Prevent body scroll when dialog is open (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   onDifficultySelected(difficulty: GameDifficulty): void {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     
     // Scroll to top when starting new game
     this.scrollToTopService.scrollToTop();
@@ -55,8 +62,10 @@ export class CongratulationsDialogComponent implements OnChanges {
 
   onDifficultyDialogClose(): void {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 
   onClose(): void {

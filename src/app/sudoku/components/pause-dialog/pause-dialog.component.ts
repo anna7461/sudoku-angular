@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PauseService } from '../../services/pause.service';
 import { GameResetService } from '../../services/game-reset.service';
@@ -42,7 +42,8 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
     private pauseService: PauseService,
     private gameResetService: GameResetService,
     private newGameService: NewGameService,
-    private scrollToTopService: ScrollToTopService
+    private scrollToTopService: ScrollToTopService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
@@ -56,26 +57,32 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
       this.currentScore = dialogData.currentScore || 0;
       this.currentMistakes = dialogData.currentMistakes || 0;
       
-      // Prevent body scroll when pause dialog is open
-      if (this.isVisible) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
+      // Prevent body scroll when pause dialog is open (browser only)
+      if (isPlatformBrowser(this.platformId)) {
+        if (this.isVisible) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
       }
     });
   }
 
   ngOnDestroy(): void {
-    // Restore body scroll if component is destroyed while dialogs are open
-    document.body.style.overflow = '';
+    // Restore body scroll if component is destroyed while dialogs are open (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 
   /**
    * Resume the game
    */
   onResume(): void {
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     this.pauseService.resumeGame();
   }
 
@@ -83,8 +90,10 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
    * Reset the current game
    */
   onResetGame(): void {
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     this.gameResetService.resetCurrentGame();
     this.pauseService.resumeGame(); // Close the dialog
   }
@@ -94,8 +103,10 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
    */
   onStartNewGame(): void {
     this.showDifficultyDialog = true;
-    // Prevent body scroll when dialog is open
-    document.body.style.overflow = 'hidden';
+    // Prevent body scroll when dialog is open (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
   }
 
   /**
@@ -103,8 +114,10 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
    */
   onDifficultySelected(difficulty: GameDifficulty): void {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     
     this.newGameService.startNewGame({
       difficulty: difficulty,
@@ -124,7 +137,9 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
    */
   onDifficultyDialogClose(): void {
     this.showDifficultyDialog = false;
-    // Restore body scroll
-    document.body.style.overflow = '';
+    // Restore body scroll (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
   }
 }
