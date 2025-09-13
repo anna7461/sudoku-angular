@@ -266,6 +266,9 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     const { difficulty } = customEvent.detail;
     console.log('Difficulty from event:', difficulty, 'Type:', typeof difficulty);
     
+    // Ensure pause state is cleared before starting new game
+    this.pauseService.resumeGame();
+    
     // Clear any existing game state immediately
     this.clearGameState();
     
@@ -663,6 +666,8 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       // Clear using the localStorage service
       this.localStorageService.clearSavedGame('classic');
+      // Clear pause state to prevent pause dialog from appearing
+      this.pauseService.resumeGame();
       console.log('Game state cleared from localStorage service');
     } catch (error) {
       console.error('Failed to clear game state:', error);

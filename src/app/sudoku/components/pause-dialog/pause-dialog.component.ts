@@ -115,9 +115,8 @@ export class PauseDialogComponent implements OnInit, OnDestroy {
     // Scroll to top when starting new game
     this.scrollToTopService.scrollToTop();
     
-    // Close the pause dialog and restore body scroll
-    document.body.style.overflow = '';
-    this.pauseService.resumeGame();
+    // Note: pauseService.resumeGame() is already called by newGameService.startNewGame()
+    // No need to call it again here to avoid timing issues
   }
 
   /**

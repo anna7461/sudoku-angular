@@ -2,6 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
+import { PauseService } from './pause.service';
 
 export type GameDifficulty = 'test' | 'easy' | 'medium' | 'hard' | 'expert';
 
@@ -22,7 +23,8 @@ export class NewGameService {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private pauseService: PauseService
   ) {}
 
   /**
@@ -41,8 +43,14 @@ export class NewGameService {
 
     // Clear current game state if requested
     if (clearCurrentGame) {
+      console.log('NewGameService: Clearing current game state');
       // Clear classic mode game state
       this.localStorageService.clearSavedGame('classic');
+      // Clear pause state to prevent pause dialog from appearing
+      this.pauseService.resumeGame();
+      // Reset pause state loading flag for fresh start
+      this.pauseService.resetPauseStateLoading();
+      console.log('NewGameService: Pause state cleared and loading flag reset');
     }
 
     // Emit new game event that components can listen to
