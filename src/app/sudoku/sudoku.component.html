@@ -45,6 +45,7 @@
       </div>
 
       <app-board-controls
+      class="mobile-only"
         *ngIf="!isLoading && boxes && boxes.length > 0"
         [notesMode]="notesMode"
         [numberFirstMode]="numberFirstMode"
@@ -69,6 +70,20 @@
     </div>
   </div>
 </div>
+
+<app-board-controls
+class="desktop-only"
+        *ngIf="!isLoading && boxes && boxes.length > 0"
+        [notesMode]="notesMode"
+        [numberFirstMode]="numberFirstMode"
+        [canUndo]="canUndo()"
+        [disabled]="!isGameActive()"
+        (undo)="undo()"
+        (resetNotes)="resetNotes()"
+        (toggleNotesMode)="toggleNotesMode()"
+        (toggleNumberFirstMode)="toggleNumberFirstMode()"
+        (hint)="provideHint()">
+      </app-board-controls>
 
     <!-- Pause Dialog Component -->
     <app-pause-dialog ngSkipHydration></app-pause-dialog>

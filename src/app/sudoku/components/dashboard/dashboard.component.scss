@@ -1,10 +1,11 @@
 // Dashboard Container
 .dashboard-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 106px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  justify-content: center;
+  padding: 1rem;
   background: linear-gradient(135deg, var(--color-bg-white) 0%, var(--color-bg-lightest) 100%);
   position: relative;
   overflow-x: hidden;
@@ -13,7 +14,7 @@
 // Header
 .dashboard-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   animation: fadeInDown 0.8s ease-out;
 }
 
@@ -120,7 +121,7 @@
 
 // Continue Section
 .continue-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
@@ -132,11 +133,11 @@
 }
 
 .continue-label {
-  font-size: 1.2rem;
+  font-size: 14px;
 }
 
 .continue-details {
-  font-size: 0.9rem;
+  font-size: 12px;
   opacity: 0.9;
   font-weight: 500;
 }

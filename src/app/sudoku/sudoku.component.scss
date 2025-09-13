@@ -8,13 +8,16 @@
 
 :host(app-sudoku) {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg-white);
   padding: 20px;
-  min-height: 100vh;
+  min-height: calc(100vh - 179px);
   position: relative;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 }
 
 .sudoku-container {
@@ -132,6 +135,13 @@
   }
 }
 
+app-board-controls.mobile-only {
+  display: none !important;
+}
+app-board-controls.desktop-only {
+  display: block !important;
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .game-content {
@@ -145,6 +155,12 @@
 
 // Mobile Responsive Styles
 @media (max-width: 768px) {
+  app-board-controls.mobile-only {
+    display: block !important;
+  }
+  app-board-controls.desktop-only {
+    display: none !important;
+  }
   :host(app-sudoku) {
     padding: 10px;
     min-height: 100vh;

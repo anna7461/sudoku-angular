@@ -22,8 +22,11 @@
     (click)="onToggleNotesClick()"
     [disabled]="disabled"
   >
-  <i class="fas fa-pencil-alt"></i>
-    <span>{{ notesMode ? 'Notes ON' : 'Notes OFF' }}</span>
+    <div class="icon-container">
+      <i class="fas fa-pencil-alt"></i>
+      <span class="badge">{{ notesMode ? 'ON' : 'OFF' }}</span>
+    </div>
+    <span>Notes</span>
   </button>
  
   <button
@@ -41,7 +44,10 @@
     (click)="onToggleNumberFirstClick()"
     [disabled]="disabled"
   >
-    <i class="fas fa-mouse-pointer"></i>
-    <span>{{ numberFirstMode ? 'Number-First ON' : 'Number-First OFF' }}</span>
+    <div class="icon-container">
+      <i class="fas fa-mouse-pointer"></i>
+      <span class="badge">{{ numberFirstMode ? 'ON' : 'OFF' }}</span>
+    </div>
+    <span>Number-First</span>
   </button>
 </div>
