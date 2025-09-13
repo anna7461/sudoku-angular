@@ -19,6 +19,7 @@ import {NewGameService, GameDifficulty} from './services/new-game.service';
 import {ScrollToTopService} from '../services/scroll-to-top.service';
 import {GameService} from './services/game.service';
 import {LocalStorageService, GameState} from './services/local-storage.service';
+import {AutoSelectionService} from './services/auto-selection.service';
 
 @Component({
   standalone: true,
@@ -51,7 +52,8 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private scrollToTopService: ScrollToTopService,
     private gameService: GameService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private autoSelectionService: AutoSelectionService
   ) {}
 
 
@@ -922,6 +924,9 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.isPuzzleComplete()) {
         console.log('🏆 Puzzle completed in fillSelectedCellWithNumber!');
         this.handleVictory();
+      } else {
+        // Check if this number is now completed and trigger auto-selection
+        this.handleAutomaticNumberSelection(num);
       }
     } else {
       // Incorrect move
@@ -948,6 +953,9 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
         this.handleGameOver();
         return; // Stop processing the move
       }
+
+      // Check if this number is now completed and trigger auto-selection (even for incorrect moves)
+      this.handleAutomaticNumberSelection(num);
     }
 
     // Record the move for undo functionality
@@ -1060,6 +1068,9 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.isPuzzleComplete()) {
         console.log('🏆 Puzzle completed in fillCellWithSelectedNumber (number-first mode)!');
         this.handleVictory();
+      } else {
+        // Check if this number is now completed and trigger auto-selection
+        this.handleAutomaticNumberSelection(this.selectedNumber);
       }
     } else {
       // Incorrect move
@@ -1086,6 +1097,9 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
         this.handleGameOver();
         return; // Stop processing the move
       }
+
+      // Check if this number is now completed and trigger auto-selection (even for incorrect moves)
+      this.handleAutomaticNumberSelection(this.selectedNumber);
     }
 
     // Record the move for undo functionality BEFORE clearing highlights
@@ -1111,16 +1125,6 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Clear highlights after recording the move
     this.clearCellHighlights();
-
-    // Check if this number is now complete and should be auto-deselected (after clearing highlights)
-    if (this.solution[globalRow][globalCol] === this.selectedNumber) {
-      const remainingCounts = this.calculateRemainingCounts();
-      if (remainingCounts[this.selectedNumber] === 0) {
-        console.log(`Number ${this.selectedNumber} completed, auto-deselecting`);
-        this.selectedNumber = null;
-        this.currentNumber = null;
-      }
-    }
 
     // Save game state
     this.saveGameState();
@@ -1299,6 +1303,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       const remainingCounts = this.calculateRemainingCounts();
       if (remainingCounts[this.selectedNumber] === 0) {
         this.selectedNumber = null;
+        this.currentNumber = null;
       }
     }
 
@@ -1382,6 +1387,9 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Invalidate game state cache since the game is now won
     this.invalidateGameActiveCache();
+    
+    // Clear all highlights when puzzle is completed
+    this.clearAllHighlights();
     
     // Pause the timer when puzzle is completed
     if (this.timerComponent) {
@@ -2345,6 +2353,55 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return counts;
+  }
+
+  /**
+   * Handles automatic number selection when a number is completed
+   * @param completedNumber - The number that was just completed
+   */
+  private handleAutomaticNumberSelection(completedNumber: number): void {
+    const remainingCounts = this.calculateRemainingCounts();
+    
+    console.log(`Auto-selection check for number ${completedNumber}:`, {
+      remainingCounts,
+      selectedNumber: this.selectedNumber,
+      numberFirstMode: this.numberFirstMode
+    });
+    
+    // Check if auto-selection should be triggered
+    if (this.autoSelectionService.shouldTriggerAutoSelection(completedNumber, remainingCounts, this.selectedNumber)) {
+      const nextNumber = this.autoSelectionService.getNextNumberToSelect(completedNumber, remainingCounts);
+      
+      if (nextNumber !== null) {
+        console.log(`✅ Number ${completedNumber} completed, auto-selecting number ${nextNumber}`);
+        
+        // Clear any existing cell selection to remove previous highlights
+        this.clearCellHighlights();
+        
+        // Update both selectedNumber and currentNumber for consistency
+        this.selectedNumber = nextNumber;
+        this.currentNumber = nextNumber;
+        
+        // Force change detection to update UI
+        this.changeDetectorRef.detectChanges();
+        
+        // Save game state
+        this.saveGameState();
+      } else {
+        console.log(`Number ${completedNumber} completed, but all numbers are done - clearing all highlights`);
+        
+        // Clear all highlights when all numbers are completed
+        this.clearAllHighlights();
+        
+        // Force change detection to update UI
+        this.changeDetectorRef.detectChanges();
+        
+        // Save game state
+        this.saveGameState();
+      }
+    } else {
+      console.log(`❌ Auto-selection not triggered for number ${completedNumber}`);
+    }
   }
 
   // Called when user clicks number on dock number pad
