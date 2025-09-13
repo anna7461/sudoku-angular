@@ -1123,8 +1123,26 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       this.moveHistory.shift(); // Remove oldest move
     }
 
-    // Clear highlights after recording the move
-    this.clearCellHighlights();
+    // In number-first mode, only clear highlights if the number is completed
+    // Otherwise, keep the selection active for continued filling
+    if (this.numberFirstMode && this.selectedNumber !== null) {
+      const remainingCounts = this.calculateRemainingCounts();
+      const isNumberCompleted = this.autoSelectionService.isNumberCompleted(this.selectedNumber, remainingCounts);
+      
+      if (isNumberCompleted) {
+        // Number is completed, clear highlights (auto-selection will handle next number)
+        this.clearCellHighlights();
+      } else {
+        // Number not completed, only clear cell selection but keep number selected
+        this.selectedBoxIndex = null;
+        this.selectedCellIndex = null;
+        // Keep currentNumber set to selectedNumber for board highlighting
+        this.currentNumber = this.selectedNumber;
+      }
+    } else {
+      // Normal mode: clear highlights as usual
+      this.clearCellHighlights();
+    }
 
     // Save game state
     this.saveGameState();
