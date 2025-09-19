@@ -1,6 +1,0 @@
-{
-  "routes": {
-    "/sudoku-angular": {},
-    "/sudoku-angular/sudoku": {}
-  }
-}
