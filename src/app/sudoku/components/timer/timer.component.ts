@@ -118,6 +118,15 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  // Public method to resume timer when game is unpaused
+  resumeGameTimer() {
+    if (this.isPaused) {
+      this.continueTimer();
+    } else if (this.hasStarted && !this.timerInterval) {
+      this.startTimer();
+    }
+  }
+
   stopTimer() {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
@@ -273,11 +282,16 @@ export class TimerComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
     
-    if (changes['isGameActive'] || changes['isGameCompleted']) {
-      if (!this.isGameActive || this.isGameCompleted) {
+    if (changes['isGameActive'] || changes['isGameCompleted'] || changes['isGamePaused']) {
+      if (!this.isGameActive || this.isGameCompleted || this.isGamePaused) {
         this.pauseTimer();
-      } else if (this.isGameActive && !this.isGameCompleted && this.hasStarted && !this.isPaused) {
-        this.startTimer();
+      } else if (this.isGameActive && !this.isGameCompleted && !this.isGamePaused && this.hasStarted) {
+        // Resume timer when game becomes active and not paused
+        if (this.isPaused) {
+          this.continueTimer();
+        } else if (!this.timerInterval) {
+          this.startTimer();
+        }
       }
     }
   }
