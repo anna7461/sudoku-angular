@@ -143,7 +143,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     // Also give NewGameService time to process any pending requests
     setTimeout(() => {
       this.initializeNewGame();
-      
+
       // Initialize game state service with default values
       this.gameService.updateGameState({
         currentTime: '00:00',
@@ -180,7 +180,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     // Subscribe to pause service for pause state changes
     this.pauseService.gamePauseState$.subscribe(isPaused => {
       this.isGamePaused = isPaused;
-      
+
       // Save game state when pause state changes
       if (this.boxes && this.boxes.length > 0) {
         this.saveGameState();
@@ -213,7 +213,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     // ViewChild references should now be available
-    
+
     // The board component might not be available yet due to conditional rendering
     // We'll check for it later when the component gets rendered
   }
@@ -256,13 +256,13 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('New game event received:', customEvent.detail);
     const { difficulty } = customEvent.detail;
     console.log('Difficulty from event:', difficulty, 'Type:', typeof difficulty);
-    
+
     // Ensure pause state is cleared before starting new game
     this.pauseService.resumeGame();
-    
+
     // Clear any existing game state immediately
     this.clearGameState();
-    
+
     // Start new game with selected difficulty
     this.startNewGame(difficulty);
   }
@@ -298,20 +298,20 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Extract puzzle grid from current state (given cells only)
       const puzzleGrid: number[][] = Array(9).fill(null).map(() => Array(9).fill(0));
-      
+
       for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
         const box = this.boxes[boxIndex];
         const boxRow = Math.floor(boxIndex / 3);
         const boxCol = boxIndex % 3;
-        
+
         for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
           const cell = box.cells[cellIndex];
           const cellRow = Math.floor(cellIndex / 3);
           const cellCol = cellIndex % 3;
-          
+
           const globalRow = boxRow * 3 + cellRow;
           const globalCol = boxCol * 3 + cellCol;
-          
+
           if (cell.isGiven && cell.value) {
             puzzleGrid[globalRow][globalCol] = cell.value;
           }
@@ -321,21 +321,22 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       // Convert current state to grid formats - separate user entries from given cells
       const userEntries: (number | null)[][] = Array(9).fill(null).map(() => Array(9).fill(null));
       const notes = this.localStorageService.boxesToNotesGrid(this.boxes);
-      
+      const cellStates = this.localStorageService.boxesToCellStatesGrid(this.boxes);
+
       // Extract only user-filled cells (non-given cells)
       for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
         const box = this.boxes[boxIndex];
         const boxRow = Math.floor(boxIndex / 3);
         const boxCol = boxIndex % 3;
-        
+
         for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
           const cell = box.cells[cellIndex];
           const cellRow = Math.floor(cellIndex / 3);
           const cellCol = cellIndex % 3;
-          
+
           const globalRow = boxRow * 3 + cellRow;
           const globalCol = boxCol * 3 + cellCol;
-          
+
           // Only save user-filled cells (not given cells)
           if (!cell.isGiven) {
             userEntries[globalRow][globalCol] = cell.value;
@@ -349,6 +350,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
         solutionGrid: this.solution.map(row => [...row]),
         userEntries,
         notes,
+        cellStates,
         mistakes: this.mistakeCount,
         mistakesLimit: 3,
         difficulty: (this.currentDifficulty || 'test') as any,
@@ -373,7 +375,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
           difficulty: (this.currentDifficulty || 'test') as any,
           mistakesLimit: 3
         });
-        
+
         // Then update with current state
         this.localStorageService.updateGameState('classic', gameStateUpdate);
       } else {
@@ -397,7 +399,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     // First, check for saved game in localStorage (priority over stale requests)
     const savedGame = this.localStorageService.loadGameState('classic');
     // Loaded saved game from localStorage
-    
+
     if (savedGame && savedGame.gameStatus === 'in-progress') {
       // Found saved game with in-progress status, loading
       // Clear any pending new game request since we're loading a saved game
@@ -412,7 +414,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     // Then check if there's a pending new game request from NewGameService
     const pendingNewGame = this.newGameService.getLastNewGameRequest();
     // Pending new game request checked
-    
+
     if (pendingNewGame && pendingNewGame.difficulty) {
       // Found pending new game request
       // Clear the pending request since we're processing it
@@ -429,27 +431,28 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadSavedGame(savedState: GameState): void {
     // Loading saved game
-    
+
     // Validate saved state
     if (!this.localStorageService.validateGameState(savedState)) {
       console.warn('Invalid saved game state, starting new game');
       this.initializeBoard();
       return;
     }
-    
+
     // Saved state validation passed
-    
+
     // Restore puzzle and solution grids
     this.solution = savedState.solutionGrid.map(row => [...row]);
     // Solution restored
-    
+
     // Convert saved state back to boxes format
     const reconstructedBoxes = this.localStorageService.gridToBoxes(
       savedState.userEntries,
       savedState.puzzleGrid,
-      savedState.notes
+      savedState.notes,
+      savedState.cellStates
     );
-    
+
     // Ensure we create a completely new array reference to trigger change detection
     this.boxes = reconstructedBoxes.map(box => ({
       cells: box.cells.map(cell => ({
@@ -458,30 +461,30 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
         notes: [...cell.notes]
       }))
     }));
-    
+
     // Boxes reconstructed
-    
+
     // Restore game state
     this.mistakeCount = savedState.mistakes;
     this.score = savedState.score;
     this.currentDifficulty = savedState.difficulty;
     this.totalGameTime = savedState.timer;
-    
+
     // Game state restored
-    
+
     // Restore UI state
     this.selectedBoxIndex = savedState.selectedBoxIndex;
     this.selectedCellIndex = savedState.selectedCellIndex;
     this.notesMode = savedState.notesMode;
     this.numberFirstMode = savedState.numberFirstMode;
     this.selectedNumber = savedState.selectedNumber;
-    
+
     // Restore move history
     this.moveHistory = [...savedState.moveHistory];
-    
+
     // Set game start time based on saved time
     this.gameStartTime = Date.now() - (savedState.timer * 1000);
-    
+
     // Update game service
     this.gameService.updateGameState({
       currentDifficulty: this.currentDifficulty,
@@ -489,15 +492,15 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       currentScore: this.score,
       currentMistakes: this.mistakeCount
     });
-    
+
     // Ensure the fixed cells are properly set for validation
     this.fixedCells = savedState.puzzleGrid.map(row => row.map(num => num !== 0));
     console.log('Fixed cells restored:', this.fixedCells);
-    
+
     // Force change detection to update the UI
     this.invalidateGameActiveCache();
     this.changeDetectorRef.detectChanges();
-    
+
     // Also trigger board component change detection if available
     // Use multiple timeouts to ensure proper change detection
     setTimeout(() => {
@@ -506,14 +509,14 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.changeDetectorRef.detectChanges();
     }, 50);
-    
+
     setTimeout(() => {
       if (this.boardComponent) {
         this.boardComponent.detectChanges();
       }
       this.changeDetectorRef.detectChanges();
     }, 200);
-    
+
     setTimeout(() => {
       if (this.boardComponent) {
         this.boardComponent.detectChanges();
@@ -521,28 +524,28 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.changeDetectorRef.detectChanges();
     }, 500);
-    
+
     // The timer component will automatically restore from the savedElapsedTime input
     // and gameStartTime which are set above via the component inputs
-    
+
     console.log('Saved game loaded successfully');
   }
 
   private finishLoading(startTime: number, minLoadingTime: number): void {
     const elapsed = Date.now() - startTime;
     // finishLoading called
-    
+
     setTimeout(() => {
       // Setting isLoading to false and triggering change detection
       this.isLoading = false;
       this.invalidateGameActiveCache();
-      
+
       // Force change detection multiple times for mobile
       this.changeDetectorRef.detectChanges();
       setTimeout(() => {
         this.changeDetectorRef.detectChanges();
         // Second change detection triggered
-        
+
         // Now check if the board component is available and trigger its change detection
         setTimeout(() => {
           if (this.boardComponent) {
@@ -563,9 +566,9 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }, 100);
       }, 50);
-      
+
       // Loading finished
-      
+
       // Check route again after loading to ensure puzzle is generated
       this.checkCurrentRoute();
     }, Math.max(0, minLoadingTime - elapsed));
@@ -607,7 +610,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedNumber = null; // Reset the selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
-    
+
     // Update game state service
     this.gameService.updateGameState({
       currentScore: this.score,
@@ -701,14 +704,14 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
   // Timer event handlers
   onTimerUpdate(elapsedSeconds: number) {
     this.totalGameTime = elapsedSeconds;
-    
+
     // Update game state service with current time
     this.gameService.updateGameState({
       currentTime: this.timerComponent.getCurrentFormattedTime(),
       currentScore: this.score,
       currentMistakes: this.mistakeCount
     });
-    
+
     // Save game state periodically to keep elapsed time updated
     if (this.boxes && this.boxes.length > 0 && elapsedSeconds % 10 === 0) {
       // Save every 10 seconds to avoid too frequent saves
@@ -827,7 +830,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Update score
       this.score += 10;
-      
+
       // Update game state service
       this.gameService.updateGameState({
         currentScore: this.score,
@@ -854,7 +857,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       // Increment mistake count
       this.mistakeCount++;
       this.invalidateGameActiveCache();
-      
+
       // Update game state service
       this.gameService.updateGameState({
         currentScore: this.score,
@@ -971,7 +974,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Update score
       this.score += 10;
-      
+
       // Update game state service
       this.gameService.updateGameState({
         currentScore: this.score,
@@ -998,7 +1001,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       // Increment mistake count
       this.mistakeCount++;
       this.invalidateGameActiveCache();
-      
+
       // Update game state service
       this.gameService.updateGameState({
         currentScore: this.score,
@@ -1042,7 +1045,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.numberFirstMode && this.selectedNumber !== null) {
       const remainingCounts = this.calculateRemainingCounts();
       const isNumberCompleted = this.autoSelectionService.isNumberCompleted(this.selectedNumber, remainingCounts);
-      
+
       if (isNumberCompleted) {
         // Number is completed, clear highlights (auto-selection will handle next number)
         this.clearCellHighlights();
@@ -1217,7 +1220,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       this.score += 5; // Add back points for incorrect move
       // Note: Mistake count is NOT decremented - mistakes should only increase
     }
-    
+
     // Update game state service
     this.gameService.updateGameState({
       currentScore: this.score,
@@ -1262,7 +1265,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Show game over dialog
     this.showGameOverDialog = true;
-    
+
     // Pause the timer
     if (this.timerComponent) {
       this.timerComponent.pauseTimer();
@@ -1289,7 +1292,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showGameOverDialog = false;
     this.gameOverStats = null;
     // Don't restart the game, just close the dialog
-    
+
     // Save the updated state (dialog closed)
     this.saveGameState();
   }
@@ -1316,13 +1319,13 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
   // Handle victory when puzzle is completed
   private handleVictory() {
     console.log('🎉 Victory! Puzzle completed!');
-    
+
     // Invalidate game state cache since the game is now won
     this.invalidateGameActiveCache();
-    
+
     // Clear all highlights when puzzle is completed
     this.clearAllHighlights();
-    
+
     // Pause the timer when puzzle is completed
     if (this.timerComponent) {
       this.timerComponent.pauseTimer();
@@ -1338,7 +1341,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Show congratulations dialog
     this.showCongratulationsDialog = true;
-    
+
     // Save the completed game state
     this.saveGameState();
   }
@@ -1406,7 +1409,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const cell = this.boxes[boxIndex].cells[cellIndex];
-    
+
     // Cannot add notes to fixed cells or cells that are already correct
     return !(cell.isFixed || cell.state === 'correct');
   }
@@ -1605,7 +1608,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedBoxIndex = null;
     this.selectedCellIndex = null;
     this.currentNumber = null;
-    
+
     // Clear selected number in number-first mode to remove all highlighting
     this.selectedNumber = null;
 
@@ -1683,7 +1686,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   initializeBoard(difficulty?: 'test' | 'easy' | 'medium' | 'hard' | 'expert') {
     // initializeBoard called
-    
+
     // Clear current number and selection when initializing new board
     this.currentNumber = null;
     this.selectedNumber = null;
@@ -1744,7 +1747,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 6. Invalidate game active cache since boxes are now initialized
     this.invalidateGameActiveCache();
-    
+
     // 7. Force change detection for mobile
     setTimeout(() => {
       this.changeDetectorRef.detectChanges();
@@ -1875,7 +1878,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(`Force generating puzzle with difficulty: ${difficulty}`);
     this.isLoading = true;
     this.changeDetectorRef.detectChanges();
-    
+
     setTimeout(() => {
       this.initializeBoard(difficulty);
       console.log('Force puzzle generation completed');
@@ -1887,7 +1890,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     difficulty: 'test' | 'easy' | 'medium' | 'hard' | 'expert' = 'test'
   ): number[][] {
     console.log(`createPuzzleFromSolved called with difficulty: ${difficulty}, Type: ${typeof difficulty}`);
-    
+
     // Copy the solved board
     const puzzle = solvedBoard.map(row => [...row]);
 
@@ -1899,7 +1902,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       'hard': 50,
       'expert': 60
     };
-    
+
     // Ensure difficulty is a valid string key
     const validDifficulty = difficulty && typeof difficulty === 'string' ? difficulty : 'test';
     const cellsToRemove = difficultyMap[validDifficulty] ?? 45;
@@ -2182,7 +2185,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedNumber = null; // Reset selected number for number-first mode
     this.mistakeCount = 0; // Reset mistake count
     this.score = 0; // Reset score
-    
+
     // Update game state service
     this.gameService.updateGameState({
       currentScore: this.score,
@@ -2282,41 +2285,41 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private handleAutomaticNumberSelection(completedNumber: number): void {
     const remainingCounts = this.calculateRemainingCounts();
-    
+
     console.log(`Auto-selection check for number ${completedNumber}:`, {
       remainingCounts,
       selectedNumber: this.selectedNumber,
       numberFirstMode: this.numberFirstMode
     });
-    
+
     // Check if auto-selection should be triggered
     if (this.autoSelectionService.shouldTriggerAutoSelection(completedNumber, remainingCounts, this.selectedNumber)) {
       const nextNumber = this.autoSelectionService.getNextNumberToSelect(completedNumber, remainingCounts);
-      
+
       if (nextNumber !== null) {
         console.log(`✅ Number ${completedNumber} completed, auto-selecting number ${nextNumber}`);
-        
+
         // Clear any existing cell selection to remove previous highlights
         this.clearCellHighlights();
-        
+
         // Update both selectedNumber and currentNumber for consistency
         this.selectedNumber = nextNumber;
         this.currentNumber = nextNumber;
-        
+
         // Force change detection to update UI
         this.changeDetectorRef.detectChanges();
-        
+
         // Save game state
         this.saveGameState();
       } else {
         console.log(`Number ${completedNumber} completed, but all numbers are done - clearing all highlights`);
-        
+
         // Clear all highlights when all numbers are completed
         this.clearAllHighlights();
-        
+
         // Force change detection to update UI
         this.changeDetectorRef.detectChanges();
-        
+
         // Save game state
         this.saveGameState();
       }
@@ -2442,7 +2445,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Update score (hints give fewer points)
     this.score += 5;
-    
+
     // Update game state service
     this.gameService.updateGameState({
       currentScore: this.score,
@@ -2620,7 +2623,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       return { boxIndex: null, cellIndex: null, isEditable: false };
     }
 
-    // Safety check: ensure boxes are properly initialized  
+    // Safety check: ensure boxes are properly initialized
     if (!this.boxes || this.boxes.length === 0 ||
         !this.boxes[this.selectedBoxIndex] ||
         !this.boxes[this.selectedBoxIndex].cells ||
@@ -2822,7 +2825,7 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
   private checkCurrentRoute(): void {
     const currentUrl = this.router.url;
     console.log('Current route:', currentUrl);
-    
+
     // If we're on the sudoku route but don't have puzzle data, try to generate it
     if (currentUrl === '/sudoku' && (!this.boxes || this.boxes.length === 0)) {
       console.log('On sudoku route but no puzzle data, attempting to generate...');
