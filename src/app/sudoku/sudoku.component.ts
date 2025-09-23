@@ -181,6 +181,15 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pauseService.gamePauseState$.subscribe(isPaused => {
       this.isGamePaused = isPaused;
       
+      // Handle timer based on pause state
+      if (this.timerComponent) {
+        if (isPaused) {
+          this.timerComponent.pauseTimer();
+        } else {
+          this.timerComponent.resumeGameTimer();
+        }
+      }
+      
       // Save game state when pause state changes
       if (this.boxes && this.boxes.length > 0) {
         this.saveGameState();
@@ -197,6 +206,13 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         console.log('Navigation event detected:', event);
+        
+        // Pause timer when navigating away
+        if (this.timerComponent && this.timerComponent.hasStarted) {
+          this.timerComponent.pauseTimer();
+          console.log('Timer paused due to navigation');
+        }
+        
         // Save current game state before navigation starts
         if (this.boxes && this.boxes.length > 0) {
           this.saveGameState();
@@ -214,11 +230,26 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     // ViewChild references should now be available
     
+    // Use setTimeout to ensure timer component is fully initialized
+    setTimeout(() => {
+      // Resume timer if returning to an active game that's not paused
+      if (this.timerComponent && this.isGameActive() && !this.isGamePaused && !this.hasWonGameCached) {
+        this.timerComponent.resumeGameTimer();
+        console.log('Timer resumed on component initialization');
+      }
+    }, 100);
+    
     // The board component might not be available yet due to conditional rendering
     // We'll check for it later when the component gets rendered
   }
 
   ngOnDestroy() {
+    // Pause timer when component is destroyed
+    if (this.timerComponent && this.timerComponent.hasStarted) {
+      this.timerComponent.pauseTimer();
+      console.log('Timer paused due to component destruction');
+    }
+    
     // Save game state before destroying component
     if (this.boxes && this.boxes.length > 0) {
       this.saveGameState();
@@ -271,6 +302,12 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
    * Handle beforeunload event to save game state when user leaves
    */
   private handleBeforeUnload(event: BeforeUnloadEvent): void {
+    // Pause timer when user is leaving the page
+    if (this.timerComponent && this.timerComponent.hasStarted) {
+      this.timerComponent.pauseTimer();
+      console.log('Timer paused before unload');
+    }
+    
     // Save current game state before user leaves
     this.saveGameState();
     console.log('Game state saved before unload');
@@ -525,6 +562,11 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
     // The timer component will automatically restore from the savedElapsedTime input
     // and gameStartTime which are set above via the component inputs
     
+    // Ensure timer resumes after game is fully loaded
+    setTimeout(() => {
+      this.ensureTimerResume();
+    }, 600);
+    
     console.log('Saved game loaded successfully');
   }
 
@@ -566,6 +608,11 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       
       // Loading finished
       
+      // Ensure timer resumes after loading is complete
+      setTimeout(() => {
+        this.ensureTimerResume();
+      }, 200);
+      
       // Check route again after loading to ensure puzzle is generated
       this.checkCurrentRoute();
     }, Math.max(0, minLoadingTime - elapsed));
@@ -591,6 +638,12 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Method to navigate back to dashboard
   goToDashboard(): void {
+    // Pause timer when navigating to dashboard
+    if (this.timerComponent && this.timerComponent.hasStarted) {
+      this.timerComponent.pauseTimer();
+      console.log('Timer paused before navigating to dashboard');
+    }
+    
     // Save current game state before navigating
     this.saveGameState();
     this.router.navigate(['/']);
@@ -1664,9 +1717,10 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.selectedBoxIndex === null || this.selectedCellIndex === null) return;
       this.clearCell();
     }
-    // Escape key clears highlights
+    // Escape key pauses the game
     else if (event.key === 'Escape') {
-      this.clearAllHighlights();
+      event.preventDefault();
+      this.onPauseClick();
     }
     // Space key toggles notes mode
     else if (event.key === ' ') {
@@ -2454,6 +2508,19 @@ export class SudokuComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Force change detection
     this.changeDetectorRef.detectChanges();
+  }
+
+  // Handle pause button click
+  public onPauseClick(): void {
+    this.pauseService.pauseGame();
+  }
+
+  // Method to ensure timer resumes when game is fully loaded
+  private ensureTimerResume(): void {
+    if (this.timerComponent && this.isGameActive() && !this.isGamePaused && !this.hasWonGameCached) {
+      this.timerComponent.resumeGameTimer();
+      console.log('Timer resume ensured after game load');
+    }
   }
 
   // Check if the game is over (too many mistakes)
