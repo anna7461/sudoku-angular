@@ -1,6 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 export interface Theme {
   id: number;
@@ -119,6 +120,9 @@ export class ThemeService {
 
       // Log accessibility information
       console.log(`Theme applied: ${theme.name} (Accessibility: WCAG ${theme.accessibilityLevel})`);
+      
+      // Update status bar for mobile platforms
+      this.updateStatusBarForTheme(theme);
     }
     
     // Update subject (works in both browser and server)
@@ -182,6 +186,31 @@ export class ThemeService {
       this.setTheme(theme);
     } else {
       this.setTheme(this.themes[0]); // Default to first theme if invalid
+    }
+  }
+
+  /**
+   * Update status bar appearance based on theme
+   */
+  private async updateStatusBarForTheme(theme: Theme): Promise<void> {
+    // Only update status bar in browser environment
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    try {
+      if (theme.className === 'theme-dark-mode') {
+        // Dark mode: white icons and text
+        await StatusBar.setStyle({ style: Style.Dark });
+        await StatusBar.setBackgroundColor({ color: '#0f172a' }); // Dark background matching theme
+      } else {
+        // Light mode: dark icons and text
+        await StatusBar.setStyle({ style: Style.Light });
+        await StatusBar.setBackgroundColor({ color: '#ffffff' }); // Light background
+      }
+    } catch (error) {
+      // StatusBar might not be available in web environment
+      console.warn('StatusBar not available:', error);
     }
   }
 }

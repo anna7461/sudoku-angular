@@ -9,7 +9,14 @@ html {
 
 html, body {
   scroll-behavior: smooth;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow: hidden; /* Prevent horizontal scrolling */
+  overscroll-behavior: none;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Scroll utility classes */

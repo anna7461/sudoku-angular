@@ -1,5 +1,5 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Renderer2, signal, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { AppHeaderComponent } from './components/app-header/app-header.component';
 
@@ -10,6 +10,18 @@ import { AppHeaderComponent } from './components/app-header/app-header.component
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('sudoku-angular');
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+
+  ngOnInit(): void {
+    // Only add event listeners in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      // Prevent touch scrolling
+      document.addEventListener('touchmove', (event: TouchEvent) => {
+        event.preventDefault();
+      }, { passive: false });
+    }
+  }
 }
