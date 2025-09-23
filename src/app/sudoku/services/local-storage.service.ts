@@ -14,26 +14,27 @@ export interface GameState {
   solutionGrid: number[][]; // The complete solution (for validation only)
   userEntries: (number | null)[][]; // User's filled cells
   notes: number[][][]; // Player notes for each cell
-  
+  cellStates: ('normal' | 'correct' | 'error' | 'highlight')[][]; // Cell states for each cell
+
   // Game status
   mistakes: number;
   mistakesLimit: number;
   difficulty: GameDifficulty;
   timer: number; // elapsed time in seconds
   gameStatus: GameStatus;
-  
+
   // Additional game metadata
   score: number;
   gameStartTime: number;
   lastSaveTime: number;
-  
+
   // UI state
   selectedBoxIndex: number | null;
   selectedCellIndex: number | null;
   notesMode: boolean;
   numberFirstMode: boolean;
   selectedNumber: number | null;
-  
+
   // Move history for undo functionality
   moveHistory: any[];
 }
@@ -51,10 +52,10 @@ export interface SavedGameInfo {
 })
 export class LocalStorageService {
   private readonly STORAGE_PREFIX = 'sudoku';
-  
+
   // BehaviorSubjects to track state changes for each mode
   private gameStateSubjects: Map<GameMode, BehaviorSubject<GameState | null>> = new Map();
-  
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     // Initialize BehaviorSubjects for each game mode
     const modes: GameMode[] = ['classic', 'daily', 'arcade'];
@@ -87,10 +88,10 @@ export class LocalStorageService {
     mistakesLimit?: number;
   }): GameState {
     const { puzzleGrid, solutionGrid, difficulty, mistakesLimit = 3 } = options;
-    
+
     // Initialize empty user entries and notes grids
     const userEntries: (number | null)[][] = Array(9).fill(null).map(() => Array(9).fill(null));
-    const notes: number[][][] = Array(9).fill(null).map(() => 
+    const notes: number[][][] = Array(9).fill(null).map(() =>
       Array(9).fill(null).map(() => [])
     );
 
@@ -99,6 +100,7 @@ export class LocalStorageService {
       solutionGrid: JSON.parse(JSON.stringify(solutionGrid)), // Deep copy
       userEntries,
       notes,
+      cellStates: Array(9).fill(null).map(() => Array(9).fill('normal')),
       mistakes: 0,
       mistakesLimit,
       difficulty,
@@ -133,16 +135,16 @@ export class LocalStorageService {
         ...state,
         lastSaveTime: Date.now()
       };
-      
+
       const key = this.getStorageKey(mode);
       localStorage.setItem(key, JSON.stringify(stateToSave));
-      
+
       // Update the BehaviorSubject
       const subject = this.gameStateSubjects.get(mode);
       if (subject) {
         subject.next(stateToSave);
       }
-      
+
       console.log(`Game state saved for ${mode} mode`);
     } catch (error) {
       console.error(`Failed to save game state for ${mode}:`, error);
@@ -160,19 +162,19 @@ export class LocalStorageService {
     try {
       const key = this.getStorageKey(mode);
       const savedData = localStorage.getItem(key);
-      
+
       if (!savedData) {
         return null;
       }
 
       const state = JSON.parse(savedData) as GameState;
-      
+
       // Update the BehaviorSubject
       const subject = this.gameStateSubjects.get(mode);
       if (subject) {
         subject.next(state);
       }
-      
+
       return state;
     } catch (error) {
       console.error(`Failed to load game state for ${mode}:`, error);
@@ -271,7 +273,7 @@ export class LocalStorageService {
 
     const MAX_HISTORY = 50;
     const newHistory = [...currentState.moveHistory, move];
-    
+
     // Keep only the last MAX_HISTORY moves
     if (newHistory.length > MAX_HISTORY) {
       newHistory.splice(0, newHistory.length - MAX_HISTORY);
@@ -300,7 +302,7 @@ export class LocalStorageService {
    */
   getSavedGameInfo(mode: GameMode): SavedGameInfo {
     const state = this.loadGameState(mode);
-    
+
     if (!state) {
       return { exists: false };
     }
@@ -325,11 +327,11 @@ export class LocalStorageService {
   getAllSavedGamesInfo(): Record<GameMode, SavedGameInfo> {
     const modes: GameMode[] = ['classic', 'daily', 'arcade'];
     const result: Record<GameMode, SavedGameInfo> = {} as Record<GameMode, SavedGameInfo>;
-    
+
     modes.forEach(mode => {
       result[mode] = this.getSavedGameInfo(mode);
     });
-    
+
     return result;
   }
 
@@ -342,13 +344,13 @@ export class LocalStorageService {
     try {
       const key = this.getStorageKey(mode);
       localStorage.removeItem(key);
-      
+
       // Update the BehaviorSubject
       const subject = this.gameStateSubjects.get(mode);
       if (subject) {
         subject.next(null);
       }
-      
+
       console.log(`Cleared saved game for ${mode} mode`);
     } catch (error) {
       console.error(`Failed to clear saved game for ${mode}:`, error);
@@ -368,24 +370,24 @@ export class LocalStorageService {
    */
   boxesToGrid(boxes: Box[]): (number | null)[][] {
     const grid: (number | null)[][] = Array(9).fill(null).map(() => Array(9).fill(null));
-    
+
     console.log('boxesToGrid called with boxes count:', boxes.length);
-    
+
     for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
       const box = boxes[boxIndex];
       const boxRow = Math.floor(boxIndex / 3);
       const boxCol = boxIndex % 3;
-      
+
       for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
         const cell = box.cells[cellIndex];
         const cellRow = Math.floor(cellIndex / 3);
         const cellCol = cellIndex % 3;
-        
+
         const globalRow = boxRow * 3 + cellRow;
         const globalCol = boxCol * 3 + cellCol;
-        
+
         grid[globalRow][globalCol] = cell.value;
-        
+
         // Debug logging for first few cells
         if (boxIndex === 0 && cellIndex < 3) {
           console.log(`Saving cell [${globalRow}][${globalCol}]:`, {
@@ -397,7 +399,7 @@ export class LocalStorageService {
         }
       }
     }
-    
+
     console.log('boxesToGrid completed, sample grid:', grid[0]?.slice(0, 3));
     return grid;
   }
@@ -406,55 +408,83 @@ export class LocalStorageService {
    * Convert boxes array to notes grid format
    */
   boxesToNotesGrid(boxes: Box[]): number[][][] {
-    const notesGrid: number[][][] = Array(9).fill(null).map(() => 
+    const notesGrid: number[][][] = Array(9).fill(null).map(() =>
       Array(9).fill(null).map(() => [])
     );
-    
+
     for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
       const box = boxes[boxIndex];
       const boxRow = Math.floor(boxIndex / 3);
       const boxCol = boxIndex % 3;
-      
+
       for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
         const cell = box.cells[cellIndex];
         const cellRow = Math.floor(cellIndex / 3);
         const cellCol = cellIndex % 3;
-        
+
         const globalRow = boxRow * 3 + cellRow;
         const globalCol = boxCol * 3 + cellCol;
-        
+
         notesGrid[globalRow][globalCol] = [...cell.notes];
       }
     }
-    
+
     return notesGrid;
+  }
+
+  /**
+   * Convert boxes array to cell states grid format
+   */
+  boxesToCellStatesGrid(boxes: Box[]): ('normal' | 'correct' | 'error' | 'highlight')[][] {
+    const cellStatesGrid: ('normal' | 'correct' | 'error' | 'highlight')[][] = Array(9).fill(null).map(() =>
+      Array(9).fill('normal')
+    );
+
+    for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
+      const box = boxes[boxIndex];
+      const boxRow = Math.floor(boxIndex / 3);
+      const boxCol = boxIndex % 3;
+
+      for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+        const cell = box.cells[cellIndex];
+        const cellRow = Math.floor(cellIndex / 3);
+        const cellCol = cellIndex % 3;
+
+        const globalRow = boxRow * 3 + cellRow;
+        const globalCol = boxCol * 3 + cellCol;
+
+        cellStatesGrid[globalRow][globalCol] = cell.state;
+      }
+    }
+
+    return cellStatesGrid;
   }
 
   /**
    * Convert 2D grid to boxes array format
    */
-  gridToBoxes(userGrid: (number | null)[][], puzzleGrid: number[][], notesGrid: number[][][]): Box[] {
+  gridToBoxes(userGrid: (number | null)[][], puzzleGrid: number[][], notesGrid: number[][][], cellStatesGrid?: ('normal' | 'correct' | 'error' | 'highlight')[][]): Box[] {
     const boxes: Box[] = [];
-    
+
     console.log('gridToBoxes called with:');
     console.log('puzzleGrid sample:', puzzleGrid[0]?.slice(0, 3));
     console.log('userGrid sample:', userGrid[0]?.slice(0, 3));
-    
+
     for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
       const boxRow = Math.floor(boxIndex / 3);
       const boxCol = boxIndex % 3;
       const cells: Cell[] = [];
-      
+
       for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
         const cellRow = Math.floor(cellIndex / 3);
         const cellCol = cellIndex % 3;
-        
+
         const globalRow = boxRow * 3 + cellRow;
         const globalCol = boxCol * 3 + cellCol;
-        
+
         const isGiven = puzzleGrid[globalRow][globalCol] !== 0;
         const userValue = userGrid[globalRow][globalCol];
-        
+
         // Fix: Properly handle null values for empty cells
         let cellValue: number | null;
         if (isGiven) {
@@ -465,15 +495,34 @@ export class LocalStorageService {
           // userValue should only contain user entries, not given cells
           cellValue = userValue;
         }
-        
+
+        // Determine cell state - use saved state if available, otherwise determine from validation
+        let cellState: 'normal' | 'correct' | 'error' | 'highlight' = 'normal';
+        if (cellStatesGrid && cellStatesGrid[globalRow] && cellStatesGrid[globalRow][globalCol]) {
+          // Use saved cell state - cast to ensure type safety
+          const savedState = cellStatesGrid[globalRow][globalCol];
+          if (savedState === 'normal' || savedState === 'correct' || savedState === 'error' || savedState === 'highlight') {
+            cellState = savedState;
+          }
+        } else if (!isGiven && cellValue !== null) {
+          // For user-filled cells without saved state, validate against solution
+          // This handles backward compatibility for existing saved games
+          const solutionValue = puzzleGrid[globalRow][globalCol];
+          if (solutionValue !== 0 && cellValue === solutionValue) {
+            cellState = 'correct';
+          } else if (solutionValue !== 0 && cellValue !== solutionValue) {
+            cellState = 'error';
+          }
+        }
+
         const cell: Cell = {
           value: cellValue,
           isGiven: isGiven,
           isFixed: isGiven,
           notes: [...notesGrid[globalRow][globalCol]],
-          state: 'normal'
+          state: cellState
         };
-        
+
         // Debug logging for first few cells
         if (boxIndex === 0 && cellIndex < 3) {
           console.log(`Reconstructing cell [${globalRow}][${globalCol}]:`, {
@@ -484,18 +533,18 @@ export class LocalStorageService {
             notes: notesGrid[globalRow][globalCol]
           });
         }
-        
+
         // Debug logging for empty cells
         if (!isGiven && userValue === null) {
           console.log(`Empty cell [${globalRow}][${globalCol}]: isGiven=${isGiven}, userValue=${userValue}, finalValue=${cellValue}`);
         }
-        
+
         cells.push(cell);
       }
-      
+
       boxes.push({ cells });
     }
-    
+
     console.log('gridToBoxes completed, boxes count:', boxes.length);
     return boxes;
   }
@@ -519,13 +568,13 @@ export class LocalStorageService {
 
     const info: { [mode: string]: number } = {};
     const modes: GameMode[] = ['classic', 'daily', 'arcade'];
-    
+
     modes.forEach(mode => {
       const key = this.getStorageKey(mode);
       const data = localStorage.getItem(key);
       info[mode] = data ? data.length : 0;
     });
-    
+
     return info;
   }
 
@@ -540,21 +589,26 @@ export class LocalStorageService {
       }
 
       // Check grid dimensions
-      if (state.puzzleGrid.length !== 9 || state.solutionGrid.length !== 9 || 
+      if (state.puzzleGrid.length !== 9 || state.solutionGrid.length !== 9 ||
           state.userEntries.length !== 9 || state.notes.length !== 9) {
+        return false;
+      }
+
+      // Check cellStates if it exists (for backward compatibility)
+      if (state.cellStates && state.cellStates.length !== 9) {
         return false;
       }
 
       // Check each row
       for (let i = 0; i < 9; i++) {
-        if (state.puzzleGrid[i].length !== 9 || state.solutionGrid[i].length !== 9 || 
+        if (state.puzzleGrid[i].length !== 9 || state.solutionGrid[i].length !== 9 ||
             state.userEntries[i].length !== 9 || state.notes[i].length !== 9) {
           return false;
         }
       }
 
       // Check required properties have valid values
-      if (typeof state.mistakes !== 'number' || typeof state.timer !== 'number' || 
+      if (typeof state.mistakes !== 'number' || typeof state.timer !== 'number' ||
           typeof state.score !== 'number') {
         return false;
       }
