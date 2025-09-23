@@ -1,0 +1,7 @@
+{
+  "routes": {
+    "/sudoku-angular": {},
+    "/sudoku-angular/privacy-policy": {},
+    "/sudoku-angular/sudoku": {}
+  }
+}
